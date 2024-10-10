@@ -14,6 +14,8 @@
 >莫让心灵再蒙尘翳。
 
 
-`retrieval.py` 包括分词和嵌入的代码
+
+
+`retrieval.py` 包括分词和嵌入的代码:
 - 针对markdown分段，使用langchain根据文档标题段落分段
 - 使用Bert进行嵌入得到向量
