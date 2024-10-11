@@ -16,6 +16,8 @@
 
 
 
+## Project Structure
+
 `retrieval.py` :实现markdown文档的分段和嵌入，并且存储到向量数据库当中
 - 针对markdown分段，使用langchain根据文档标题段落分段
 - 使用Bert进行嵌入得到向量
@@ -23,3 +25,12 @@
 `read_from_db.py` :从向量数据库中读取数据和检索
 
 `augment_generate.py` : 结合向量数据库内容，向大模型提问
+
+## Quick Start
+
+1. `pip install -r requirements.txt` to install all dependencies
+2. `python retrieval.py` to generate the vector database
+3. `python read_from_db.py` to read from the vector database
+4. `python augment_generate.py` to generate the augmented text
+
+> 在运行`retrieval.py`后，会生成db文件夹用于存储向量数据库，为节约项目大小，已设置不上传github
