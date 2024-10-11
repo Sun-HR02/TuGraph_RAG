@@ -29,6 +29,7 @@
 ## Quick Start
 
 1. `pip install -r requirements.txt` to install all dependencies
+2. 前往huggingface或hf-mirror下载bert-base-chinese模型，并在`retrieval.py`中指定路径
 2. `python retrieval.py` to generate the vector database
 3. `python read_from_db.py` to read from the vector database
 4. `python augment_generate.py` to generate the augmented text
