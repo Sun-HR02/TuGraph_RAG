@@ -63,7 +63,10 @@ headers_to_split_on)
 
 md_header_splits = markdown_splitter.split_text(
 content)
-
+'''
+md_header_splits是一个由多个documents对象组成的list，
+每个documents有metadata(是一个dict，用'Header 1','Header 2'等访问对应标题段)，以及page_content(正文部分)
+'''
 # 存入向量数据库
 vectordb_chinese = Chroma.from_documents(
     documents=md_header_splits,
