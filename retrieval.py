@@ -67,7 +67,7 @@ def read_markdown_files(markdown_files_path):
     markdown_knowledge = []
     filepaths = []
     # 遍历指定路径下的所有文件和文件夹
-    for root, dirs, files in os.walk(markdown_files_path):
+    for root, dirs, files in os.walk(markdown_files_path,topdown=True):
         for file in files:
             if file.endswith('.md'):
                 file_path = Path(root) / file
@@ -92,7 +92,7 @@ def read_markdown_files(markdown_files_path):
                         document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
 
-                    markdown_knowledge += markdown_header_splits
+                    # markdown_knowledge += markdown_header_splits
     return markdown_knowledge
 
 markdown_knowledge = read_markdown_files(markdown_files_path)
