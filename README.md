@@ -21,3 +21,5 @@
 - 使用Bert进行嵌入得到向量
 
 `read_from_db.py` :从向量数据库中读取数据和检索
+
+`augment_generate.py` : 结合向量数据库内容，向大模型提问
