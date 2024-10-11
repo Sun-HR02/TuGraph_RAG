@@ -3,6 +3,7 @@ from langchain_chroma import Chroma
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from transformers import BertTokenizer, BertModel
 import torch
+from openai import OpenAI
 
 import os
 from pathlib import Path
@@ -10,7 +11,14 @@ from pathlib import Path
 tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
 model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
+
 def embed(content):
+    client = OpenAI(base_url="https://api.gptapi.us/v1/chat/completions",
+        api_key="sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3")
+    response = client.embeddings.create(input=content, model="text-embedding-ada-002").data[0].embedding
+    return response
+
+# def embed(content):
     inputs = tokenizer(content, return_tensors="pt", padding=True, truncation=True)
     # 通过模型前向传递来获取编码
     with torch.no_grad():
@@ -84,13 +92,15 @@ def read_markdown_files(markdown_files_path):
                     for document in markdown_header_splits:
                         meta = document.metadata
                         header_nums = len(meta)
+                        if header_nums == 1:
+                            continue
                         header_content_cat = ''
                         for i in range(header_nums):
                             header_content = meta[f'Header {i+1}']
                             # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
                             header_content_cat += header_content
                             header_content_cat += '\n\n'
-                        document.page_content = header_content_cat + document.page_content
+                        # document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
 
     return markdown_knowledge
