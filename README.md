@@ -16,6 +16,8 @@
 
 
 
-`retrieval.py` 包括分词和嵌入的代码:
+`retrieval.py` :实现markdown文档的分段和嵌入，并且存储到向量数据库当中
 - 针对markdown分段，使用langchain根据文档标题段落分段
 - 使用Bert进行嵌入得到向量
+
+`read_from_db.py` :从向量数据库中读取数据和检索
