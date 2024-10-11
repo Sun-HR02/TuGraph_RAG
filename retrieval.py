@@ -8,8 +8,8 @@ from openai import OpenAI
 import os
 from pathlib import Path
 
-tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
-model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
+# tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
+# model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
 
 def embed(content):
