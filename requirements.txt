@@ -3,3 +3,5 @@ langchain_chroma
 langchain_text_splitters
 transformers
 torch
+tqdm
+openai

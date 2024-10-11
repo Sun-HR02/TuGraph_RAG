@@ -4,6 +4,7 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter
 from transformers import BertTokenizer, BertModel
 import torch
 from openai import OpenAI
+import tqdm
 
 import os
 from pathlib import Path
@@ -12,11 +13,20 @@ from pathlib import Path
 # model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
 markdown_files_path = './data/markdowns/zh-CN/source'
+base_url = "https://api.gptapi.us/v1"
+api_key = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
+model = 'text-embedding-3-large'
+persist_directory_chinese = "./db/xldatabase/rag"
+
+counter = 0
 
 def embed(content):
-    client = OpenAI(base_url="https://api.gptapi.us/v1/chat/completions",
-        api_key="sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3")
-    response = client.embeddings.create(input=content, model="text-embedding-ada-002").data[0].embedding
+    client = OpenAI(base_url = base_url,
+        api_key= api_key)
+    response = client.embeddings.create(input=content, model=model).data[0].embedding
+    global counter
+    counter += 1
+    print('{} 块嵌入中...'.format(counter))
     return response
 
 #  def embed(content):
@@ -56,8 +66,6 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
             print(f"Error processing text: {input}, Error: {e}")
         return embedding
 
-#向量数据库存储地方
-persist_directory_chinese = "./db/xldatabase/rag"
 
 # 分块粒度
 headers_to_split_on = [
@@ -118,6 +126,7 @@ markdown_knowledge = read_markdown_files(markdown_files_path)
 # markdown_knowledge += md_header_splits
 
 
+knowledge_len = len(markdown_knowledge)
 # 存入向量数据库
 vectordb_chinese = Chroma.from_documents(
     documents = markdown_knowledge,

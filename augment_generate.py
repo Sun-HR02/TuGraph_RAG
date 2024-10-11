@@ -16,9 +16,10 @@ def get_gpt_response_w_system(prompt, options):
         api_key=api_key
         )
         completion = client.chat.completions.create(
+        temperature= 0,
         model=model,
         messages=[
-        {"role": "system", "content": '你是一个问答助手，需要为用户解答关于TuGraph数据库的相关知识，并且你会得到一些知识辅助，请忽略没有帮助的知识，结合有用的部分以及你的知识，给出合适答案。'},
+        {"role": "system", "content": '你是一个问答助手，需要为用户解答关于TuGraph数据库的相关知识，并且你会得到一些知识辅助，请忽略没有帮助的知识，结合有用的部分以及你的知识，简洁直接给出答案，不需要解释。'},
         {"role": "user", "content": prompt}
         ]
         )
