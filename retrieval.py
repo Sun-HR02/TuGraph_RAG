@@ -18,7 +18,7 @@ def embed(content):
     response = client.embeddings.create(input=content, model="text-embedding-ada-002").data[0].embedding
     return response
 
-# def embed(content):
+#  def embed(content):
     inputs = tokenizer(content, return_tensors="pt", padding=True, truncation=True)
     # 通过模型前向传递来获取编码
     with torch.no_grad():
@@ -72,6 +72,7 @@ markdown_files_path = './data/markdowns/zh-CN/source'
 
 # 读取指定路径下的所有 Markdown 文件，并保留文件夹结构信息
 def read_markdown_files(markdown_files_path):
+    print('Reading markdown files...')
     markdown_knowledge = []
     filepaths = []
     # 遍历指定路径下的所有文件和文件夹
@@ -102,7 +103,7 @@ def read_markdown_files(markdown_files_path):
                             header_content_cat += '\n\n'
                         # document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
-
+    print('Reading markdown files done!')
     return markdown_knowledge
 
 markdown_knowledge = read_markdown_files(markdown_files_path)

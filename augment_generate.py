@@ -5,47 +5,57 @@ from tqdm import tqdm
 
 num=0
 
-def get_gpt_response_w_system(prompt):
+def get_gpt_response_w_system(prompt, options):
     global system_prompt
-    global right_n
-    global num
-
+    base_url = options['gpt-baseurl']
+    api_key = options['gpt-apikey']
+    model = options['chat-model']
     try:
-        num+=1
         client = OpenAI(
-        base_url="https://api.gptapi.us/v1/chat/completions",
-        api_key="sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
+        base_url=base_url,
+        api_key=api_key
         )
         completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=model,
         messages=[
-        {"role": "system", "content": system_prompt},
+        {"role": "system", "content": '你是一个问答助手，需要为用户解答关于TuGraph数据库的相关知识，并且你会得到一些知识辅助，请忽略没有帮助的知识，结合有用的部分以及你的知识，给出合适答案。'},
         {"role": "user", "content": prompt}
         ]
         )
         content = completion.choices[0].message.content
         return content
-    
     except Exception as e:
-        num+=1
-        print(right_n)
-        print(num)
-        content = "None"
+        print(e)
         return content
 
-# query
-sys_path=
-# 查询到的知识
-aug_path=
+def knowledge2str(knowledge):
+    knowledgeStr = ''
+    for document in knowledge:
+        meta = document.metadata
+        header_nums = len(meta)
+        header_content_cat = ''
+        for i in range(header_nums):
+            header_content = meta[f'Header {i+1}']
+            # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
+            header_content_cat += header_content
+            header_content_cat += '--'
+        knowledgeStr = header_content_cat + document.page_content
+    return knowledgeStr
 
-system_prompt = ""
-with open(sys_path, 'r') as f:
-    for line in f.readlines():
-        system_prompt += line
 
-retrieval_prompt = ""
-with open(aug_path, 'r') as f:
-    for line in f.readlines():
-        retrieval_prompt += line
+def generate_answer(query, knowledge, options):
+    prompt = ""
+    prompt = query
+    prompt += '你可能会用到以下知识：'
+    prompt += knowledge2str(knowledge)
+    # with open(sys_path, 'r') as f:
+    #     for line in f.readlines():
+    #         system_prompt += line
 
-response = get_gpt_response_w_system(retrieval_prompt)
+    # retrieval_prompt = ""
+    # with open(aug_path, 'r') as f:
+    #     for line in f.readlines():
+    #         retrieval_prompt += line
+
+    response = get_gpt_response_w_system(prompt, options)
+    return response
