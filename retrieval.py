@@ -78,6 +78,7 @@ def read_markdown_files(markdown_files_path):
                     每个documents有metadata(是一个dict，用'Header 1','Header 2'等访问对应标题段)，以及page_content(正文部分)
                     '''
                     markdown_header_splits = markdown_splitter.split_text(content)
+                    # markdown_knowledge += markdown_header_splits
 
                     # 一点改进思路
                     for document in markdown_header_splits:
@@ -92,7 +93,6 @@ def read_markdown_files(markdown_files_path):
                         document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
 
-                    # markdown_knowledge += markdown_header_splits
     return markdown_knowledge
 
 markdown_knowledge = read_markdown_files(markdown_files_path)
