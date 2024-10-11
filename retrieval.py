@@ -4,6 +4,9 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter
 from transformers import BertTokenizer, BertModel
 import torch
 
+import os
+from pathlib import Path
+
 tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
 model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
@@ -47,10 +50,6 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
 #向量数据库存储地方
 persist_directory_chinese = "./db/xldatabase/rag"
 
-# 读取Markdown文件的内容, 先用一个文档作为例子
-with open('./data/markdowns/zh-CN/source/2.introduction/4.schema.md', 'r', encoding='utf-8') as f:
-    content = f.read()
-
 # 分块粒度
 headers_to_split_on = [
 ("#", "Header 1"),
@@ -61,15 +60,46 @@ headers_to_split_on = [
 markdown_splitter = MarkdownHeaderTextSplitter(
 headers_to_split_on)
 
-md_header_splits = markdown_splitter.split_text(
-content)
-'''
-md_header_splits是一个由多个documents对象组成的list，
-每个documents有metadata(是一个dict，用'Header 1','Header 2'等访问对应标题段)，以及page_content(正文部分)
-'''
+markdown_files_path = './data/markdowns/zh-CN/source'
+
+# 读取指定路径下的所有 Markdown 文件，并保留文件夹结构信息
+def read_markdown_files(markdown_files_path):
+    markdown_knowledge = []
+    filepaths = []
+    # 遍历指定路径下的所有文件和文件夹
+    for root, dirs, files in os.walk(markdown_files_path):
+        for file in files:
+            if file.endswith('.md'):
+                file_path = Path(root) / file
+                filepaths.append(file_path)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    '''
+                    md_header_splits是一个由多个documents对象组成的list，
+                    每个documents有metadata(是一个dict，用'Header 1','Header 2'等访问对应标题段)，以及page_content(正文部分)
+                    '''
+                    markdown_header_splits = markdown_splitter.split_text(content)
+                    markdown_knowledge += markdown_header_splits
+    return markdown_knowledge, filepaths
+
+markdown_knowledge, filepaths= read_markdown_files(markdown_files_path)
+
+# import ipdb
+# ipdb.set_trace()
+
+
+# markdown_knowledge = []
+# # 读取Markdown文件的内容, 先用一个文档作为例子
+# with open('./data/markdowns/zh-CN/source/2.introduction/4.schema.md', 'r', encoding='utf-8') as f:
+#     content = f.read()
+# md_header_splits = markdown_splitter.split_text(
+# content)
+# markdown_knowledge += md_header_splits
+
+
 # 存入向量数据库
 vectordb_chinese = Chroma.from_documents(
-    documents=md_header_splits,
+    documents = markdown_knowledge,
     embedding=ErnieEmbeddingFunction(),
     persist_directory=persist_directory_chinese  # 允许我们将persist_directory目录保存到磁盘上
 )
