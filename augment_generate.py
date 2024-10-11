@@ -13,11 +13,11 @@ def get_gpt_response_w_system(prompt):
     try:
         num+=1
         client = OpenAI(
-        base_url="https://api.chatanywhere.com.cn/v1",
+        base_url="https://api.gptapi.us/v1/chat/completions",
         api_key="sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
         )
         completion = client.chat.completions.create(
-        model="gpt-3.5-turbo-ca",
+        model="gpt-4o-mini",
         messages=[
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompt}
