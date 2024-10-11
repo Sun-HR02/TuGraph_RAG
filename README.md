@@ -30,7 +30,6 @@
 
 1. `pip install -r requirements.txt` to install all dependencies
 2. `python retrieval.py` to retrieve the text from the markdown file and store it in the vector database
-3. `python read_from_db.py` to read from the vector database
-4. `python augment_generate.py` to generate the augmented text
+3. `python main.py` to start Q&A
 
-> 在运行`read_from_db.py`后，会生成db文件夹用于存储向量数据库，为节约项目大小，已设置不上传github
+> 在运行`retrieval.py`后，会生成db文件夹用于存储向量数据库，为节约项目大小，已设置不上传github
