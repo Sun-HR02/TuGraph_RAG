@@ -18,6 +18,7 @@ vectordb_chinese = Chroma(
 # all_ids = all_data['ids']
 
 # 检索
-query="给我大概介绍一下TuGraph图模型"
-retriever = vectordb_chinese.similarity_search(query, k=2)
+# query="给我大概介绍一下TuGraph图模型"
+query="介绍下Docker部署"
+retriever = vectordb_chinese.similarity_search(query, k=6)
 print(retriever)

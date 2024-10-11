@@ -71,7 +71,6 @@ def read_markdown_files(markdown_files_path):
         for file in files:
             if file.endswith('.md'):
                 file_path = Path(root) / file
-                filepaths.append(file_path)
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                     '''
@@ -79,13 +78,24 @@ def read_markdown_files(markdown_files_path):
                     每个documents有metadata(是一个dict，用'Header 1','Header 2'等访问对应标题段)，以及page_content(正文部分)
                     '''
                     markdown_header_splits = markdown_splitter.split_text(content)
+
+                    # 一点改进思路
+                    for document in markdown_header_splits:
+                        meta = document.metadata
+                        header_nums = len(meta)
+                        header_content_cat = ''
+                        for i in range(header_nums):
+                            header_content = meta[f'Header {i+1}']
+                            # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
+                            header_content_cat += header_content
+                            header_content_cat += '\n\n'
+                        document.page_content = header_content_cat + document.page_content
+                        markdown_knowledge.append(document)
+
                     markdown_knowledge += markdown_header_splits
-    return markdown_knowledge, filepaths
+    return markdown_knowledge
 
-markdown_knowledge, filepaths= read_markdown_files(markdown_files_path)
-
-# import ipdb
-# ipdb.set_trace()
+markdown_knowledge = read_markdown_files(markdown_files_path)
 
 
 # markdown_knowledge = []
