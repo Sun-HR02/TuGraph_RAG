@@ -11,6 +11,7 @@ from pathlib import Path
 # tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
 # model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
+markdown_files_path = './data/markdowns/zh-CN/source'
 
 def embed(content):
     client = OpenAI(base_url="https://api.gptapi.us/v1/chat/completions",
@@ -19,22 +20,22 @@ def embed(content):
     return response
 
 #  def embed(content):
-    inputs = tokenizer(content, return_tensors="pt", padding=True, truncation=True)
-    # 通过模型前向传递来获取编码
-    with torch.no_grad():
-        outputs = model(**inputs)
+    # inputs = tokenizer(content, return_tensors="pt", padding=True, truncation=True)
+    # # 通过模型前向传递来获取编码
+    # with torch.no_grad():
+    #     outputs = model(**inputs)
     
-    # 获取最后隐藏状态（用于文本编码）
-    last_hidden_states = outputs.last_hidden_state
+    # # 获取最后隐藏状态（用于文本编码）
+    # last_hidden_states = outputs.last_hidden_state
     
-    # 拼接[CLS]标记和最后一个标记的向量
-    cls_embedding = last_hidden_states[:, 0, :]  # 第一个token的输出
-    last_token_embedding = last_hidden_states[:, -1, :]  # 最后一个token的输出
-    combined_embedding = torch.cat((cls_embedding, last_token_embedding), dim=1)
+    # # 拼接[CLS]标记和最后一个标记的向量
+    # cls_embedding = last_hidden_states[:, 0, :]  # 第一个token的输出
+    # last_token_embedding = last_hidden_states[:, -1, :]  # 最后一个token的输出
+    # combined_embedding = torch.cat((cls_embedding, last_token_embedding), dim=1)
     
-    # 打印和返回新的维度
+    # # 打印和返回新的维度
 
-    return combined_embedding[0].tolist()
+    # return combined_embedding[0].tolist()
 
 class ErnieEmbeddingFunction(EmbeddingFunction): 
     def embed_documents(self, input: Documents) -> Embeddings:
@@ -68,7 +69,6 @@ headers_to_split_on = [
 markdown_splitter = MarkdownHeaderTextSplitter(
 headers_to_split_on)
 
-markdown_files_path = './data/markdowns/zh-CN/source'
 
 # 读取指定路径下的所有 Markdown 文件，并保留文件夹结构信息
 def read_markdown_files(markdown_files_path):
