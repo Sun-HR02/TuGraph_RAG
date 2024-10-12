@@ -24,7 +24,7 @@ options['score_path'] = './result/score.jsonl'
 # 功能开启，1表示开启
 options['use_val'] = 0
 options['use_val_score'] = 0
-options['use_test'] = 1
+options['use_test'] = 0
 
 
 def read_jsonl(file_path):
