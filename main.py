@@ -3,6 +3,7 @@ from augment_generate import generate_answer
 import json
 from tqdm import tqdm
 from score import get_score
+import csv
 
 options = dict()
 # 可能影响性能
@@ -20,10 +21,10 @@ options['val_path'] = './test/val.jsonl'
 # 输出路径
 options['test_out_path'] = './result/answer_test.jsonl' 
 options['val_out_path'] = './result/answer_val.jsonl'
-options['score_path'] = './result/score.jsonl'
+options['score_path'] = './result/score.csv'
 # 功能开启，1表示开启
 options['use_val'] = 0
-options['use_val_score'] = 0
+options['use_val_score'] = 1
 options['use_test'] = 0
 
 
@@ -52,6 +53,22 @@ def write_jsonl(data, output_file_path):
     with open(output_file_path, 'w', encoding='utf-8') as file:
         for item in data:
             file.write(json.dumps(item, ensure_ascii=False) + '\n')
+
+def write_csv(score_output, file_path):
+    # 确定表头（即字典的键）
+    if score_output:
+        fieldnames = score_output[0].keys()
+    else:
+        fieldnames = []
+
+    # 打开CSV文件
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        # 创建一个DictWriter对象
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        # 写入表头
+        writer.writeheader()
+        # 写入数据行
+        writer.writerows(score_output)
 
 def count_lines_in_jsonl(file_path):
     # 读json文件行数
@@ -87,7 +104,8 @@ if options['use_val']:
 if options['use_val_score']:
     print('正在计算分数.....')
     score_output = get_score(options)
-    write_jsonl(score_output, options['score_path'])
+    write_csv(score_output, options['score_path'])
+    # write_jsonl(score_output, options['score_path'])
 
 if options['use_test']:
     print('正在对 test1.jsonl 进行生成检索.....')
