@@ -31,7 +31,7 @@ counter = 0
 
 
 def embed(content): #using bge
-    response = model.encode(content, max_length = 8192)['dense_vecs'][0]
+    response = model.encode(content, max_length = 8192)['dense_vecs']
     return response
     
 
