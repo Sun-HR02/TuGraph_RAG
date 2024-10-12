@@ -1,7 +1,7 @@
 from chromadb.api.types import Documents, EmbeddingFunction, Embeddings
 from langchain_chroma import Chroma
 from langchain_text_splitters import MarkdownHeaderTextSplitter
-from transformers import BertTokenizer, BertModel
+# from transformers import BertTokenizer, BertModel
 import torch
 from openai import OpenAI
 import tqdm
