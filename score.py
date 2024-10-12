@@ -73,17 +73,10 @@ def get_score(options):
     f_len = count_lines_in_jsonl(val_path)
     val_json = []
     ans_json = []
-    print("Reading val.jsonl...")
-    with tqdm(total=f_len) as pbar:
-        for obj in read_jsonl(val_path):
-            val_json.append(obj)
-            pbar.update(1)
-    print("Reading answer_val.jsonl...")
-    with tqdm(total=f_len) as pbar:
-        for obj in read_jsonl(ans_path):
-            ans_json.append(obj)
-            pbar.update(1)
-
+    for obj in read_jsonl(val_path):
+        val_json.append(obj)
+    for obj in read_jsonl(ans_path):
+        ans_json.append(obj)
     print("Embedding and Score Calculating...")
     output = []
     with tqdm(total=f_len) as pbar:
