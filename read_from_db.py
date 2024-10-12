@@ -8,6 +8,7 @@ from openai import OpenAI
 
 import os
 from pathlib import Path
+from embed import embed
 
 class ErnieEmbeddingFunction(EmbeddingFunction): 
     def __init__(self, options):
@@ -31,14 +32,6 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
             print(f"Error processing text: {input}, Error: {e}")
         return embedding
 
-def embed(content, options):
-    base_url = options['gpt-baseurl']
-    api_key = options['gpt-apikey']
-    model = options['embedding-model']
-    client = OpenAI(base_url=base_url,
-        api_key=api_key)
-    response = client.embeddings.create(input=content, model=model).data[0].embedding
-    return response
 
 # 查看向量数据库元素
 # all_data = vectordb_chinese.get()
