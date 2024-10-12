@@ -18,7 +18,7 @@ options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，
                             样例问题1："RPC 及 HA 服务中，verbose 参数的设置有几个级别？", 样例答案: "三个级别（0，1，2）。"\
                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“200” '
 options['chat-model'] = "gpt-4o-mini"
-options['embedding-model'] = "text-embedding-3-large"
+options['embedding-model'] = "../bge-m3"
 # gpt调用
 options['gpt-baseurl'] = 'https://api.gptapi.us/v1'
 options['gpt-apikey'] = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"

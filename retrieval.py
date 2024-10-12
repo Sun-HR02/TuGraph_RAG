@@ -13,26 +13,26 @@ from pathlib import Path
 # tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
 # model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
-# model=BGEM3FlagModel('../bge-m3',use_fp16=True)
+model=BGEM3FlagModel('../bge-m3',use_fp16=True)
 
 markdown_files_path = './data/markdowns/zh-CN/source'
-base_url = "https://api.gptapi.us/v1"
-api_key = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
-embedding_model = 'text-embedding-3-large'
+# base_url = "https://api.gptapi.us/v1"
+# api_key = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
+# embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
 
 counter = 0
 
-def embed(content):
-    client = OpenAI(base_url = base_url,
-        api_key= api_key)
-    response = client.embeddings.create(input=content, model=embedding_model).data[0].embedding
-    return response
-
-
-# def embed(content): #using bge
-#     response = model.encode(content, max_length = 8192)['dense_vecs'][0]
+# def embed(content):
+#     client = OpenAI(base_url = base_url,
+#         api_key= api_key)
+#     response = client.embeddings.create(input=content, model=embedding_model).data[0].embedding
 #     return response
+
+
+def embed(content): #using bge
+    response = model.encode(content, max_length = 8192)['dense_vecs'][0]
+    return response
     
 
 #  def embed(content): #using BERT
