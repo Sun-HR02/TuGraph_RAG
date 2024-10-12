@@ -8,7 +8,11 @@ import csv
 options = dict()
 # 可能影响性能
 options['k'] = 3
-options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，擅长使用TuGraph数据库的相关知识来回答用户的问题，针对用户的提问，你会得到一些知识辅助，请忽略没有帮助的知识，结合有用的部分以及你的知识，简洁直接给出答案，不需要解释。注意：问题中的数据库一律指代TuGraph,如果遇到不清楚的问题，请直接回答不知道。'
+options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
+                            擅长使用TuGraph数据库的相关知识来回答用户的问题，\
+                            针对用户的提问，你会得到一些知识辅助，请忽略没有帮助的知识，\
+                            结合有用的部分以及你的知识，尽可能简洁地直接给出答案，不需要任何解释。\
+                            注意：问题中的数据库一律指代TuGraph,如果遇到不清楚的问题，请直接回答不知道。'
 options['chat-model'] = "gpt-4o-mini"
 options['embedding-model'] = "text-embedding-3-large"
 # gpt调用
