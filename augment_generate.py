@@ -6,7 +6,8 @@ from tqdm import tqdm
 num=0
 
 def get_gpt_response_w_system(prompt, options):
-    global system_prompt
+    global system_prompt 
+    s_prompt = options['system_prompt']
     base_url = options['gpt-baseurl']
     api_key = options['gpt-apikey']
     model = options['chat-model']
@@ -19,7 +20,7 @@ def get_gpt_response_w_system(prompt, options):
         temperature= 0,
         model=model,
         messages=[
-        {"role": "system", "content": '你是一个问答助手，需要为用户解答关于TuGraph数据库的相关知识，并且你会得到一些知识辅助，请忽略没有帮助的知识，结合有用的部分以及你的知识，简洁直接给出答案，不需要解释。'},
+        {"role": "system", "content": s_prompt},
         {"role": "user", "content": prompt}
         ]
         )

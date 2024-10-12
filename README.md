@@ -30,7 +30,8 @@
 
 1. `pip install -r requirements.txt` to install all dependencies.
 2. `python retrieval.py` to retrieve the text from the markdown file and store it in the vector database.
-3. 修改 `main.py`中的参数，数据库位置要和retrieval中的路径一致。修改测试问题文件以及最终结果输出路径。
+3. 修改 `main.py`中的参数，数据库位置要和retrieval中的路径一致。修改测试问题文件以及最终结果输出路径。设置参数选择是否在val、test集上运行，以及是否需要打分评估
 4. `python main.py`  to start Q&A.
 
 > 在运行`retrieval.py`后，会生成db文件夹用于存储向量数据库，为节约项目大小，已设置不上传github
+> 输出结果会保存在result/目录下，已设置不上传github
