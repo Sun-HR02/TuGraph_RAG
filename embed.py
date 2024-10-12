@@ -14,6 +14,6 @@ from FlagEmbedding import BGEM3FlagModel
 def embed(content, options): #using bge
     model = BGEM3FlagModel(options['embedding-model'], use_fp16=True) # BAAI/bge-m3
 
-    response = model.encode(content, max_length = 8192)['dense_vecs'][0]
+    response = model.encode(content, max_length = 8192)['dense_vecs']
 
     return response

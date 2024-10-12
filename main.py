@@ -31,9 +31,9 @@ options['test_out_path'] = './result/answer_test.jsonl'
 options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv'
 # 功能开启，1表示开启
-options['use_val'] = 1
-options['use_val_score'] = 1
-options['use_test'] = 0
+options['use_val'] = 0
+options['use_val_score'] = 0
+options['use_test'] = 1
 
 
 if options['use_val']:

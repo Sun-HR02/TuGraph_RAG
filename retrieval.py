@@ -63,7 +63,7 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
             counter += 1
             print('{} / {}块嵌入中...'.format(counter,knowledge_len))
             try:
-                embedding = response 
+                embedding = response.tolist()
                 embeddings.append(embedding)
             except (IndexError, TypeError, KeyError) as e:
                 print(f"Error processing text: {text}, Error: {e}")
@@ -71,7 +71,7 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
     def embed_query(self, input) -> Embeddings:
         response = embed(input)
         try:
-            embedding = response 
+            embedding = response.tolist()
         except (IndexError, TypeError, KeyError) as e:
             print(f"Error processing text: {input}, Error: {e}")
         return embedding

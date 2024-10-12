@@ -19,15 +19,16 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
         for text in input:
             response = embed(text, self.options)
             try:
-                embedding = response 
+                embedding = response.tolist()
                 embeddings.append(embedding)
             except (IndexError, TypeError, KeyError) as e:
                 print(f"Error processing text: {text}, Error: {e}")
         return embeddings
     def embed_query(self, input) -> Embeddings:
-        response = embed(input, self.options)
+        response = embed(input, self.options).tolist()
+
         try:
-            embedding = response 
+            embedding = response
         except (IndexError, TypeError, KeyError) as e:
             print(f"Error processing text: {input}, Error: {e}")
         return embedding
