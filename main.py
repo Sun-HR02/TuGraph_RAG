@@ -27,7 +27,7 @@ options['test_out_path'] = './result/answer_test.jsonl'
 options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv'
 # 功能开启，1表示开启
-options['use_val'] = 0
+options['use_val'] = 1
 options['use_val_score'] = 1
 options['use_test'] = 0
 
@@ -96,16 +96,12 @@ def calculate_avg(socres):
 
 if options['use_val']:
     print('正在对 val.jsonl 进行生成检索.....')
-    f_len = count_lines_in_jsonl(options['val_path'])
     answers_val = []
-    with tqdm(total=f_len) as pbar:
+    with tqdm(total=count_lines_in_jsonl(options['val_path'])) as pbar:
         for obj in read_jsonl(options['val_path']):
             query = obj.get('input_field')
-            knowledge = read_from_db(query, options['k'], options)
-            out = dict()
-            out['id'] = obj.get('id')
-            out['output_field'] = generate_answer(query, knowledge, options)
-            answers_val.append(out)
+            # 生成答案
+            answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
 
     write_jsonl(answers_val, options['val_out_path'] )
@@ -120,16 +116,12 @@ if options['use_val_score']:
 
 if options['use_test']:
     print('正在对 test1.jsonl 进行生成检索.....')
-    f_len = count_lines_in_jsonl(options['test_path'])
     answers_test = []
-    with tqdm(total=f_len) as pbar:
+    with tqdm(total=count_lines_in_jsonl(options['test_path'])) as pbar:
         for obj in read_jsonl(options['test_path']):
             query = obj.get('input_field')
-            knowledge = read_from_db(query, options['k'], options)
-            out = dict()
-            out['id'] = obj.get('id')
-            out['output_field'] = generate_answer(query, knowledge, options)
-            answers_test.append(out)
+            # 生成问题答案
+            answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
 
     write_jsonl(answers_test, options['test_out_path'])

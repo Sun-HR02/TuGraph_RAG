@@ -81,15 +81,9 @@ def get_score(options):
     output = []
     with tqdm(total=f_len) as pbar:
         for i in range(f_len):
-            val_embedding = embed(val_json[i]['output_field'], options=options)
-            ans_embedding = embed(ans_json[i]['output_field'], options=options)
-            score = similarity_score(val_embedding, ans_embedding)
-            obj=dict()
-            obj['id'] = val_json[i]['id']
-            obj['score'] = score
-            obj['correct_answer'] = val_json[i]['output_field']
-            obj['our_answer'] = ans_json[i]['output_field']
-            output.append(obj)
+            score = similarity_score(embed(val_json[i]['output_field'], options=options), embed(ans_json[i]['output_field'], options=options))
+            # 生成答案对象和分数
+            output.append(dict(id = val_json[i]['id'],score = score, correct_answer = val_json[i]['output_field'], our_answer = ans_json[i]['output_field']))
             pbar.update(1)
     return output
 
