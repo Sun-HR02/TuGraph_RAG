@@ -1,4 +1,4 @@
-## TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
+# TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
 
 ## 简介
 
