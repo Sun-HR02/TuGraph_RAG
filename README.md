@@ -40,4 +40,5 @@
 4. `python main.py`  to start Q&A.
 
 > 在运行`retrieval.py`后，会生成db文件夹用于存储向量数据库，为节约项目大小，已设置不上传github
+> 
 > 输出结果会保存在result/目录下，已设置不上传github
