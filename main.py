@@ -105,13 +105,13 @@ if options['use_val']:
             pbar.update(1)
 
     write_jsonl(answers_val, options['val_out_path'] )
-    print('val.jsonl 已生成答案！')
+    print('val.jsonl 已生成答案！\n \n')
 
 if options['use_val_score']:
     print('正在计算分数.....')
     score_output = get_score(options)
     write_csv(score_output, options['score_path'])
-    print('分数平均为{}!'.format(calculate_avg(score_output)))
+    print('分数平均为{}! \n \n'.format(calculate_avg(score_output)))
     # write_jsonl(score_output, options['score_path'])
 
 if options['use_test']:
@@ -125,6 +125,6 @@ if options['use_test']:
             pbar.update(1)
 
     write_jsonl(answers_test, options['test_out_path'])
-    print('test1.jsonl 已生成答案！')
+    print('test1.jsonl 已生成答案！\n \n')
 
 
