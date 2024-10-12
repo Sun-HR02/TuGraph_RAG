@@ -1,50 +1,50 @@
 {"id": "VAL-1", "output_field": "三个级别（0，1，2）。"}
-{"id": "VAL-2", "output_field": "\"当值大于10000时会触发危急颜色模式。\"  \n置信度：高"}
-{"id": "VAL-3", "output_field": "`IsReal()` 函数用于查询数据是否为实数类型。 置信度：高"}
-{"id": "VAL-4", "output_field": "\"200\"  \n置信度：高"}
-{"id": "VAL-5", "output_field": "“边关联的两个点的字段不一定是点的主键。” \n\n置信度：高"}
-{"id": "VAL-6", "output_field": "\"Delete 方法用于删除边类型的索引。\" 置信度：高"}
-{"id": "VAL-7", "output_field": "暂不支持。  \n置信度：高"}
-{"id": "VAL-8", "output_field": "“memory”是指机器性能指标中的可用内存大小。  \n置信度：95%"}
-{"id": "VAL-9", "output_field": "\"如果不选择清空画布数据按钮，导入的数据会与现有的数据进行合并，保留现有数据，同时添加新导入的数据。请注意，可能会出现重复数据。\" \n\n置信度：高"}
-{"id": "VAL-10", "output_field": "请通过蚂蚁集团的官方支持邮箱提提交您的建议。置信度：高"}
-{"id": "VAL-11", "output_field": "暂不支持。  \n置信度：高"}
-{"id": "VAL-12", "output_field": "\"TuGraph Monitor的主要功能是以可视化方式管理、维护和查看图数据库的运行状态，同时支持系统账户的管理。\" 置信度：高"}
-{"id": "VAL-13", "output_field": "\"TuGraph HA 集群的管理工具是 TuGraph管理工具。\" \n\n置信度：高"}
-{"id": "VAL-14", "output_field": "“通过POST方法修改Token的有效期为无限期，需将`expire_time`设置为一个较大的值或特定标志来指示无限期，但具体实现代码和接口未提供，建议查阅相关API文档。”  \n置信度：中等"}
-{"id": "VAL-15", "output_field": "“蚂蚁集团与华为联合研发。”  \n置信度：高"}
-{"id": "VAL-16", "output_field": "TuGraph图学习模块依赖于TuGraph已安装。  \n置信度：高"}
-{"id": "VAL-17", "output_field": "构造FieldSpec时需要的参数包括：算法所需参数、算法名称、配置类内的Print函数。置信度：高。"}
-{"id": "VAL-18", "output_field": "主要问题是如何在保证高性能的前提下进行有效的并发处理。置信度：高。"}
-{"id": "VAL-19", "output_field": "实例化单节点client对象需要三个参数：url、user 和 password。格式为 `TuGraphDbRpcClient(\"ip:port\", \"username\", \"password\")`。  \n\n置信度：90%"}
-{"id": "VAL-20", "output_field": "\"TuGraph 目前支持 Cypher 图查询语言，未来计划支持其他查询语言暂不支持。\"  \n置信度：高"}
-{"id": "VAL-21", "output_field": "\"DeleteProcedure 函数接受三个类型的参数，分别是：procedureType（字符串），procedureName（字符串），graph（字符串）。\" \n\n置信度：95%"}
-{"id": "VAL-22", "output_field": "\"必须选择可串行化模式（Serializable）。\"  \n置信度：高"}
-{"id": "VAL-23", "output_field": "\"RpcSingleClient 构造函数需要三个参数：url、user 和 password。\" \n\n置信度：高"}
-{"id": "VAL-24", "output_field": "\"默认设置为24小时。\"  \n置信度：95%"}
-{"id": "VAL-25", "output_field": "\"随机采样、邻域采样、重要性采样、层次采样。\" \n置信度：高"}
-{"id": "VAL-26", "output_field": "如果边存在，则返回更新后的边的信息；如果边不存在，则返回新插入的边的信息。信心度：高"}
-{"id": "VAL-27", "output_field": "暂不支持。 \n\n置信度：高"}
-{"id": "VAL-28", "output_field": "对DateTime对象添加超出其范围的微秒数会导致超出范围的异常。置信度：高"}
-{"id": "VAL-29", "output_field": "“VertexLockGuard”是一个用于管理图顶点锁定的机制，以确保在访问或修改顶点数据时的线程安全。置信度：高。"}
-{"id": "VAL-30", "output_field": "“null array”在value pack中的具体含义是表示该数组中的元素未初始化或不包含有效数据。置信度：高。"}
-{"id": "VAL-31", "output_field": "暂不支持。  \n置信度：高"}
-{"id": "VAL-32", "output_field": "可以通过以下语句定义点类型和边类型：\n\n**定义点类型示例：**\n```\nCALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true,'pointTest',point,true)\n```\n\n**定义边类型示例：**\n```\nCALL db.createEdgeLabel('edgeType', 'start', 'end', 'weight', int64, false)\n```\n\n以上为创建点和边类型的示例。  \n置信度：高"}
-{"id": "VAL-33", "output_field": "如果 `log_dir` 不设置，将输出至控制台，而不生成日志文件。置信度：高"}
-{"id": "VAL-34", "output_field": "实际应用中的例子包括：社交网络中寻找最短的朋友关系，物流运输中计算最佳配送路径，网络路由中确定数据包转发的最短路径等。 \n\n置信度：高"}
-{"id": "VAL-35", "output_field": "\"方法 GetLabel() 返回一个包含数据列定义的字典。\"  \n置信度：95%"}
-{"id": "VAL-36", "output_field": "暂不支持。  \n置信度：高"}
-{"id": "VAL-37", "output_field": "“暂不支持。” \n\n置信度：高"}
-{"id": "VAL-38", "output_field": "创建 Label 的请求需要指定该 Label 为点（vertex）或边（relationship）。置信度：95%"}
-{"id": "VAL-39", "output_field": "\"图查询和图分析。\" \n\n置信度：高"}
-{"id": "VAL-40", "output_field": "暂不支持。  \n置信度：高"}
-{"id": "VAL-41", "output_field": "会抛出“LabelNotExistException”或“FieldNotExistException”异常。置信度：高"}
-{"id": "VAL-42", "output_field": "Grafana主要用于数据可视化和监控，尤其在结合Prometheus与TuGraph时，可在网页端交互展示数据库和服务器的监控信息。置信度：高"}
-{"id": "VAL-43", "output_field": "\"DeleteProcedure 函数是用来删除存储过程的。\"  \n置信度：95%"}
-{"id": "VAL-44", "output_field": "\"PairUniqueIndex 的钥匙生成形式为：由两部分组成，分别是两个点的唯一标识符（vid）。\" \n\n置信度：95%"}
-{"id": "VAL-45", "output_field": "\"类FieldData用于表示多种可用于属性的数据类型，包括BOOL, INT8, INT16, INT32, INT64, DATE, DATETIME, FLOAT, DOUBLE, STRING, BLOB, POINT, LINESTRING, POLYGON和FLOAT_VECTOR。\"  \n置信度：高"}
-{"id": "VAL-46", "output_field": "默认行为是会将数据包错误记录到日志中，且导入操作会继续进行。置信度：高"}
-{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序。\" 置信度：高"}
-{"id": "VAL-48", "output_field": "暂不支持。 "}
-{"id": "VAL-49", "output_field": "“是的，lgraph_peer工具只有在编译方式部署后才有。”  \n置信度：高"}
-{"id": "VAL-50", "output_field": "暂不支持。  \n置信度：85%"}
+{"id": "VAL-2", "output_field": "当磁盘IO监控的配置中，写速率大于10000时会触发危急颜色模式。"}
+{"id": "VAL-3", "output_field": "`IsReal()` 函数是用来查询数据是否为真实类型。"}
+{"id": "VAL-4", "output_field": "“200”"}
+{"id": "VAL-5", "output_field": "不是，边关联的两个点的字段不一定是点的主键。"}
+{"id": "VAL-6", "output_field": "\"Delete 方法用于删除边的操作。\""}
+{"id": "VAL-7", "output_field": "日志等级的调整通过更新存储过程实现。"}
+{"id": "VAL-8", "output_field": "“memory”是指机器在运行过程中可用的内存容量，通常用于存储数据和模型参数，以支持高效的计算和训练过程。"}
+{"id": "VAL-9", "output_field": "如果不选择清空画布数据按钮，导入的数据会与现有数据合并。"}
+{"id": "VAL-10", "output_field": "请通过官方支持邮箱发送您的建议，确保在邮件中包含您的联系方式和建议的详细信息。"}
+{"id": "VAL-11", "output_field": "支持。"}
+{"id": "VAL-12", "output_field": "“TuGraph Monitor的主要功能是以直观的可视化方式呈现图数据，支持图数据的管理和可视化，以及系统账户的管理。”"}
+{"id": "VAL-13", "output_field": "\"TuGraph HA 集群的管理工具是计算巢。\""}
+{"id": "VAL-14", "output_field": "暂不支持。"}
+{"id": "VAL-15", "output_field": "\"蚂蚁集团和清华大学。\""}
+{"id": "VAL-16", "output_field": "\"TuGraph已安装。\""}
+{"id": "VAL-17", "output_field": "构造FieldSpec时需要以下参数：字段名、字段类型、默认值和是否可选。"}
+{"id": "VAL-18", "output_field": "“并发性能优化最初面临的主要问题是关联数据爆炸性增长对图计算高效处理的需求。”"}
+{"id": "VAL-19", "output_field": "实例化单节点client对象需要三个参数：`url`（格式为ip:port）、`user`（登录用户名）、`pass`（登录密码）。"}
+{"id": "VAL-20", "output_field": "\"目前支持Cypher图查询语言，计划未来支持OpenCypher标准。\""}
+{"id": "VAL-21", "output_field": "两个类型的参数，分别是：`procedureType`（存储过程类型），`procedureName`（存储过程名称）。"}
+{"id": "VAL-22", "output_field": "必须选择只读事务模式。"}
+{"id": "VAL-23", "output_field": "\"构造函数需要三个参数：url（str）、user（str）、password（str）。\""}
+{"id": "VAL-24", "output_field": "默认设置为无过期时间。"}
+{"id": "VAL-25", "output_field": "\"四种采样算子：getdb、getedge、getsubgraph、getneighbort.\""}
+{"id": "VAL-26", "output_field": "\"根据提供的参数是否存在于现有边，返回值将是插入或更新的状态，具体为插入或更新的成功与否。\""}
+{"id": "VAL-27", "output_field": "暂不支持。"}
+{"id": "VAL-28", "output_field": "暂不支持。"}
+{"id": "VAL-29", "output_field": "\"VertexLockGuard 是一种用于管理图中顶点加锁的机制，确保对顶点的并发访问是安全的。\""}
+{"id": "VAL-30", "output_field": "null array在value pack时表示未分配或未初始化的数组，通常用于表示点集或边集的状态或值尚不可用。"}
+{"id": "VAL-31", "output_field": "暂不支持。"}
+{"id": "VAL-32", "output_field": "通过以下语句定义点类型和边类型：\n\n**创建标记美食位置的点模型**  \n```\nCALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true,'pointTest',point,true)\n```  \n\n**创建具有折线属性的点模型**  \n```\nCALL db.createVertexLabel('lineTest', 'id', 'id', int64, false, 'name', string, true,'linestringTest',linestring,true)\n```  \n\n**创建具有多边型属性的点模型**  \n```\nCALL db.createVertexLabel('polygonTest', 'id', 'id', int64, false, 'name', string, true,'polygonTest',polygon,true)\n```  \n\n各模型插入数据的示例：  \n- 美食点数据：  \n```\nCREATE (n:food {id:10001, name: 'aco Bell',pointTest:point(3.0,4.0,7203)}) RETURN n\n```  \n- 折线数据：  \n```\nCREATE (n:lineTest {id:102, name: 'Tom',linestringTest:linestringwkt('LINESTRING(0 2,1 1,2 0)', 7203)}) RETURN n\n```  \n- 多边型数据：  \n```\nCREATE (n:polygonTest {id:103, name: 'polygonTest',polygonTest:polygonwkt('POLYGON((0 0,0 7,4 2,2 0,0 0))', 7203)}) RETURN n\n```  "}
+{"id": "VAL-33", "output_field": "“如果不设置log_dir，日志信息会输出至console。”"}
+{"id": "VAL-34", "output_field": "实际应用例子包括：网络路由优化、地图导航、社交网络分析（找到两个用户之间的最短联系路径）、物流配送路径规划等。"}
+{"id": "VAL-35", "output_field": "返回类型为字符串（String）。"}
+{"id": "VAL-36", "output_field": "暂不支持。"}
+{"id": "VAL-37", "output_field": "“暂不支持”"}
+{"id": "VAL-38", "output_field": "不需要。"}
+{"id": "VAL-39", "output_field": "\"两种主要图分析操作是：OLAP API 和 TuGraph 图分析引擎。\""}
+{"id": "VAL-40", "output_field": "暂不支持。"}
+{"id": "VAL-41", "output_field": "会抛出“FieldNotFoundException”异常。"}
+{"id": "VAL-42", "output_field": "Grafana主要用于可视化和监控数据。"}
+{"id": "VAL-43", "output_field": "\"DeleteProcedure 函数是用来删除指定类型和名称的存储过程的。\""}
+{"id": "VAL-44", "output_field": "\"PairUniqueIndex 的钥匙生成形式为：键由两个部分组成，分别为第一部分的属性值和第二部分的属性值的连接。\""}
+{"id": "VAL-45", "output_field": "类FieldData用于表示TuGraph支持的多种数据类型，包括BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON和FLOAT_VECTOR。"}
+{"id": "VAL-46", "output_field": "默认行为是忽略错误包，继续导入其他数据包。"}
+{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序。\""}
+{"id": "VAL-48", "output_field": "暂不支持。"}
+{"id": "VAL-49", "output_field": "不清楚。"}
+{"id": "VAL-50", "output_field": "暂不支持。"}
