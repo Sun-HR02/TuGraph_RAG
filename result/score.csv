@@ -1,72 +1,106 @@
 id,score,correct_answer,our_answer
 VAL-1,1.000485360622406,三个级别（0，1，2）。,三个级别（0，1，2）。
-VAL-2,0.5675294995307922,value大于10000时。,在磁盘IO监控的配置中，当硬盘读速率或写速率大于10000时会触发危急颜色模式。
-VAL-3,0.848845899105072,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,`IsReal()` 函数用来查询数据是否为浮点类型。
-VAL-4,0.6914835572242737,200,“200”
-VAL-5,0.4927208423614502,是的,边关联的两个点的字段不是必须是点的主键。
-VAL-6,0.6499933004379272,Deletes current edge. The iterator will point to the next out edge if there is any.,"""Delete 方法用于删除迭代器指向的边。可以使用命令 `CALL db.deleteEdgeIndex('edge_type', 'field')` 删除边类型上的索引。"""
-VAL-7,0.5252758860588074,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。",暂不支持。
-VAL-8,0.8307082653045654,“memory”是内存，是用于监控服务性能的重要指标之一。,“memory”指的是机器在执行程序过程中使用的内存量。
-VAL-9,0.6412085294723511,每次执行查询的结果会追加至画布区域。,如果不选择清空画布数据按钮，导入的数据将与现有的画布数据合并，新的数据会添加到现有数据中，而不会删除或覆盖已有的数据。
-VAL-10,0.5184169411659241,邮件地址为tugraph@service.alipay.com。,暂不支持。
-VAL-11,0.9267724752426147,暂不支持,不支持。
-VAL-12,0.6940468549728394,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,“TuGraph Monitor的主要功能是可视化管理图数据，维护和查看数据库运行状态，以及系统账户的管理。”
-VAL-13,0.610878586769104,管理工具为lgraph_peer。,"""TuGraph HA 集群的管理工具是计算巢。"""
-VAL-14,0.5421169996261597,通过设置refresh_time和expire_time参数均为0。,“暂不支持。”
-VAL-15,0.8127917647361755,蚂蚁集团与清华大学联合研发的。,“蚂蚁集团和清华大学。”
-VAL-16,0.730670690536499,它依赖于TuGraph的数据库管理系统。,“TuGraph已安装。”
-VAL-17,0.6412132382392883,需要字段名称、字段类型和一个布尔值标识字段是否可选。,构造FieldSpec时需要以下参数：边类型、字段名称、字段数据类型、默认值、是否必选。
-VAL-18,0.5404767990112305,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,主要问题是如何在高性能的单机图数据库架构中实现有效的并发控制和资源管理。
-VAL-19,0.7827383279800415,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。","需要三个参数：`url`（类似 ""ip:port""），`user`（登录用户名），`pass`（登录密码）。"
-VAL-20,0.8650463819503784,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,“TuGraph 目前支持 Cypher 图查询语言，并遵循 OpenCypher 标准；未来暂无计划支持其他查询语言。”
-VAL-21,0.7251202464103699,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。",`deleteProcedure` 函数接受三个类型的参数，分别是：`procedureType`（字符串类型）、`procedureName`（字符串类型）和 `graph`（字符串类型）。
-VAL-22,0.5730408430099487,事务必须是只读的。,“Snapshot”模式必须被选用。
-VAL-23,0.6676863431930542,"url, user, password。","""RpcSingleClient 构造函数需要三个参数：url（str）、user（str）、password（str）。"""
-VAL-24,0.5117822885513306,expire_time实体定义为强制过期时间戳，默认设置为24小时。,默认设置未明确说明，可能需要参考具体文档或配置。
-VAL-25,0.6932980418205261,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,"""随机游走、邻居采样、层次采样、边采样。"""
-VAL-26,0.775535523891449,如果边已存在，则返回False；如果新建了边，则返回True。,返回值将根据是否存在更新或插入的结果。如果不存在则插入新边，存在则更新边的属性。具体返回值为操作结果的信息。
-VAL-27,0.4401116967201233,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,暂不支持。
-VAL-28,0.5290524363517761,抛出OutOfRange异常。,暂不支持。
-VAL-29,0.8271523118019104,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,VertexLockGuard是用于在多线程环境中管理对图顶点的锁定状态，确保在对顶点进行操作时的线程安全性。
-VAL-30,0.563509464263916,标记field是否为空,null array在value pack时表示一个不包含任何有效数据的数组，通常用于初始化或占位。
-VAL-31,0.5206593871116638,可以写where语句进行过滤,暂不支持。
-VAL-32,0.7969701886177063,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,"通过语句定义点类型和边类型的示例如下：
+VAL-2,0.7015905380249023,value大于10000时。,"""当值大于10000时会触发危急颜色模式。""  
+置信度：高"
+VAL-3,0.8058190941810608,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,`IsReal()` 函数用于查询数据是否为实数类型。 置信度：高
+VAL-4,0.5252050161361694,200,"""200""  
+置信度：高"
+VAL-5,0.5448762774467468,是的,"“边关联的两个点的字段不一定是点的主键。” 
 
-**创建点类型的模型：**
-```sql
-CALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true, 'pointTest', point, true)
+置信度：高"
+VAL-6,0.5604055523872375,Deletes current edge. The iterator will point to the next out edge if there is any.,"""Delete 方法用于删除边类型的索引。"" 置信度：高"
+VAL-7,0.4578796625137329,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。","暂不支持。  
+置信度：高"
+VAL-8,0.8188489079475403,“memory”是内存，是用于监控服务性能的重要指标之一。,"“memory”是指机器性能指标中的可用内存大小。  
+置信度：95%"
+VAL-9,0.6576143503189087,每次执行查询的结果会追加至画布区域。,"""如果不选择清空画布数据按钮，导入的数据会与现有的数据进行合并，保留现有数据，同时添加新导入的数据。请注意，可能会出现重复数据。"" 
+
+置信度：高"
+VAL-10,0.5929157137870789,邮件地址为tugraph@service.alipay.com。,请通过蚂蚁集团的官方支持邮箱提提交您的建议。置信度：高
+VAL-11,0.8373857736587524,暂不支持,"暂不支持。  
+置信度：高"
+VAL-12,0.6949795484542847,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,"""TuGraph Monitor的主要功能是以可视化方式管理、维护和查看图数据库的运行状态，同时支持系统账户的管理。"" 置信度：高"
+VAL-13,0.6274701952934265,管理工具为lgraph_peer。,"""TuGraph HA 集群的管理工具是 TuGraph管理工具。"" 
+
+置信度：高"
+VAL-14,0.6200310587882996,通过设置refresh_time和expire_time参数均为0。,"“通过POST方法修改Token的有效期为无限期，需将`expire_time`设置为一个较大的值或特定标志来指示无限期，但具体实现代码和接口未提供，建议查阅相关API文档。”  
+置信度：中等"
+VAL-15,0.7314344048500061,蚂蚁集团与清华大学联合研发的。,"“蚂蚁集团与华为联合研发。”  
+置信度：高"
+VAL-16,0.7506518363952637,它依赖于TuGraph的数据库管理系统。,"TuGraph图学习模块依赖于TuGraph已安装。  
+置信度：高"
+VAL-17,0.506534993648529,需要字段名称、字段类型和一个布尔值标识字段是否可选。,构造FieldSpec时需要的参数包括：算法所需参数、算法名称、配置类内的Print函数。置信度：高。
+VAL-18,0.5367770791053772,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,主要问题是如何在保证高性能的前提下进行有效的并发处理。置信度：高。
+VAL-19,0.7113209962844849,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。","实例化单节点client对象需要三个参数：url、user 和 password。格式为 `TuGraphDbRpcClient(""ip:port"", ""username"", ""password"")`。  
+
+置信度：90%"
+VAL-20,0.8421255350112915,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,"""TuGraph 目前支持 Cypher 图查询语言，未来计划支持其他查询语言暂不支持。""  
+置信度：高"
+VAL-21,0.7300030589103699,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。","""DeleteProcedure 函数接受三个类型的参数，分别是：procedureType（字符串），procedureName（字符串），graph（字符串）。"" 
+
+置信度：95%"
+VAL-22,0.5708469748497009,事务必须是只读的。,"""必须选择可串行化模式（Serializable）。""  
+置信度：高"
+VAL-23,0.6750233173370361,"url, user, password。","""RpcSingleClient 构造函数需要三个参数：url、user 和 password。"" 
+
+置信度：高"
+VAL-24,0.6399981379508972,expire_time实体定义为强制过期时间戳，默认设置为24小时。,"""默认设置为24小时。""  
+置信度：95%"
+VAL-25,0.6679535508155823,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,"""随机采样、邻域采样、重要性采样、层次采样。"" 
+置信度：高"
+VAL-26,0.8018549084663391,如果边已存在，则返回False；如果新建了边，则返回True。,如果边存在，则返回更新后的边的信息；如果边不存在，则返回新插入的边的信息。信心度：高
+VAL-27,0.42096227407455444,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,"暂不支持。 
+
+置信度：高"
+VAL-28,0.5838309526443481,抛出OutOfRange异常。,对DateTime对象添加超出其范围的微秒数会导致超出范围的异常。置信度：高
+VAL-29,0.84952712059021,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,“VertexLockGuard”是一个用于管理图顶点锁定的机制，以确保在访问或修改顶点数据时的线程安全。置信度：高。
+VAL-30,0.524484395980835,标记field是否为空,“null array”在value pack中的具体含义是表示该数组中的元素未初始化或不包含有效数据。置信度：高。
+VAL-31,0.4837055802345276,可以写where语句进行过滤,"暂不支持。  
+置信度：高"
+VAL-32,0.795238196849823,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,"可以通过以下语句定义点类型和边类型：
+
+**定义点类型示例：**
+```
+CALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true,'pointTest',point,true)
 ```
 
-**插入点数据：**
-```sql
-CREATE (n:food {id:10001, name: 'aco Bell', pointTest: point(3.0, 4.0, 7203)}) RETURN n
+**定义边类型示例：**
+```
+CALL db.createEdgeLabel('edgeType', 'start', 'end', 'weight', int64, false)
 ```
 
-**创建边类型的模型（示例）：**
-```sql
-CALL db.createEdgeLabel('edgeLabel', 'src', 'dst', 'weight', int64)
-```
+以上为创建点和边类型的示例。  
+置信度：高"
+VAL-33,0.7505002021789551,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",如果 `log_dir` 不设置，将输出至控制台，而不生成日志文件。置信度：高
+VAL-34,0.4916257858276367,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost","实际应用中的例子包括：社交网络中寻找最短的朋友关系，物流运输中计算最佳配送路径，网络路由中确定数据包转发的最短路径等。 
 
-**插入边数据（示例）：**
-```sql
-MATCH (a:food {id:10001}), (b:food {id:10002}) 
-CREATE (a)-[r:edgeLabel {weight:1}]->(b) RETURN r
-```"
-VAL-33,0.7557767033576965,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",如果不设置`log_dir`，日志信息将输出至控制台，而不会保存日志文件。
-VAL-34,0.48650115728378296,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost",实际应用例子包括：导航系统中计算用户当前位置到目的地的最短行驶路线；社交网络中分析用户之间的最短连接路径；网络路由优化中选择数据包传输的最短路径。
-VAL-35,0.5977475047111511,The label.,"""GetLabel() 返回结果为 String 类型。"""
-VAL-36,0.737622082233429,目前仅支持v1版本。,暂不支持。
-VAL-37,0.8764864802360535,TuGraph单元测试采用gtest框架。,“TuGraph单元测试使用的是Google Test测试框架。”
-VAL-38,0.6496474742889404,是的，需要指定。,不需要指定，该 Label 默认会被识别为点（vertex）或边（relationship）。
-VAL-39,0.7218917608261108,简单图分析操作和复杂图分析操作。,"""图查询和图分析。"""
-VAL-40,0.47662854194641113,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件",暂不支持。
-VAL-41,0.5637374520301819,InputError。,"抛出异常：""边标签或字段不存在""。"
-VAL-42,0.8258540034294128,Grafana主要用于服务性能指标的监控和可视化。,Grafana主要用于可视化和监控数据，结合Prometheus从TuGraph获取监控信息，展示图数据库和服务器的状态。
-VAL-43,0.6009324193000793,执行用户定义的程序。,“DeleteProcedure 函数是用来删除指定类型和名称的存储过程。”
-VAL-44,0.5034382343292236,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。","钥匙生成形式为 ""vertex_ids""。"
-VAL-45,0.7182896137237549,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,"""类FieldData用于表示TuGraph支持的多种数据类型，如BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON和FLOAT_VECTOR。"""
-VAL-46,0.8414217829704285,默认行为是在第一个错误包处停止导入。,默认行为是跳过错误数据包。
-VAL-47,0.9248620271682739,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,"""ORDER BY在GQL中用于对查询结果进行排序。"""
-VAL-48,0.5066294074058533,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,暂不支持。
-VAL-49,0.8029711246490479,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,"""是的，lgraph_peer工具需要通过编译方式部署后才会有。"""
-VAL-50,0.3782927393913269,25%,暂不支持。
+置信度：高"
+VAL-35,0.5573574304580688,The label.,"""方法 GetLabel() 返回一个包含数据列定义的字典。""  
+置信度：95%"
+VAL-36,0.6218560338020325,目前仅支持v1版本。,"暂不支持。  
+置信度：高"
+VAL-37,0.42595475912094116,TuGraph单元测试采用gtest框架。,"“暂不支持。” 
+
+置信度：高"
+VAL-38,0.5719851851463318,是的，需要指定。,创建 Label 的请求需要指定该 Label 为点（vertex）或边（relationship）。置信度：95%
+VAL-39,0.6419115662574768,简单图分析操作和复杂图分析操作。,"""图查询和图分析。"" 
+
+置信度：高"
+VAL-40,0.43389105796813965,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件","暂不支持。  
+置信度：高"
+VAL-41,0.5659647583961487,InputError。,会抛出“LabelNotExistException”或“FieldNotExistException”异常。置信度：高
+VAL-42,0.8425684571266174,Grafana主要用于服务性能指标的监控和可视化。,Grafana主要用于数据可视化和监控，尤其在结合Prometheus与TuGraph时，可在网页端交互展示数据库和服务器的监控信息。置信度：高
+VAL-43,0.571609616279602,执行用户定义的程序。,"""DeleteProcedure 函数是用来删除存储过程的。""  
+置信度：95%"
+VAL-44,0.5330702066421509,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。","""PairUniqueIndex 的钥匙生成形式为：由两部分组成，分别是两个点的唯一标识符（vid）。"" 
+
+置信度：95%"
+VAL-45,0.7902953028678894,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,"""类FieldData用于表示多种可用于属性的数据类型，包括BOOL, INT8, INT16, INT32, INT64, DATE, DATETIME, FLOAT, DOUBLE, STRING, BLOB, POINT, LINESTRING, POLYGON和FLOAT_VECTOR。""  
+置信度：高"
+VAL-46,0.7707674503326416,默认行为是在第一个错误包处停止导入。,默认行为是会将数据包错误记录到日志中，且导入操作会继续进行。置信度：高
+VAL-47,0.8725219368934631,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,"""ORDER BY在GQL中用于对查询结果进行排序。"" 置信度：高"
+VAL-48,0.5000544190406799,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,暂不支持。 
+VAL-49,0.7757371664047241,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,"“是的，lgraph_peer工具只有在编译方式部署后才有。”  
+置信度：高"
+VAL-50,0.5061866044998169,25%,"暂不支持。  
+置信度：85%"

@@ -1,50 +1,50 @@
 {"id": "VAL-1", "output_field": "三个级别（0，1，2）。"}
-{"id": "VAL-2", "output_field": "在磁盘IO监控的配置中，当硬盘读速率或写速率大于10000时会触发危急颜色模式。"}
-{"id": "VAL-3", "output_field": "`IsReal()` 函数用来查询数据是否为浮点类型。"}
-{"id": "VAL-4", "output_field": "“200”"}
-{"id": "VAL-5", "output_field": "边关联的两个点的字段不是必须是点的主键。"}
-{"id": "VAL-6", "output_field": "\"Delete 方法用于删除迭代器指向的边。可以使用命令 `CALL db.deleteEdgeIndex('edge_type', 'field')` 删除边类型上的索引。\""}
-{"id": "VAL-7", "output_field": "暂不支持。"}
-{"id": "VAL-8", "output_field": "“memory”指的是机器在执行程序过程中使用的内存量。"}
-{"id": "VAL-9", "output_field": "如果不选择清空画布数据按钮，导入的数据将与现有的画布数据合并，新的数据会添加到现有数据中，而不会删除或覆盖已有的数据。"}
-{"id": "VAL-10", "output_field": "暂不支持。"}
-{"id": "VAL-11", "output_field": "不支持。"}
-{"id": "VAL-12", "output_field": "“TuGraph Monitor的主要功能是可视化管理图数据，维护和查看数据库运行状态，以及系统账户的管理。”"}
-{"id": "VAL-13", "output_field": "\"TuGraph HA 集群的管理工具是计算巢。\""}
-{"id": "VAL-14", "output_field": "“暂不支持。”"}
-{"id": "VAL-15", "output_field": "“蚂蚁集团和清华大学。”"}
-{"id": "VAL-16", "output_field": "“TuGraph已安装。”"}
-{"id": "VAL-17", "output_field": "构造FieldSpec时需要以下参数：边类型、字段名称、字段数据类型、默认值、是否必选。"}
-{"id": "VAL-18", "output_field": "主要问题是如何在高性能的单机图数据库架构中实现有效的并发控制和资源管理。"}
-{"id": "VAL-19", "output_field": "需要三个参数：`url`（类似 \"ip:port\"），`user`（登录用户名），`pass`（登录密码）。"}
-{"id": "VAL-20", "output_field": "“TuGraph 目前支持 Cypher 图查询语言，并遵循 OpenCypher 标准；未来暂无计划支持其他查询语言。”"}
-{"id": "VAL-21", "output_field": "`deleteProcedure` 函数接受三个类型的参数，分别是：`procedureType`（字符串类型）、`procedureName`（字符串类型）和 `graph`（字符串类型）。"}
-{"id": "VAL-22", "output_field": "“Snapshot”模式必须被选用。"}
-{"id": "VAL-23", "output_field": "\"RpcSingleClient 构造函数需要三个参数：url（str）、user（str）、password（str）。\""}
-{"id": "VAL-24", "output_field": "默认设置未明确说明，可能需要参考具体文档或配置。"}
-{"id": "VAL-25", "output_field": "\"随机游走、邻居采样、层次采样、边采样。\""}
-{"id": "VAL-26", "output_field": "返回值将根据是否存在更新或插入的结果。如果不存在则插入新边，存在则更新边的属性。具体返回值为操作结果的信息。"}
-{"id": "VAL-27", "output_field": "暂不支持。"}
-{"id": "VAL-28", "output_field": "暂不支持。"}
-{"id": "VAL-29", "output_field": "VertexLockGuard是用于在多线程环境中管理对图顶点的锁定状态，确保在对顶点进行操作时的线程安全性。"}
-{"id": "VAL-30", "output_field": "null array在value pack时表示一个不包含任何有效数据的数组，通常用于初始化或占位。"}
-{"id": "VAL-31", "output_field": "暂不支持。"}
-{"id": "VAL-32", "output_field": "通过语句定义点类型和边类型的示例如下：\n\n**创建点类型的模型：**\n```sql\nCALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true, 'pointTest', point, true)\n```\n\n**插入点数据：**\n```sql\nCREATE (n:food {id:10001, name: 'aco Bell', pointTest: point(3.0, 4.0, 7203)}) RETURN n\n```\n\n**创建边类型的模型（示例）：**\n```sql\nCALL db.createEdgeLabel('edgeLabel', 'src', 'dst', 'weight', int64)\n```\n\n**插入边数据（示例）：**\n```sql\nMATCH (a:food {id:10001}), (b:food {id:10002}) \nCREATE (a)-[r:edgeLabel {weight:1}]->(b) RETURN r\n```"}
-{"id": "VAL-33", "output_field": "如果不设置`log_dir`，日志信息将输出至控制台，而不会保存日志文件。"}
-{"id": "VAL-34", "output_field": "实际应用例子包括：导航系统中计算用户当前位置到目的地的最短行驶路线；社交网络中分析用户之间的最短连接路径；网络路由优化中选择数据包传输的最短路径。"}
-{"id": "VAL-35", "output_field": "\"GetLabel() 返回结果为 String 类型。\""}
-{"id": "VAL-36", "output_field": "暂不支持。"}
-{"id": "VAL-37", "output_field": "“TuGraph单元测试使用的是Google Test测试框架。”"}
-{"id": "VAL-38", "output_field": "不需要指定，该 Label 默认会被识别为点（vertex）或边（relationship）。"}
-{"id": "VAL-39", "output_field": "\"图查询和图分析。\""}
-{"id": "VAL-40", "output_field": "暂不支持。"}
-{"id": "VAL-41", "output_field": "抛出异常：\"边标签或字段不存在\"。"}
-{"id": "VAL-42", "output_field": "Grafana主要用于可视化和监控数据，结合Prometheus从TuGraph获取监控信息，展示图数据库和服务器的状态。"}
-{"id": "VAL-43", "output_field": "“DeleteProcedure 函数是用来删除指定类型和名称的存储过程。”"}
-{"id": "VAL-44", "output_field": "钥匙生成形式为 \"vertex_ids\"。"}
-{"id": "VAL-45", "output_field": "\"类FieldData用于表示TuGraph支持的多种数据类型，如BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON和FLOAT_VECTOR。\""}
-{"id": "VAL-46", "output_field": "默认行为是跳过错误数据包。"}
-{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序。\""}
-{"id": "VAL-48", "output_field": "暂不支持。"}
-{"id": "VAL-49", "output_field": "\"是的，lgraph_peer工具需要通过编译方式部署后才会有。\""}
-{"id": "VAL-50", "output_field": "暂不支持。"}
+{"id": "VAL-2", "output_field": "\"当值大于10000时会触发危急颜色模式。\"  \n置信度：高"}
+{"id": "VAL-3", "output_field": "`IsReal()` 函数用于查询数据是否为实数类型。 置信度：高"}
+{"id": "VAL-4", "output_field": "\"200\"  \n置信度：高"}
+{"id": "VAL-5", "output_field": "“边关联的两个点的字段不一定是点的主键。” \n\n置信度：高"}
+{"id": "VAL-6", "output_field": "\"Delete 方法用于删除边类型的索引。\" 置信度：高"}
+{"id": "VAL-7", "output_field": "暂不支持。  \n置信度：高"}
+{"id": "VAL-8", "output_field": "“memory”是指机器性能指标中的可用内存大小。  \n置信度：95%"}
+{"id": "VAL-9", "output_field": "\"如果不选择清空画布数据按钮，导入的数据会与现有的数据进行合并，保留现有数据，同时添加新导入的数据。请注意，可能会出现重复数据。\" \n\n置信度：高"}
+{"id": "VAL-10", "output_field": "请通过蚂蚁集团的官方支持邮箱提提交您的建议。置信度：高"}
+{"id": "VAL-11", "output_field": "暂不支持。  \n置信度：高"}
+{"id": "VAL-12", "output_field": "\"TuGraph Monitor的主要功能是以可视化方式管理、维护和查看图数据库的运行状态，同时支持系统账户的管理。\" 置信度：高"}
+{"id": "VAL-13", "output_field": "\"TuGraph HA 集群的管理工具是 TuGraph管理工具。\" \n\n置信度：高"}
+{"id": "VAL-14", "output_field": "“通过POST方法修改Token的有效期为无限期，需将`expire_time`设置为一个较大的值或特定标志来指示无限期，但具体实现代码和接口未提供，建议查阅相关API文档。”  \n置信度：中等"}
+{"id": "VAL-15", "output_field": "“蚂蚁集团与华为联合研发。”  \n置信度：高"}
+{"id": "VAL-16", "output_field": "TuGraph图学习模块依赖于TuGraph已安装。  \n置信度：高"}
+{"id": "VAL-17", "output_field": "构造FieldSpec时需要的参数包括：算法所需参数、算法名称、配置类内的Print函数。置信度：高。"}
+{"id": "VAL-18", "output_field": "主要问题是如何在保证高性能的前提下进行有效的并发处理。置信度：高。"}
+{"id": "VAL-19", "output_field": "实例化单节点client对象需要三个参数：url、user 和 password。格式为 `TuGraphDbRpcClient(\"ip:port\", \"username\", \"password\")`。  \n\n置信度：90%"}
+{"id": "VAL-20", "output_field": "\"TuGraph 目前支持 Cypher 图查询语言，未来计划支持其他查询语言暂不支持。\"  \n置信度：高"}
+{"id": "VAL-21", "output_field": "\"DeleteProcedure 函数接受三个类型的参数，分别是：procedureType（字符串），procedureName（字符串），graph（字符串）。\" \n\n置信度：95%"}
+{"id": "VAL-22", "output_field": "\"必须选择可串行化模式（Serializable）。\"  \n置信度：高"}
+{"id": "VAL-23", "output_field": "\"RpcSingleClient 构造函数需要三个参数：url、user 和 password。\" \n\n置信度：高"}
+{"id": "VAL-24", "output_field": "\"默认设置为24小时。\"  \n置信度：95%"}
+{"id": "VAL-25", "output_field": "\"随机采样、邻域采样、重要性采样、层次采样。\" \n置信度：高"}
+{"id": "VAL-26", "output_field": "如果边存在，则返回更新后的边的信息；如果边不存在，则返回新插入的边的信息。信心度：高"}
+{"id": "VAL-27", "output_field": "暂不支持。 \n\n置信度：高"}
+{"id": "VAL-28", "output_field": "对DateTime对象添加超出其范围的微秒数会导致超出范围的异常。置信度：高"}
+{"id": "VAL-29", "output_field": "“VertexLockGuard”是一个用于管理图顶点锁定的机制，以确保在访问或修改顶点数据时的线程安全。置信度：高。"}
+{"id": "VAL-30", "output_field": "“null array”在value pack中的具体含义是表示该数组中的元素未初始化或不包含有效数据。置信度：高。"}
+{"id": "VAL-31", "output_field": "暂不支持。  \n置信度：高"}
+{"id": "VAL-32", "output_field": "可以通过以下语句定义点类型和边类型：\n\n**定义点类型示例：**\n```\nCALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true,'pointTest',point,true)\n```\n\n**定义边类型示例：**\n```\nCALL db.createEdgeLabel('edgeType', 'start', 'end', 'weight', int64, false)\n```\n\n以上为创建点和边类型的示例。  \n置信度：高"}
+{"id": "VAL-33", "output_field": "如果 `log_dir` 不设置，将输出至控制台，而不生成日志文件。置信度：高"}
+{"id": "VAL-34", "output_field": "实际应用中的例子包括：社交网络中寻找最短的朋友关系，物流运输中计算最佳配送路径，网络路由中确定数据包转发的最短路径等。 \n\n置信度：高"}
+{"id": "VAL-35", "output_field": "\"方法 GetLabel() 返回一个包含数据列定义的字典。\"  \n置信度：95%"}
+{"id": "VAL-36", "output_field": "暂不支持。  \n置信度：高"}
+{"id": "VAL-37", "output_field": "“暂不支持。” \n\n置信度：高"}
+{"id": "VAL-38", "output_field": "创建 Label 的请求需要指定该 Label 为点（vertex）或边（relationship）。置信度：95%"}
+{"id": "VAL-39", "output_field": "\"图查询和图分析。\" \n\n置信度：高"}
+{"id": "VAL-40", "output_field": "暂不支持。  \n置信度：高"}
+{"id": "VAL-41", "output_field": "会抛出“LabelNotExistException”或“FieldNotExistException”异常。置信度：高"}
+{"id": "VAL-42", "output_field": "Grafana主要用于数据可视化和监控，尤其在结合Prometheus与TuGraph时，可在网页端交互展示数据库和服务器的监控信息。置信度：高"}
+{"id": "VAL-43", "output_field": "\"DeleteProcedure 函数是用来删除存储过程的。\"  \n置信度：95%"}
+{"id": "VAL-44", "output_field": "\"PairUniqueIndex 的钥匙生成形式为：由两部分组成，分别是两个点的唯一标识符（vid）。\" \n\n置信度：95%"}
+{"id": "VAL-45", "output_field": "\"类FieldData用于表示多种可用于属性的数据类型，包括BOOL, INT8, INT16, INT32, INT64, DATE, DATETIME, FLOAT, DOUBLE, STRING, BLOB, POINT, LINESTRING, POLYGON和FLOAT_VECTOR。\"  \n置信度：高"}
+{"id": "VAL-46", "output_field": "默认行为是会将数据包错误记录到日志中，且导入操作会继续进行。置信度：高"}
+{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序。\" 置信度：高"}
+{"id": "VAL-48", "output_field": "暂不支持。 "}
+{"id": "VAL-49", "output_field": "“是的，lgraph_peer工具只有在编译方式部署后才有。”  \n置信度：高"}
+{"id": "VAL-50", "output_field": "暂不支持。  \n置信度：85%"}
