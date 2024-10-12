@@ -25,8 +25,9 @@ def embed(content):
         api_key= api_key)
     response = client.embeddings.create(input=content, model=model).data[0].embedding
     global counter
+    global knowledge_len
     counter += 1
-    print('{} 块嵌入中...'.format(counter))
+    print('{} / {}块嵌入中...'.format(counter,knowledge_len))
     return response
 
 #  def embed(content):
