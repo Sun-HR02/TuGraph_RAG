@@ -114,11 +114,11 @@ def read_markdown_files(markdown_files_path):
                         if header_nums == 1:
                             continue
                         header_content_cat = ''
-                        for i in range(header_nums):
-                            header_content = meta[f'Header {i+1}']
-                            # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
-                            header_content_cat += header_content
-                            header_content_cat += '\n\n'
+                        # for i in range(header_nums):
+                        #     header_content = meta[f'Header {i+1}']
+                        #     # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
+                        #     header_content_cat += header_content
+                        #     header_content_cat += '\n\n'
                         # document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
     print('Reading markdown files done!')
