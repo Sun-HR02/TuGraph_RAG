@@ -2,7 +2,7 @@
 
 GeaFlow Console提供了一站式图研发、运维的平台能力，同时为引擎运行时提供元数据（Catalog）服务。
 
-### 平台架构
+## 平台架构
 
 ![console_arch](../../static/img/console_arch.png)
 
