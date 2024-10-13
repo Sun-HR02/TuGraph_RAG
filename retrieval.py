@@ -21,6 +21,8 @@ markdown_files_path = './data/markdowns/zh-CN/source'
 # embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
 
+concat_header_with_content = 0 #是否要把header拼接到content中
+
 counter = 0
 
 # def embed(content):
@@ -57,8 +59,6 @@ class ErnieEmbeddingFunction(EmbeddingFunction):
     def embed_documents(self, input: Documents) -> Embeddings:
         embeddings = []
         for text in input:
-            # import ipdb
-            # ipdb.set_trace()
             response = embed(text)
             global counter
             global knowledge_len
@@ -111,18 +111,18 @@ def read_markdown_files(markdown_files_path):
 
                     # 一点改进思路
                     for document in markdown_header_splits:
-                        print(document)
                         meta = document.metadata
                         header_nums = len(meta)
                         if header_nums == 1:
                             continue
                         header_content_cat = ''
-                        for i in range(header_nums):
-                            header_content = meta[f'Header {i+1}']
-                            # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
-                            header_content_cat += header_content
-                            header_content_cat += '\n\n'
-                        document.page_content = header_content_cat + document.page_content
+                        if concat_header_with_content:
+                            for i in range(header_nums):
+                                header_content = meta[f'Header {i+1}']
+                                # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
+                                header_content_cat += header_content
+                                header_content_cat += '\n\n'
+                            document.page_content = header_content_cat + document.page_content
                         markdown_knowledge.append(document)
     print('Reading markdown files done!')
     return markdown_knowledge

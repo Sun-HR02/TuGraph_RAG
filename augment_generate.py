@@ -48,16 +48,9 @@ def knowledge2str(knowledge):
 def generate_answer(query, knowledge, options):
     prompt = ""
     prompt = query
-    prompt += '你可能会用到以下知识：'
+    # 修改知识添加
+    prompt += '以下是辅助文本：'
     prompt += knowledge2str(knowledge)
-    # with open(sys_path, 'r') as f:
-    #     for line in f.readlines():
-    #         system_prompt += line
-
-    # retrieval_prompt = ""
-    # with open(aug_path, 'r') as f:
-    #     for line in f.readlines():
-    #         retrieval_prompt += line
 
     response = get_gpt_response_w_system(prompt, options)
     return response
