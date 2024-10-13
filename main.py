@@ -54,7 +54,6 @@ if options['use_val_score']:
     score_output = get_score(options)
     write_csv(score_output, options['score_path'])
     print('分数平均为{}! \n \n'.format(calculate_avg(score_output)))
-    # write_jsonl(score_output, options['score_path'])
 
 if options['use_test']:
     print('正在对 test1.jsonl 进行生成检索.....')
