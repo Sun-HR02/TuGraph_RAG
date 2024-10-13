@@ -1,50 +1,50 @@
 {"id": "VAL-1", "output_field": "三个级别（0，1，2）。"}
-{"id": "VAL-2", "output_field": "\"当磁盘的读速率或写速率大于10000时，会触发危急颜色模式。\""}
-{"id": "VAL-3", "output_field": "`IsReal()` 函数是用来查询字段是否为实数类型的数据。"}
-{"id": "VAL-4", "output_field": "“200”"}
-{"id": "VAL-5", "output_field": "\"边关联的两个点的字段不一定是点的主键，可以是其他属性。\""}
-{"id": "VAL-6", "output_field": "删除与当前边相关的边索引。"}
-{"id": "VAL-7", "output_field": "抱歉，无法提供该信息。"}
-{"id": "VAL-8", "output_field": "\"memory\"指的是机器性能指标中的内存使用情况。"}
-{"id": "VAL-9", "output_field": "如果不选择清空画布数据按钮，导入的数据会追加到现有数据之后。"}
-{"id": "VAL-10", "output_field": "通过发送电子邮件至支持邮箱，附上建议内容即可。"}
-{"id": "VAL-11", "output_field": "是的，边索引支持查询加速。"}
-{"id": "VAL-12", "output_field": "\"主要功能是图数据的管理、可视化和系统账户管理。\""}
-{"id": "VAL-13", "output_field": "\"管理工具是计算巢。\""}
-{"id": "VAL-14", "output_field": "通过POST方法修改Token的有效期为无限期，需要将`expire_time`设置为0。"}
+{"id": "VAL-2", "output_field": "当磁盘的读速率或写速率大于10000时，会触发危急颜色模式。"}
+{"id": "VAL-3", "output_field": "`IsReal()` 函数用于查询字段数据是否为实数类型。"}
+{"id": "VAL-4", "output_field": "\"200\""}
+{"id": "VAL-5", "output_field": "不是，边关联的两个点的字段不一定是点的主键。"}
+{"id": "VAL-6", "output_field": "`OutEdgeIterator` 类的 `Delete` 方法用于删除当前迭代器指向的边。"}
+{"id": "VAL-7", "output_field": "日志等级可通过配置文件进行调整，具体的配置项一般为 `log_level`，可以设置为不同的等级。"}
+{"id": "VAL-8", "output_field": "“memory”指的是机器的内存使用情况，通常包括系统可用内存和已用内存等指标。在图学习任务中，内存性能优化对于处理大型图和有效训练模型至关重要。"}
+{"id": "VAL-9", "output_field": "如果不选择清空画布数据按钮，导入的数据将会与已有的数据合并，而不会删除或替换当前的画布数据。"}
+{"id": "VAL-10", "output_field": "通过邮件提出关于TuGraph产品的建议，您可以直接联系蚂蚁集团的客户服务或支持团队，通常会提供专门的邮箱或联系方式供用户反馈建议。"}
+{"id": "VAL-11", "output_field": "是的，边索引支持查询加速。添加索引可以提高查询效率，但在数据量大的情况下，构建索引数据可能会消耗一些时间。"}
+{"id": "VAL-12", "output_field": "“TuGraph Monitor的主要功能是以直观的可视化方式呈现图数据，帮助用户管理、维护和查看数据库运行状态，同时支持系统账户的管理。”"}
+{"id": "VAL-13", "output_field": "\"TuGraph HA 集群的管理工具是计算巢。\""}
+{"id": "VAL-14", "output_field": "通过POST方法修改Token的有效期为无限期，可以将`expire_time`设置为一个永远不会过期的值（如极大的时间戳）。具体操作步骤和接口信息请参考官方文档。"}
 {"id": "VAL-15", "output_field": "“蚂蚁集团和清华大学。”"}
-{"id": "VAL-16", "output_field": "TuGraph图学习模块依赖于Python环境。"}
-{"id": "VAL-17", "output_field": "构造FieldSpec时需要的参数包括：字段名称（fieldName）、字段类型（fieldType）、是否可为空（isNullable）、索引类型（indexType）以及默认值（defaultValue）。"}
-{"id": "VAL-18", "output_field": "主要问题是“关联数据爆炸性增长对图计算高效处理提出迫切需求。”"}
-{"id": "VAL-19", "output_field": "\"实例化单节点client对象需要三个参数：url、user 和 pass。\""}
-{"id": "VAL-20", "output_field": "\"TuGraph当前支持Cypher查询语言，未来计划支持Gremlin查询语言。\""}
-{"id": "VAL-21", "output_field": "\"DeleteProcedure 函数接受三个类型的参数，分别是：procedureType（字符串）、procedureName（字符串）、graph（字符串）。\""}
-{"id": "VAL-22", "output_field": "“必须选择可重复读事务模式。”"}
-{"id": "VAL-23", "output_field": "\"三个参数（url, user, password）。\""}
-{"id": "VAL-24", "output_field": "默认设置为3600秒。"}
-{"id": "VAL-25", "output_field": "\"四种采样算子包括：邻居采样、随机游走采样、边采样、子图采样。\""}
-{"id": "VAL-26", "output_field": "\"如果边存在，则返回更新的边；如果边不存在，则返回插入的新边。\""}
-{"id": "VAL-27", "output_field": "ANTLR4支持生成多种目标语言的解析器，包括Java、C#、JavaScript、Python、Go、Swift、C++等。"}
-{"id": "VAL-28", "output_field": "超出范围的微秒数会导致抛出异常。"}
-{"id": "VAL-29", "output_field": "\"VertexLockGuard是用于管理对图中顶点的锁定和解锁操作的工具类。\""}
-{"id": "VAL-30", "output_field": "在value pack中，null array的具体含义是指未分配或没有任何有效数据的数组，通常用于表示一个空的点集或边集。"}
-{"id": "VAL-31", "output_field": "不支持边属性匹配。"}
-{"id": "VAL-32", "output_field": "通过语句定义点类型和边类型的方式如下：\n\n1. 创建点类型示例：\n```\nCALL db.createVertexLabel('点类型名称', '唯一标识符', '标识符字段', 数据类型, 是否为主键, '属性名称', 数据类型, 是否可为空, '空间数据属性名称', 空间数据类型, 是否可为空)\n```\n\n2. 插入数据示例：\n```\nCREATE (n:点类型名称 {唯一标识符:值, 属性名称:值, 空间数据属性名称:空间数据函数('空间数据', 坐标系编号)}) RETURN n\n```"}
-{"id": "VAL-33", "output_field": "如果不设置`log_dir`，日志信息会输出至console，而不会保存为日志文件。"}
-{"id": "VAL-34", "output_field": "实际应用例子包括：导航系统中的路线规划、网络流量优化、社交网络中最短联系路径的查找、物流配送路线优化等。"}
-{"id": "VAL-35", "output_field": "\"返回类型是String。\""}
-{"id": "VAL-36", "output_field": "Rust 存储过程目前支持 0.6.0 版本。"}
-{"id": "VAL-37", "output_field": "\"使用的测试框架是 Google Test。\""}
-{"id": "VAL-38", "output_field": "\"需要指定该 Label 是否为点（vertex）或边（relationship）。\""}
-{"id": "VAL-39", "output_field": "\"两种主要图分析操作是：迭代式图算法和全图/全量数据分析类的任务。\""}
-{"id": "VAL-40", "output_field": "可以通过在代码中引入日志库并设置适当的日志级别，使用日志框架的相关方法添加日志输出埋点。"}
-{"id": "VAL-41", "output_field": "“会抛出异常`LabelNotFoundException`或`FieldNotFoundException`。”"}
-{"id": "VAL-42", "output_field": "Grafana主要用于数据可视化和监控。"}
-{"id": "VAL-43", "output_field": "\"DeleteProcedure 函数用于删除指定的存储过程。\""}
-{"id": "VAL-44", "output_field": "\"PairUniqueIndex 的钥匙生成形式是基于点的属性值组合生成唯一的索引键。\""}
-{"id": "VAL-45", "output_field": "\"类FieldData用于表示多种数据类型，包括BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON和FLOAT_VECTOR。\""}
-{"id": "VAL-46", "output_field": "“默认行为是忽略该数据包，并继续处理后续数据包。”"}
-{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序，可以根据一个或多个属性进行升序或降序排列。\""}
-{"id": "VAL-48", "output_field": "是的，TuGraph-DB有HTTP接口。相关接口代码可以在TuGraph的GitHub仓库中找到。"}
-{"id": "VAL-49", "output_field": "是的，lgraph_peer工具是只有编译方式部署后才有的。"}
-{"id": "VAL-50", "output_field": "无法直接提供当前图数据库应用程序使用的CPU比率。"}
+{"id": "VAL-16", "output_field": "“TuGraph已安装”是图学习模块的前置条件。"}
+{"id": "VAL-17", "output_field": "构造FieldSpec时需要以下参数：  \n1. 算法所需参数  \n2. 算法名称  \n3. 配置类内Print函数  "}
+{"id": "VAL-18", "output_field": "“主要问题是关联数据爆炸性增长对图计算高效处理提出迫切需求。”"}
+{"id": "VAL-19", "output_field": "实例化单节点client对象需要三个参数：`url`、`user` 和 `password`。"}
+{"id": "VAL-20", "output_field": "\"TuGraph-DB目前支持Cypher查询语言，并计划在未来支持更多的查询语言。\""}
+{"id": "VAL-21", "output_field": "\"DeleteProcedure 函数接受三个类型的参数，分别为：`procedureType`（字符串）、`procedureName`（字符串）和`graph`（字符串）。\""}
+{"id": "VAL-22", "output_field": "\"必须选择并行事务模式（Parallel Transaction Mode）。\""}
+{"id": "VAL-23", "output_field": "\"RpcSingleClient 构造函数需要三个参数：url（str类型）、user（str类型）、password（str类型）。\""}
+{"id": "VAL-24", "output_field": "“expire_time”的默认设置是30天。"}
+{"id": "VAL-25", "output_field": "“四种采样算子分别是：邻居采样、随机游走采样、重要性采样和边采样。”"}
+{"id": "VAL-26", "output_field": "如果提供的参数对应的边不存在于现有边中，将执行插入操作；如果存在，将更新该边的属性。返回值将是执行操作的状态码，通常为“200”。"}
+{"id": "VAL-27", "output_field": "ANTLR4 支持生成 Java、C#、Python、JavaScript、Go 等多个目标语言的解析器。"}
+{"id": "VAL-28", "output_field": "如果对DateTime对象添加超出其范围的微秒数，会导致错误或异常情况发生。具体表现为DateTime对象会无法正确表示该时间，可能抛出异常或者返回不合逻辑的时间值。"}
+{"id": "VAL-29", "output_field": "\"VertexLockGuard是用于管理图中点的锁定状态，确保在多线程环境下对点的安全访问和修改。\""}
+{"id": "VAL-30", "output_field": "在value pack时，null array的具体含义是表示一个不包含任何元素的数组，通常用于初始化或指示没有有效数据的情况。"}
+{"id": "VAL-31", "output_field": "TuGraph支持边属性匹配，但在Cypher语法中，如果在过滤边属性时使用了不正确的格式，可能会导致查询失败。请确保使用正确的匹配模式，并遵循TuGraph特定的查询语法。"}
+{"id": "VAL-32", "output_field": "TuGraph中通过以下语句定义点类型和边类型：\n\n1. 创建点类型：\n   ```\n   CALL db.createVertexLabel('点类型名称', '主键', '索引字段', 数据类型, 是否唯一, '其他字段', 数据类型, 是否可空, '空间数据字段', 数据类型, 是否可空)\n   ```\n\n2. 定义空间数据示例：\n   - Point：`point(2.0, 2.0, 7203)`\n   - Linestring：`LINESTRING(0 2,1 1,2 0)`\n   - Polygon：`POLYGON((0 0,0 7,4 2,2 0,0 0))`\n\n例如，创建标记美食位置的点模型的语句为：\n```\nCALL db.createVertexLabel('food', 'id', 'id', int64, false, 'name', string, true, 'pointTest', point, true)\n```\n\n插入数据的示例为：\n```\nCREATE (n:food {id:10001, name: 'aco Bell', pointTest: point(3.0, 4.0, 7203)}) RETURN n\n```"}
+{"id": "VAL-33", "output_field": "如果不设置`log_dir`，日志信息将输出至console，而不会保存日志文件。"}
+{"id": "VAL-34", "output_field": "一个实际应用中调用 `algo.shortestPath` 的例子是网络路由优化，其中需要计算从一个路由器（源点）到其他所有路由器的最短数据传输路径，以减少延迟和带宽使用。"}
+{"id": "VAL-35", "output_field": "\"String类型的结果。\""}
+{"id": "VAL-36", "output_field": "\"Rust 存储过程目前支持版本 0.1.0。\""}
+{"id": "VAL-37", "output_field": "\"TuGraph单元测试使用的是Google Test框架。\""}
+{"id": "VAL-38", "output_field": "创建 Label 的请求需要指定该 Label 是否为点（vertex）或边（relationship）。"}
+{"id": "VAL-39", "output_field": "\"两种主要图分析操作是迭代式图算法和复杂子图的导出与计算。\""}
+{"id": "VAL-40", "output_field": "在TuGraph-DB中，可以通过设置日志级别和配置日志记录来增加日志输出埋点。具体步骤包括：\n\n1. 在配置文件中找到日志相关的设置项。\n2. 修改默认的日志级别为你需要的级别（例如DEBUG、INFO、WARN等）。\n3. 在代码中添加日志输出语句，使用日志记录的API。\n\n请根据实际需求来调整和设置日志输出。"}
+{"id": "VAL-41", "output_field": "会抛出“EdgeLabelOrFieldNotFoundException”异常。"}
+{"id": "VAL-42", "output_field": "Grafana主要用于可视化监控数据，通过与Prometheus等工具结合，展示TuGraph的监控信息，包括数据库状态和服务器状态。"}
+{"id": "VAL-43", "output_field": "\"DeleteProcedure 函数是用来删除存储过程的操作。\""}
+{"id": "VAL-44", "output_field": "\"PairUniqueIndex 的钥匙生成形式是将两个属性组合生成唯一键。\""}
+{"id": "VAL-45", "output_field": "\"FieldData类用于表示TuGraph支持的多种属性数据类型，包括BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON、FLOAT_VECTOR等。\""}
+{"id": "VAL-46", "output_field": "“默认行为是跳过该数据包，并继续导入其他数据包。”"}
+{"id": "VAL-47", "output_field": "\"ORDER BY在GQL中用于对查询结果进行排序，按照指定的列或属性的值进行升序或降序排列。\""}
+{"id": "VAL-48", "output_field": "TuGraph-DB有HTTP接口。对应的接口代码通常在TuGraph的文档或源代码库中可以找到，具体路径可能因版本而异。"}
+{"id": "VAL-49", "output_field": "“是的，lgraph_peer工具只有通过编译方式部署后才会有。”"}
+{"id": "VAL-50", "output_field": "图数据库应用程序的CPU比率没有统一的标准，它会根据具体应用的负载和数据规模而变化。建议监控系统资源使用情况来获取准确的CPU比率。"}

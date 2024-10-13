@@ -18,19 +18,27 @@
 
 ## Project Structure
 
-`retrieval.py` :实现markdown文档的分段和嵌入，并且存储到向量数据库当中
-- 针对markdown分段，使用langchain根据文档标题段落分段
-- 使用gpt-text-embedding-ada-002进行嵌入得到向量
+`data/`: 存储了原始知识文档
 
-`read_from_db.py` :从向量数据库中读取数据和检索
-
-`augment_generate.py` : 结合向量数据库内容，向大模型提问
-
-`main.py` : 使用服务的主代码
+`result/`: 包含模型输出的问题答案，以及针对`val.jsonl`给出评分结果
 
 `test/` ：存储了测试用文件，其中`val.jsonl`包含了正确答案，`test1.jsonl`不包含答案
 
-`result/`: 包含模型输出的问题答案，以及针对`val.jsonl`给出评分结果
+`augment_generate.py` : 结合向量数据库内容，向大模型提问,使用gpt-4o-mini
+
+`embed.py` : 嵌入功能文件的代码
+
+`main.py` : 使用服务的主代码
+
+`read_from_db.py` :从向量数据库中读取数据和检索
+
+`retrieval.py` :实现markdown文档的分段和嵌入，并且存储到向量数据库当中
+- 针对markdown分段，使用langchain根据文档标题段落分段
+- 使用BGE-M3进行嵌入得到向量
+
+`score.py` : 评分函数代码
+
+`utils.py` : 工具函数代码
 
 ## Quick Start
 
