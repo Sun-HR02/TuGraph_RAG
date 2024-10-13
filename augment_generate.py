@@ -30,17 +30,19 @@ def get_gpt_response_w_system(prompt, options):
         print(e)
         return content
 
-def knowledge2str(knowledge):
+def knowledge2str(knowledge, tokens_per_knowledge):
     knowledgeStr = ''
     for document in knowledge:
         meta = document.metadata
         header_nums = len(meta)
-        header_content_cat = ''
-        for i in range(header_nums):
-            header_content = meta[f'Header {i+1}']
-            # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
-            header_content_cat += header_content
-            header_content_cat += '--'
+        header_content_cat = '-'
+        if(len(document.page_content) > tokens_per_knowledge):
+            document.page_content = document.page_content[:tokens_per_knowledge]
+        # for i in range(header_nums):
+        #     header_content = meta[f'Header {i+1}']
+        #     # 可能对每一个header，把数字编号去掉更好? 数字编号比如1., 2.切分后就没有意义了
+        #     header_content_cat += header_content
+        #     header_content_cat += '--'
         knowledgeStr = header_content_cat + document.page_content
     return knowledgeStr
 
@@ -49,7 +51,7 @@ def generate_answer(query, knowledge, options):
     prompt = ""
     prompt = query
     prompt += '你可能会用到以下知识：'
-    prompt += knowledge2str(knowledge)
+    prompt += knowledge2str(knowledge, options['tokens_per_knowledge'])
     # with open(sys_path, 'r') as f:
     #     for line in f.readlines():
     #         system_prompt += line
