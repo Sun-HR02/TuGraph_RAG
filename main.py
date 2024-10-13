@@ -19,6 +19,7 @@ options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，
                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“200” '
 options['chat-model'] = "gpt-4o"
 options['embedding-model'] = "../bge-m3"
+options['tokens_per_knowledge'] = 2000 # 为防止单个知识过长，进行截断
 # gpt调用
 options['gpt-baseurl'] = 'https://api.gptapi.us/v1'
 options['gpt-apikey'] = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
@@ -33,7 +34,7 @@ options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
 options['use_val'] = 1
-options['use_val_score'] = 0
+options['use_val_score'] = 1
 options['use_test'] = 0
 options['save_knowledge'] = 1
 

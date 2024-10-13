@@ -1463,235 +1463,7 @@ Output:
 ]
 }
 ```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.3.服务器状态'}"
-`FieldData` 类中的函数 `IsReal()` 是用来查询什么类型的数据？,"page_content='典型示例
-
-PageRank动态图计算示例介绍
-
-实例代码
-
-```java
-
-public class IncrGraphCompute {
-
-private static final Logger LOGGER = LoggerFactory.getLogger(IncrGraphCompute.class);
-// 计算结果路径
-public static final String RESULT_FILE_PATH = ""./target/tmp/data/result/incr_graph"";
-// 结果对比路径
-public static final String REF_FILE_PATH = ""data/reference/incr_graph"";
-
-public static void main(String[] args) {
-// 获取执行环境
-Environment environment = EnvironmentFactory.onLocalEnvironment();
-// 执行作业提交
-IPipelineResult result = submit(environment);
-// 等待执行完成
-result.get();
-// 关闭执行环境
-environment.shutdown();
-}
-
-public static IPipelineResult<?> submit(Environment environment) {
-// 构建任务执行流
-final Pipeline pipeline = PipelineFactory.buildPipeline(environment);
-// 获取作业环境配置
-Configuration envConfig = ((EnvironmentContext) environment.getEnvironmentContext()).getConfig();
-// 指定保存计算结果的路径
-envConfig.put(FileSink.OUTPUT_DIR, RESULT_FILE_PATH);
-
-// graphview 名称
-final String graphName = ""graph_view_name"";
-// 创建增量图 graphview
-GraphViewDesc graphViewDesc = GraphViewBuilder
-.createGraphView(graphName)
-// 设置 graphview 分片数, 可从配置中指定
-.withShardNum(envConfig.getInteger(ExampleConfigKeys.ITERATOR_PARALLELISM))
-// 设置 graphview backend 类型
-.withBackend(BackendType.RocksDB)
-// 指定 graphview 点边以及属性等schema信息
-.withSchema(new GraphMetaType(IntegerType.INSTANCE, ValueVertex.class, Integer.class, ValueEdge.class, IntegerType.class))
-.build();
-// 将创建好的graphview信息添加到任务执行流
-pipeline.withView(graphName, graphViewDesc);
-
-// 提交任务并执行
-pipeline.submit(new PipelineTask() {
-@Override
-public void execute(IPipelineTaskContext pipelineTaskCxt) {
-Configuration conf = pipelineTaskCxt.getConfig();
-// 1. 构建点数据输入源
-PWindowSource<IVertex<Integer, Integer>> vertices =
-// extract vertex from edge file
-pipelineTaskCxt.buildSource(new RecoverableFileSource<>(""data/input/email_edge"",
-// 指定每行数据的解析格式
-line -> {
-String[] fields = line.split("","");
-IVertex<Integer, Integer> vertex1 = new ValueVertex<>(
-Integer.valueOf(fields[0]), 1);
-IVertex<Integer, Integer> vertex2 = new ValueVertex<>(
-Integer.valueOf(fields[1]), 1);
-return Arrays.asList(vertex1, vertex2);
-}), SizeTumblingWindow.of(10000))
-// 指定点数据source并发数
-.withParallelism(pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SOURCE_PARALLELISM));
-
-// 2. 构建边数据输入源
-PWindowSource<IEdge<Integer, Integer>> edges =
-pipelineTaskCxt.buildSource( new RecoverableFileSource<>(""data/input/email_edge"",
-// 指定每行数据的解析格式
-line -> {
-String[] fields = line.split("","");
-IEdge<Integer, Integer> edge = new ValueEdge<>(Integer.valueOf(fields[0]),
-Integer.valueOf(fields[1]), 1);
-return Collections.singletonList(edge);
-}), SizeTumblingWindow.of(5000))
-// 指定边数据source并发数
-.withParallelism(pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SOURCE_PARALLELISM));
-
-// 获取定义的graphview, 并构建图数据
-PGraphView<Integer, Integer, Integer> fundGraphView =
-pipelineTaskCxt.getGraphView(graphName);
-PIncGraphView<Integer, Integer, Integer> incGraphView =
-fundGraphView.appendGraph(vertices, edges);
-// 获取作业执行map算子的并发数
-int mapParallelism = pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.MAP_PARALLELISM);
-// 获取作业执行sink算子的并发数
-int sinkParallelism = pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SINK_PARALLELISM);
-// 创建sink方法
-SinkFunction<String> sink = ExampleSinkFunctionFactory.getSinkFunction(conf);
-// 基于图算法，执行动态图计算
-incGraphView.incrementalCompute(new IncGraphAlgorithms(3))
-// 获取结果点数据并作map操作
-.getVertices()
-.map(v -> String.format(""%s,%s"", v.getId(), v.getValue()))
-.withParallelism(mapParallelism)
-.sink(sink)
-.withParallelism(sinkParallelism);
-}
-});
-
-return pipeline.execute();
-}
-
-// 创建Pagerank动态图算法
-public static class IncGraphAlgorithms extends IncVertexCentricCompute<Integer, Integer,
-Integer, Integer> {
-
-public IncGraphAlgorithms(long iterations) {
-// 设置算法最大迭代次数
-super(iterations);
-}
-
-@Override
-public IncVertexCentricComputeFunction<Integer, Integer, Integer, Integer> getIncComputeFunction() {
-// 指定Pagerank计算逻辑
-return new PRVertexCentricComputeFunction();
-}
-
-@Override
-public VertexCentricCombineFunction<Integer> getCombineFunction() {
-return null;
-}
-
-}
-
-public static class PRVertexCentricComputeFunction implements
-IncVertexCentricComputeFunction<Integer, Integer, Integer, Integer> {
-
-private IncGraphComputeContext<Integer, Integer, Integer, Integer> graphContext;
-
-// init方法, 获取graphContext
-@Override
-public void init(IncGraphComputeContext<Integer, Integer, Integer, Integer> graphContext) {
-this.graphContext = graphContext;
-}
-
-// 第一轮迭代evolve方法实现
-@Override
-public void evolve(Integer vertexId,
-TemporaryGraph<Integer, Integer, Integer> temporaryGraph) {
-// 动态图版本指定为0
-long lastVersionId = 0L;
-// 从增量图中获取id等于 vertexId 的点
-IVertex<Integer, Integer> vertex = temporaryGraph.getVertex();
-// 获取历史底图
-HistoricalGraph<Integer, Integer, Integer> historicalGraph = graphContext
-.getHistoricalGraph();
-if (vertex == null) {
-// 如果增量图中不存在id 等于 vertexId 的点, 就从历史图中获取
-vertex = historicalGraph.getSnapShot(lastVersionId).vertex().get();
-}
-
-if (vertex != null) {
-// 从增量图中获取点对应的所有出边
-List<IEdge<Integer, Integer>> newEs = temporaryGraph.getEdges();
-// 从历史图中获取点对应的所有出边
-List<IEdge<Integer, Integer>> oldEs = historicalGraph.getSnapShot(lastVersionId)
-.edges().getOutEdges();
-if (newEs != null) {
-for (IEdge<Integer, Integer> edge : newEs) {
-// 向增量图中所有边的终点，发送消息，内容为vertexId
-graphContext.sendMessage(edge.getTargetId(), vertexId);
-}
-}
-if (oldEs != null) {
-for (IEdge<Integer, Integer> edge : oldEs) {
-// 向历史图中所有边的终点，发送消息，内容为vertexId
-graphContext.sendMessage(edge.getTargetId(), vertexId);
-}
-}
-}
-
-}
-
-@Override
-public void compute(Integer vertexId, Iterator<Integer> messageIterator) {
-int max = 0;
-// 迭代vertexId收到的所有消息, 并取其中的最大值
-while (messageIterator.hasNext()) {
-int value = messageIterator.next();
-max = max > value ? max : value;
-}
-// 从增量图中获取id 等于vertexId的点
-IVertex<Integer, Integer> vertex = graphContext.getTemporaryGraph().getVertex();
-// 从历史图中获取id等于 vertexId 的点
-IVertex<Integer, Integer> historyVertex = graphContext.getHistoricalGraph().getSnapShot(0).vertex().get();
-// 将增量图中的点属性值和消息的最大值，两者取最大
-if (vertex != null && max < vertex.getValue()) {
-max = vertex.getValue();
-}
-// 将历史图中的点属性值和消息的最大值，两者取最大
-if (historyVertex != null && max < historyVertex.getValue()) {
-max = historyVertex.getValue();
-}
-// 更新增量图中点的属性值
-graphContext.getTemporaryGraph().updateVertexValue(max);
-}
-
-
-@Override
-public void finish(Integer vertexId, MutableGraph<Integer, Integer, Integer> mutableGraph) {
-// 从增量图中获取vertexId相关的点边
-IVertex<Integer, Integer> vertex = graphContext.getTemporaryGraph().getVertex();
-List<IEdge<Integer, Integer>> edges = graphContext.getTemporaryGraph().getEdges();
-if (vertex != null) {
-// 将增量图中的点添加到图数据中。
-mutableGraph.addVertex(0, vertex);
-graphContext.collect(vertex);
-} else {
-LOGGER.info(""not found vertex {} in temporaryGraph "", vertexId);
-}
-if (edges != null) {
-// 将增量中的边添加到图数据中。
-edges.stream().forEach(edge -> {
-mutableGraph.addEdge(0, edge);
-});
-}
-}
-}
-
-}
-
-```' metadata={'Header 1': '典型示例', 'Header 2': 'PageRank动态图计算示例介绍', 'Header 3': '实例代码'}","page_content='Geaflow支持以下逻辑运算：  
+`FieldData` 类中的函数 `IsReal()` 是用来查询什么类型的数据？,"page_content='Geaflow支持以下逻辑运算：  
 操作|描述
 ----------------------|------
 boolean1 OR boolean2 | 如果boolean1为true或boolean2为true，则返回true。
@@ -1724,7 +1496,15 @@ value NOT IN (value [, value]* ) | 如果value不等于列表中的任何一个�
 读的是统计数据，轻操作。
 ```
 CALL dbms.meta.countDetail()
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '实时查看当前点边数据量'}"
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '实时查看当前点边数据量'}","page_content='地理空间数据类型使用示例
+
+4. 函数介绍
+
+| 函数名  | 描述 | 输入参数                         | 返回值类型 |
+| --- | --- |------------------------------| --- |
+| Distance() | 计算两个空间数据间的距离(要求坐标系相同) | Spatial data1, Spatial data2 | double |
+| Disjoint()  |  判断两个空间数据是否相交（开发中） | Spatial data1, Spatial data2 | bool |
+| WithinBBox() | 判断某个空间数据是否在给定的长方形区域内（开发中） | Spatial data, Point1         | bool |' metadata={'Header 1': '地理空间数据类型使用示例', 'Header 2': '4. 函数介绍'}"
 如果成功修改一个用户的描述，应返回什么状态码？  ,"page_content='RESTful API Legacy
 
 6.Deprecated
@@ -1951,7 +1731,23 @@ Input:
 ```
 • 200: OK
 ```  
-此时用户`guest1`拥有角色`guest1`, `role1`和`role2`。' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.1.用户管理'}","page_content='RESTful API Legacy
+此时用户`guest1`拥有角色`guest1`, `role1`和`role2`。' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.1.用户管理'}","page_content='TuGraph-Restful-Server
+
+5.返回值
+
+通用返回格式  
+|  body参数  | 参数说明  |  参数类型  |  是否必填  |
+|:--------:|:-----:|:------:| :-----: |
+| errorCode |  状态码  |  字符串  |  是  |
+| errorMessage | 错误信息  |  字符串  |  是  |
+| data | 返回的数据 |  字符串  |  是  |  
+TuGraph 返回的 HTTP 状态码包含以下四种：  
+- 200 OK: 操作成功
+- 400 Bad Request: 输入有误，例如 URI 错误，或者请求中的 JSON 参数错误
+- 401 Unauthorized: 未通过鉴权认证，例如用户名密码错误，token超过有效期等
+- 500 Internal Server Error: 服务器端错误
+当操作成功时，返回的 data 中包含操作的返回值。
+当发生输入错误或者服务器错误时，返回的 errorMessage 中包含错误提示。' metadata={'Header 1': 'TuGraph-Restful-Server', 'Header 2': '5.返回值'}","page_content='RESTful API Legacy
 
 3.登录
 
@@ -1986,38 +1782,7 @@ Output:
 {
 ""jwt"": ""eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaXNzIjoiZm1hLmFpIiwidXNlcl9pZCI6ImFkbWluIn0.SHaqrjKLaI4byjbEYVAH4D88dOTD_zYQ_uAvdizTMek""
 }
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '3.登录', 'Header 3': '3.2.身份刷新'}","page_content='RESTful API Legacy
-
-3.登录
-
-3.3.修改Token有效期
-
-修改Token有效期，需要传输jwt，refresh_time和expire_time三个参数，其中jwt用于校验用户身份，refresh_time和expire_time等于0时，有效期为无期限，超过refresh_time时，需要调用refresh接口获取新的Token;超过expire_time时，需要重新登录。  
-- **URI**: `/update_token_time`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| Authorization | 令牌 | 字符串 |
-| refresh_time | 有效时间（默认设置为0） | Int64 |
-| expire_time | 有效时间（默认设置为0） | Int64 |  
-- **RESPONSE**:  如果成功，返回代码 200。  
-**Example request.**  
-```
-• POST http://localhost:7070/update_token_time
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json; charset=UTF-8
-Input:
-{
-""Authorization"" : ""Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmbWEuYWkiLCJwYXNzd29yZCI6IjczQFR1R3JhcGgiLCJ1c2VyIjoiYWRtaW4ifQ.o_yb5veSJkuy-ieBp4MqTk-tC1grcKotgVbgNJ0TyTU"",
-""refresh_time"":0,
-""expire_time"":0
-}
-```  
-**Example response.**  
-```
-• 200: OK
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '3.登录', 'Header 3': '3.3.修改Token有效期'}"
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '3.登录', 'Header 3': '3.2.身份刷新'}"
 边关联的两个点的字段，一定是点的主键吗？,"page_content='业务开发指南
 
 导入数据
@@ -2793,82 +2558,83 @@ TuGraph 的图分析引擎，面向的场景主要是全图/全量数据分析�
 Standalone 模式的数据源是 TXT、二进制、ODPS 文件等外部数据源，能够独立于图数据存储直接运行分析算法。  
 TuGraph 图计算系统社区版内置 6 个基础算法，商业版内置了共 34 种算法。涵盖了图结构、社区发现、路径查询、重要性分析、模式挖掘和关联性分析的六大类常用方法，可以满足多种业务场景需要，因此用户几乎不需要自己实现具体的图计算过程。  
 <table><tbody><tr><td>算法类型</td><td>中文算法名</td><td>英文算法名</td><td>程序名</td></tr><tr><td rowspan=""5"">路径查询</td><td>广度优先搜索</td><td>Breadth-First Search</td><td>bfs</td></tr><tr><td>单源最短路径</td><td>Single-Source Shortest Path</td><td>sssp</td></tr><tr><td>全对最短路径</td><td>All-Pair Shortest Path</td><td>apsp</td></tr><tr><td>多源最短路径</td><td>Multiple-source Shortest Paths</td><td>mssp</td></tr><tr><td>两点间最短路径</td><td>Single-Pair Shortest Path</td><td>spsp</td></tr><tr><td rowspan=""9"">重要性分析</td><td>网页排序</td><td>Pagerank</td><td>pagerank</td></tr><tr><td>介数中心度</td><td>Betweenness Centrality</td><td>bc</td></tr><tr><td>置信度传播</td><td>Belief Propagation</td><td>bp</td></tr><tr><td>距离中心度</td><td>Closeness Centrality</td><td>clce</td></tr><tr><td>个性化网页排序</td><td>Personalized PageRank</td><td>ppr</td></tr><tr><td>带权重的网页排序</td><td>Weighted Pagerank Algorithm</td><td>wpagerank</td></tr><tr><td>信任指数排名</td><td>Trustrank</td><td>trustrank</td></tr><tr><td>sybil检测算法</td><td>Sybil Rank</td><td>sybilrank</td></tr><tr><td>超链接主题搜索</td><td>Hyperlink-Induced Topic Search</td><td>hits</td></tr><tr><td rowspan=""4"">关联性分析</td><td>平均集聚系数</td><td>Local Clustering Coefficient</td><td>lcc</td></tr><tr><td>共同邻居</td><td>Common Neighborhood</td><td>cn</td></tr><tr><td>度数关联度</td><td>Degree Correlation</td><td>dc</td></tr><tr><td>杰卡德系数</td><td>Jaccard Index</td><td>ji</td></tr><tr><td rowspan=""5"">图结构</td><td>直径估计</td><td>Dimension Estimation</td><td>de</td></tr><tr><td>K核算法</td><td>K-core</td><td>kcore</td></tr><tr><td>k阶团计数算法</td><td>Kcliques</td><td>kcliques</td></tr><tr><td>k阶桁架计数算法</td><td>Ktruss</td><td>ktruss</td></tr><tr><td>最大独立集算法</td><td>Maximal independent set</td><td>mis</td></tr><tr><td rowspan=""8"">社区发现</td><td>弱连通分量</td><td>Weakly Connected Components</td><td>wcc</td></tr><tr><td>标签传播</td><td>Label Propagation Algorithm</td><td>lpa</td></tr><tr><td>EgoNet算法</td><td>EgoNet</td><td>en</td></tr><tr><td>鲁汶社区发现</td><td>Louvain</td><td>louvain</td></tr><tr><td>强连通分量</td><td>Strongly Connected Components</td><td>scc</td></tr><tr><td>监听标签传播</td><td>Speaker-listener Label Propagation Algorithm</td><td>slpa</td></tr><tr><td>莱顿算法</td><td>Leiden</td><td>leiden</td></tr><tr><td>带权重的标签传播</td><td>Weighted Label Propagation Algorithm</td><td>wlpa</td></tr><tr><td rowspan=""3"">模式挖掘</td><td>三角计数</td><td>Triangle Counting</td><td>triangle</td></tr><tr><td>子图匹配算法</td><td>Subgraph Isomorphism</td><td>subgraph_isomorphism</td></tr><tr><td>模式匹配算法</td><td>Motif</td><td>motif</td></tr></tbody></table>' metadata={'Header 1': '图分析引擎技术解析', 'Header 2': '1 TuGraph 图分析引擎概览'}"
-构造FieldSpec时需要哪些参数？,"page_content='数据导入
+构造FieldSpec时需要哪些参数？,"page_content='Cypher API
 
-3.配置文件
+5.附录2. 内置procedures列表
 
-3.1.配置文件格式
+* db.createEdgeLabel( label_name, field_spec...)
 
-配置文件包含两部分：schema 和 files。`schema`部分定义 label，`files`部分描述要导入的数据文件。  
-#### 3.1.1.关键字  
-- schema (数组形式）
-- label（必选，字符串形式）
-- type（必选，值只能是 VERTEX 或者 EDGE）
-- properties（数组形式，对于点必选，对于边如果没有属性可以不配置）
-- name（必选，字符串形式）
-- type （必选，BOOL，INT8，INT16，INT32，INT64，DATE，DATETIME，FLOAT，DOUBLE，STRING，BLOB）
-- optional（可选，代表该字段可以配置，也可以不配置）
-- index（可选，该字段是否需要建索引）
-- unique（可选，该字段是否建索引，并且是 unique 类型的，即全局唯一）
-- pair_unique（可选，该字段是否建索引，并且是 pari_unique 类型的，即两点间唯一，仅用于边索引）unique与pair_unique只能设置一个，同时设置并运行将会因为输入异常而终止
-- primary (仅点配置，必选，主键字段，需指定一个 property，用来唯一确定一个点)
-- temproal (仅边配置，可选，指定时间戳属性用于存储层排序)
-- temporal_field_order (仅边配置，可选，默认为""ASC""，表示升序，也可配置为""DESC""，表示降序)
-- constraints (仅边配置，可选，数组形式，起点和终点的 label，不配置或者为空代表不限制)
-- detach_property (点边都可配置，可选，默认是`false`。`true` 代表属性数据单独存放，在内存不够，属性数据比较多的场景下可以减少io读放大)
-- files （数组形式）
-- path（必选，字符串，可以是文件路径或者目录的路径，如果是目录会导入此目录下的所有文件，需要保证有相同的 schema）
-- header（可选，数字，头信息占文件起始的几行，没有就是 0）
-- format（必须选，只能是 JSON 或者 CSV）
-- label（必选，字符串）
-- columns（数组形式）
-- SRC_ID (特殊字符串，仅边有，代表这列是起始点数据)
-- DST_ID (特殊字符串，仅边有，代表这列是目的点数据)
-- SKIP  (特殊字符串，代表跳过这列数据)
-- [property]
-- SRC_ID (仅边配置，值是起始点标签)
-- DST_ID (仅边配置，值是目的点标签)  
-#### 3.1.2.索引长度
-因为TuGraph对key的长度有限制，唯一索引不允许建立超过限制长度的索引，而非唯一索引会对超过长度限制的属性进行截断处理，并且在通过迭代器遍历非唯一索引时，拿到的key也是经过截断的，可能和预期不一致。针对不同类型的非唯一索引，截断长度是不同的。
-##### 3.1.2.1.unique索引
-unique索引是全局唯一的，该索引key的最大长度是480bytes。primary作为特殊的unique索引，因此最大key的长度也是480bytes，超过无法建立索引。
-##### 3.1.2.2.pair_unique索引
-pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
-##### 3.1.2.3.非唯一索引
-非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='地理空间数据类型使用示例
-
-2. 预备知识
-
-2.4 常用函数
-
-| Name                 | Description           | Signature                                                                 |
-|----------------------|-----------------------|---------------------------------------------------------------------------|
-| `dbms.graph.createGraph` | 创建子图           | `dbms.graph.createGraph(graph_name::STRING, description::STRING, max_size_GB::INTEGER) :: (::VOID)` |
-| `db.createVertexLabel`  | 创建Vertex Label      | `db.createVertexLabel(label_name::STRING,field_specs::LIST) :: (::VOID)`      |
-| `db.getLabelSchema`     | 列出label schema      | `db.getLabelSchema(label_type::STRING,label_name::STRING) :: (name::STRING,type::STRING,optional::BOOLEAN)` |
-| `db.deleteLabel`        | 删除Vertex            | `db.deleteLabel(label_type::STRING,label_name::STRING) :: (::VOID)`         |  
-更完整详细的函数使用以及插入数据的语句，可以参考 [Cypher API](../8.query/1.cypher.md)' metadata={'Header 1': '地理空间数据类型使用示例', 'Header 2': '2. 预备知识', 'Header 3': '2.4 常用函数'}","page_content='表相关DDL
-
-Create Table
-
-参数
-
-创建表的同时，可以使用WITH指定表的参数信息，其中type参数用于指定外部表的存储类型，其他参数为kv类型。  
-**Example**
-```sql
-CREATE TABLE person (
-id   VARCHAR,
-name VARCHAR,
-age INT
-) WITH (
-type ='file',
-geaflow.dsl.file.path = '/path/to/person/',
-geaflow.dsl.column.separator = '|',
-geaflow.dsl.window.size = 5000
-);
+Create an edge label.  
+**Parameters:**  
+| parameter  | parameter type | description          |
+| ---------- | -------------- | ------------------------ |
+| label_name | string     | name of the label    |
+| edge_constraints | string | edge constraints |
+| field_spec | list       | specification of a field |  
+in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`, where optional is specified as true, only for  optional fields.  
+`edge_constraints` is a json array string, This parameter limits the combination of starting and ending vertex of the edge, for example: `'[[""vertex_label1"",""vertex_label2""],[""vertex_label3"",""vertex_label4""]]'`, which limits the edge direction can only be from `vertex_label1` to `vertex_label2` or from `vertex_label3` to `vertex_label4`. If you don't want to have any constraints, give an empty array string, like this `'[]'`  
+**Output:**  
+If successful, it returns a success message.  
+**Example input:**  
 ```
-这个例子创建一个文件类型的表，并指定表参数。其中type指定表类型为文件; geaflow.dsl.file.path文件路径;geaflow.dsl.column.separator指定字段分隔列; geaflow.dsl.window.size指定每批次读取文件的行数。' metadata={'Header 1': '表相关DDL', 'Header 2': 'Create Table', 'Header 3': '参数'}"
+CALL db.createEdgeLabel('KNOWS', '[]', 'name', 'int32', true)
+```  
+**Example output:**  
+```
+Added type [KNOWS]
+```' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.createEdgeLabel( label_name, field_spec...)'}","page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* db.createVertexLabel(label_name, primary_field, field_spec...)
+
+Create a vertex label.  
+**Scope:** whole instance.  
+**Parameters:**  
+| parameter  | parameter type | description          |
+| ---------- | -------------- | ------------------------ |
+| label_name | string     | name of  vertex label    |
+| primary_field | string  | primary field of vertex label |
+| field_spec | list       | specification of a field |  
+in which each `field_spec` is a list of string in the form of `[field_name, field_type, true]`, where true is specified only for optional fields.  
+**Output:** If successful, it returns a success message.  
+**Example input:**  
+```
+CALL db.createVertexLabel('Person', 'id', 'id', 'int64', false, 'name', 'string', true)
+```  
+**Example output:**  
+```
+Added label [Person]
+```' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.createVertexLabel(label_name, primary_field, field_spec...)'}","page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* db.alterLabelModFields(label_type, label_name, field_spec...)
+
+Modifies the specified fields in the label.  
+**Parameters:**  
+| parameter  | parameter type | description           |
+| ---------- | -------------- | ------------------------- |
+| label_type | string     | either 'vertex' or 'edge' |
+| label_name | string     | name of the label     |
+| field_spec | list       | specification of a field  |  
+in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`.The target field should exist.  
+**Output:**  
+| field_name | field_type | description               |
+| ---------- | ---------- | --------------------------------- |
+| affected   | integer    | number of vertexes/edges modified |  
+**Example input:**  
+```
+CALL db.alterLabelModFields(
+'vertex',
+'new_label',
+['birth_date', DATETIME, true],
+['gender', BOOL, true])
+```  
+**Example output:**  
+| affected |
+| -------- |
+| 1024     |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.alterLabelModFields(label_type, label_name, field_spec...)'}"
 TuGraph DB的并发性能优化最初面临的主要问题是什么？,"page_content='Antlr4 社区重大贡献：TuGraph 优化 C++ Target 并发性能提升 10 倍！
 
 TuGraph做了哪些工作
@@ -3121,61 +2887,181 @@ ret, res = client.deleteProcedure(""CPP"", ""sortstr"", ""default"")
 deleteProcedure(self: liblgraph_client_python.client, procedure_type: str, procedure_name: str, graph: str) -> (bool, str)
 ```
 本接口支持在单机模式和HA模式下使用。其中，由于删除存储过程是写请求，HA模式下的client只能向leader发送删除存储过程请求。' metadata={'Header 1': 'Python客户端', 'Header 2': '3.RPC Client', 'Header 3': '3.10.删除存储过程'}"
-如果要在FrontierTraversal中并行执行遍历，事务的哪种模式必须被选用？,"page_content='Framework原理介绍
+如果要在FrontierTraversal中并行执行遍历，事务的哪种模式必须被选用？,"page_content='Traversal API
 
-计算引擎
+2. 接口说明
 
-Runtime执行
+2.2. Traversal
 
-#### 整体介绍
-Runtime模块负责GeaFlow所有模式任务（包括流批、静态/动态图）的具体计算和执行。其整个worker流程如下：
-1. Scheduler调度器负责将各种类型的Event发送给Container处理
-2. Dispatcher(继承至AbstractTaskRunner)负责接收来自Scheduler发送的Event，然后将Event按照其workerId分发给指定的TaskRunner进行处理
-3. TaskRunner（也继承至AbstractTaskRunner）负责从taskQueue中获取TASK(Event)，具体Event事件将交由Task进行处理，其整个生命周期包括：创建、处理及结束，对于异常的Task，可以直接中断。
-a. Task创建和初始化会根据CreateTaskEvent事件来完成，Task生命周期结束会根据DestroyTaskEvent事件来完成。
-b. 其它类型的Event，都将通过相应的CommandEvent的execute()来完成具体计算语义层面的逻辑（例如：根据InitCycleEvent事件Worker将进行上下游依赖构建；根据LaunchSourceEvent事件Worker将触发source开始读数据等）
-![undefined](../../static/img/framework_scheduler.png)  
-当前Task中的TaskContext核心数据结构，主要包括：负责执行计算的Worker、负责下游节点从上游异步读取数据的FetchService以及负责将执行Worker产生的数据向下游输出的EmitterService。
-* Worker：其主要负责流图数据的对齐处理以及将每批处理结束后相应的DoneEvent callback回Scheduler，Scheduler依据相应的DoneEvent进行后续的调度逻辑。
-* FetchService：负责异步的从上游channel中Pull数据，并将其通过worker注册的Listener，将数据放入worker processing队列中。
-* EmitterService：负责将Worker产生的数据进行partition写入到对应的Channel中。  
-#### Command Event
-* Command Event分为两种：
-* 普通的Command Event，不带具体的execute执行逻辑，通常用于Trigger Task或Cycle进行生命周期的开始和结束；
-* 可执行的Command Event，自身具备execute执行逻辑，例如用于Cycle的初始化、Source节点的数据读取、处理节点的计算、Cycle结束后的清理等等。
-* 在调度模块中，会将各种类型的Event构建成一个State Machine，用于整个调度任务的生命周期管理。
-* 开发者可以根据设计需要扩展Event以及实现对应的execute计算逻辑，同时加入到State Machine中，Scheduler就可以自动将其按照期望的方式进行调度和执行。' metadata={'Header 1': 'Framework原理介绍', 'Header 2': '计算引擎', 'Header 3': 'Runtime执行'}","page_content='Framework原理介绍
+图数据库中十分常见的一大类分析是基于一个或多个点出发，逐层地拓展并访问邻居。
+尽管这类分析也可以使用 Cypher 完成，但是当访问的层数较深时，其性能会受到串行解释执行的限制。
+使用 C++ Core API 编写存储过程尽管避免了解释执行，但依然受限于单个线程的处理能力。
+为了让用户能够方便地通过并行处理的方式加速这一类应用场景，我们基于 C++ OLAP API 封装了一个 Traversal 框架，用户可以直接使用其中的 FrontierTraversal 和 PathTraversal 类来完成这种逐层遍历的分析任务，具体的使用方法可以参考相应的 C++ API 文档（lgraph_traversal.h）。  
+```c
+ParallelVector<size_t> FindVertices(
+GraphDB & db,
+Transaction & txn,
+std::function<bool(VertexIterator &)> filter,
+bool parallel = false
+);
+```  
+该方法可用于找到所有满足条件（filter 返回 true）的点，当 parallel 为 true 时则会并行该查找过程。  
+```c
+template <typename VertexData>
+ParallelVector<VertexData> ExtractVertexData(
+GraphDB & db,
+Transaction & txn,
+ParallelVector<size_t> & frontier,
+std::function<void(VertexIterator &, VertexData &)> extract,
+bool parallel = false
+);
+```  
+该方法可用于从指定点集（frontier）中（通过 extract 方法）抽取（类型为 VertexData 的）属性，当 parallel 为 true 时会并行该抽取过程。  
+FrontierTraversal 适用于只关注遍历扩展到的点集的情况；当用户在遍历过程或是结果中需要访问路径上的信息（路径上的点/边）时，则需要使用 PathTraversal。
+两类 Traversal 的构造函数均有四个参数，分别为数据库句柄 db、事务句柄 txn、选项 flags 和 初始化数组容量 capacity。
+选项的可选值包括以下的组合：TRAVERSAL_PARALLEL 表示遍历时使用多个线程并行；TRAVERSAL_ALLOW_REVISITS 表示遍历时允许重复地访问点（PathTraversal 隐含了该选项）。capacity 表示初始化时路径集合的容量。  
+```c
+void SetFrontier(size_t root_vid);
+void SetFrontier(ParallelVector<size_t> & root_vids);
+void SetFrontier(std::function<bool(VertexIterator &)> root_vertex_filter);
+```  
+两类 Traversal 设置遍历的起始点/点集有上述三种方式，前两种通过点 ID 直接指定，最后一种方式则类似于 FindVertices。  
+两类 Traversal 的遍历都是从当前层的点集合出发，根据使用的扩展函数访问每条出边/入边/出边和入边，通过用户自定义的过滤函数决定扩展是否成功，若成功则将邻居点/追加了该条边的路径加入下一层的点/路径集合。  
+```c
+void ExpandOutEdges(
+std::function<bool(OutEdgeIterator &)> out_edge_filter = nullptr,
+std::function<bool(VertexIterator &)> out_neighbour_filter = nullptr
+);
+void ExpandInEdges(
+std::function<bool(InEdgeIterator &)> in_edge_filter = nullptr,
+std::function<bool(VertexIterator &)> in_neighbour_filter = nullptr
+);
+void ExpandEdges(
+std::function<bool(OutEdgeIterator &)> out_edge_filter = nullptr,
+std::function<bool(InEdgeIterator &)> in_edge_filter = nullptr,
+std::function<bool(VertexIterator &)> out_neighbour_filter = nullptr,
+std::function<bool(VertexIterator &)> in_neighbour_filter = nullptr
+);
+```  
+上述为 FrontierTraversal 的三种遍历方式，即从当前的点集合出发，对集合中的每个点，依次访问每条出边/入边/出边和入边，若满足用户自定义的过滤条件（其中，edge_filter 为面向边的过滤函数，neighbour_filter 则为面向邻居点的过滤函数），则将邻居点加入新的点集合。  
+```c
+ParallelVector<size_t> & GetFrontier();
+```  
+当前点集合的扩展结束后，新的点集合可以通过上述方法取得。  
+```c
+void ExpandOutEdges(
+std::function<bool(OutEdgeIterator &, Path &, IteratorHelper &)> out_edge_filter = nullptr,
+std::function<bool(VertexIterator &, Path &, IteratorHelper &)> out_neighbour_filter = nullptr
+);
+void ExpandInEdges(
+std::function<bool(InEdgeIterator &, Path &, IteratorHelper &)> in_edge_filter = nullptr,
+std::function<bool(VertexIterator &, Path &, IteratorHelper &)> in_neighbour_filter = nullptr
+);
+void ExpandEdges(
+std::function<bool(OutEdgeIterator &, Path &, IteratorHelper &)> out_edge_filter = nullptr,
+std::function<bool(InEdgeIterator &, Path &, IteratorHelper &)> in_edge_filter = nullptr,
+std::function<bool(VertexIterator &, Path &, IteratorHelper &)> out_neighbour_filter = nullptr,
+std::function<bool(VertexIterator &, Path &, IteratorHelper &)> in_neighbour_filter = nullptr
+);
+```  
+PathTraversal 的三种遍历方式与 FrontierTraversal 类似，只是用户自定义的过滤函数中增加了两个参数，其中：Path 包含了到新扩展的这条边之前的路径，IteratorHelper 可用于将路径中的点/边转为数据库中对应的迭代器，相关文档可参考对应的 C++ API 文档。' metadata={'Header 1': 'Traversal API', 'Header 2': '2. 接口说明', 'Header 3': '2.2. Traversal'}","page_content='静态图
 
-计算引擎
+接口
 
-调度模型
+| API | 接口说明 | 入参说明 |
+| --- | --- | --- |
+| void open(VertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext) | vertexCentric function进行open操作 | vertexCentricFuncContext：K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型，M表示图遍历中定义的消息类型，R表示遍历结果类型。 |
+| void init(ITraversalRequest traversalRequest) | 图遍历初始化接口 | traversalRequest：图遍历触发点，其中K表示vertex id的类型。 |
+| void compute(K vertexId, Iterator messageIterator) | 图遍历接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>messageIterator：图遍历过程中所有发送给当前vertex的消息，其中M表示遍历迭代过程中定义的发送消息类型。 |  
+- 详细接口  
+```java
+public interface VertexCentricTraversalFunction<K, VV, EV, M, R> extends VertexCentricFunction<K, VV
+, EV, M> {
 
-调度将基于ExecutionGraph定义的ExecutionGroup生成调度基本单元cycle。cycle描述为可循环执行的基本单元，包含输入，中间计算和数据交换，输出的描述。调度执行过程主要是：
-1. 将执行计划划分为一组cycle，cycle与cycle之间如果没有数据依赖，可以串行执行，也可以并行执行。
-2. 依据cycle调度数据策略，依次调度执行cycle。
-3. 直到所有cycle执行结束，返回调度执行结果。  
-每个cycle包含一组可被执行的ExecutionTask，每个task可以被分发到远程执行。一个cycle内的所有execution task可以分为如下：
-head task: cycle数据流的起点，调度向head task发送一轮执行的event，然后从source，或者上一个cycle输出中读取数据，处理后发送给下游
-tail task: cycle数据流的结尾，处理完数据后，向调度发送event，表示完成一轮计算。
-其余非head/tail task: 中间执行task，接收上游输入数据，处理后直接发送给下游执行。  
-cycle调度执行的过程，就是不断发送event给head，并从tail收到返回event的过程，整个过程类似一个“循环”，如下图所示。调度根据不同的cycle类型，初始化调度状态，调度的过程也是状态变迁的过程，根据收到的event，决定下一轮要发送给head的event类型。
-![scheduler.jpg](../../static/img/framework_cyle.jpeg)' metadata={'Header 1': 'Framework原理介绍', 'Header 2': '计算引擎', 'Header 3': '调度模型'}","page_content='Framework原理介绍
+void open(VertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext);
+/** 图遍历算法初始化方法 */
+void init(ITraversalRequest<K> traversalRequest);
+/** 实现图遍历逻辑 */
+void compute(K vertexId, Iterator<M> messageIterator);
 
-计算引擎
+void finish();
 
-容错和异常恢复
+void close();
 
-#### 集群组件容错
-对于运行时的所有组件进程，比如master/driver/container,都基于context初始化和运行。在新创建进程时，首先构建进程需要的context，每个进程在初始化时将context做持久化。当进程异常重启后，首先恢复context，然后基于context重新初始化进程。  
-#### 作业异常恢复
-![undefined](../../static/img/framework_failover.jpeg)
-* 作业分布式快照
-调度器根据当前自身调度状态，确定对运行中的任务发送新的windowId，触发对新窗口的计算。当每个算子对应窗口计算结束后，如果需要对当前窗口上下文做快照，则将算子内对应状态持久化到存储中。
-最终调度器收到某个窗口的所有任务执行结束的消息后，也会按需要对该调度元信息做一次快照并持久化，才标志这个窗口的处理最终成。当调度和算子恢复到这个窗口上下文时，则可以基于该窗口继续执行。  
-* 快照持久化
-在一个window计算完成做一次快照时，可以选择快照存储的方式。目前可选MEMORY，ROCKSDB, JDBC。  
-* 状态恢复
-快照存储是分布式的，每个组件，调度和算子之间各自存储并持久化。在恢复时，首先调度先从存储中恢复上一次完成执行的windowId，并调度的上下文恢复到对应windowId对应的快照。然后对所有worker发送rollback指令，每个worker恢复到指定窗口上下文。最后由调度开始继续发送执行任务，从恢复状态基础上继续执行。' metadata={'Header 1': 'Framework原理介绍', 'Header 2': '计算引擎', 'Header 3': '容错和异常恢复'}"
+interface VertexCentricTraversalFuncContext<K, VV, EV, M, R> extends VertexCentricFuncContext<K,
+VV, EV, M> {
+/** 获取图遍历结果 */
+void takeResponse(ITraversalResponse<R> response);
+/** 获取开始图遍历的点 */
+TraversalVertexQuery<K, VV> vertex();
+/** 获取开始图遍历的边 */
+TraversalEdgeQuery<K, EV> edges();
+
+void broadcast(IGraphMessage<K, M> message);
+}
+
+interface TraversalVertexQuery<K, VV> extends VertexQuery<K, VV> {
+/** 获取图遍历中点的迭代器 */
+Iterator<K> loadIdIterator();
+}
+
+interface TraversalEdgeQuery<K, EV> extends EdgeQuery<K, EV> {
+/** 通过指定的点id，获取对应的图遍历起点 */
+TraversalEdgeQuery<K, EV> withId(K vertexId);
+}
+}
+```' metadata={'Header 1': '静态图', 'Header 2': '接口'}","page_content='动态图
+
+接口
+
+| API | 接口说明 | 入参说明 |
+| --- | --- | --- |
+| void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext) | vertexCentricFunction进行open操作 | vertexCentricFuncContext：K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型，M表示图遍历中定义的消息类型，R表示遍历结果类型。 |
+| void init(ITraversalRequest traversalRequest) | 图遍历初始化接口 | traversalRequest：图遍历触发点，其中K表示vertex id的类型。 |
+| void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph) | 首轮计算对增量图实现处理逻辑 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>temporaryGraph：临时增量图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |
+| void compute(K vertexId, Iterator messageIterator) | 图遍历接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>messageIterator：图遍历过程中所有发送给当前vertex的消息，其中M表示遍历迭代过程中定义的发送消息类型。 |
+| void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph) | 图遍历完成接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>mutableGraph：可变图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |  
+- 详细接口  
+```java
+public interface IncVertexCentricTraversalFunction<K, VV, EV, M, R> extends IncVertexCentricFunction<K, VV
+, EV, M> {
+
+void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext);
+
+void init(ITraversalRequest<K> traversalRequest);
+
+void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph);
+
+void compute(K vertexId, Iterator<M> messageIterator);
+
+void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph);
+
+interface IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> extends IncGraphContext<K, VV, EV,
+M> {
+/** 激活遍历起点用以下一轮迭代使用 */
+void activeRequest(ITraversalRequest<K> request);
+/** 收集遍历结果 */
+void takeResponse(ITraversalResponse<R> response);
+
+void broadcast(IGraphMessage<K, M> message);
+/** 获取历史图数据 */
+TraversalHistoricalGraph<K, VV, EV> getHistoricalGraph();
+}
+
+
+interface TraversalHistoricalGraph<K, VV, EV>  extends HistoricalGraph<K, VV, EV> {
+/** 获取指定版本快照 */
+TraversalGraphSnapShot<K, VV, EV> getSnapShot(long version);
+}
+
+interface TraversalGraphSnapShot<K, VV, EV> extends GraphSnapShot<K, VV, EV> {
+/** 获取开始图遍历的点 */
+TraversalVertexQuery<K, VV> vertex();
+/** 获取开始图遍历的边 */
+TraversalEdgeQuery<K, EV> edges();
+}
+}
+```' metadata={'Header 1': '动态图', 'Header 2': '接口'}"
 RpcSingleClient 构造函数需要哪些参数?,"page_content='Python客户端
 
 3.RPC Client
@@ -3418,7 +3304,27 @@ ISO GQL（ISO/IEC 39075）是一种标准化的图数据库查询语言，蚂蚁
 贡献和成果
 
 对Antlr4的优化的效果十分显著，32 线程的并发性能提升超过 18 倍 。考虑到实际生产服务器性能远高于测试机型，实际的性能提升效果将比测试结果更高， 优化后 GQL 解析能力已能完全满足企业业务的需要。' metadata={'Header 1': 'Antlr4 社区重大贡献：TuGraph 优化 C++ Target 并发性能提升 10 倍！', 'Header 2': '贡献和成果'}"
-如果对DateTime对象添加超出其范围的微秒数会发生什么？,"page_content='业务开发指南
+如果对DateTime对象添加超出其范围的微秒数会发生什么？,"page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* db.subgraph()
+
+**Scope:** whole instance.  
+**Parameters:**  
+| parameter  | parameter type | description                                                           |
+| ---------- | -------------- | --------------------------------------------------------------------- |
+| vids       | list           | list of vertex id                                                     |  
+**Output:**  
+Get a json containing all the properties of nodes and relationships.  
+**Example input:**  
+```
+CALL db.subgraph([3937,4126,4066,4010])
+```  
+**Example output**  
+| subgraph |
+| -------- |
+| {""nodes"":[{""identity"":3937,""label"":""movie"",""properties"":{""duration"":136,""id"":1,""poster_image"":""http://image.tmdb.org/t/p/w185/gynBNzwyaHKtXqlEKKLioNkjKgN.jpg"",""rated"":""R"",""summary"":""Thomas A. Anderson is a man living two lives. By day he is an average computer programmer and by night a malevolent hacker known as Neo who finds himself targeted by the police when he is contacted by Morpheus a legendary computer hacker who reveals the shocking truth about our reality."",""tagline"":""Welcome to the Real World."",""title"":""The Matrix""}},{""identity"":4010,""label"":""user"",""properties"":{""id"":44,""login"":""Howard""}},{""identity"":4066,""label"":""user"",""properties"":{""id"":202,""login"":""Enoch""}},{""identity"":4126,""label"":""user"",""properties"":{""id"":464,""login"":""Wilburn""}}],""relationships"":[{""dst"":4126,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4010,""temporal_id"":0},{""dst"":4010,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4066,""temporal_id"":0},{""dst"":4066,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4126,""temporal_id"":0}]} |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.subgraph()'}","page_content='业务开发指南
 
 点类型操作
 
@@ -3446,995 +3352,27 @@ CALL db.alterLabelAddFields('vertex', 'node1', ['field1', string, null ,true], [
 * [add_months](#add_months)
 * [date_format](#date_format)
 * [date_part](#date_part)
-* [date_trunc](#date_trunc)'","page_content='典型示例
+* [date_trunc](#date_trunc)'"
+VertexLockGuard是什么？,"page_content='OlapBase API
 
-PageRank动态图计算示例介绍
+7. 图类OlapBase
 
-实例代码
+7.3 锁机制
 
-```java
+TuGraph实现了一对锁机制，来控制程序对于点数据的访存权限。分别是：  
+- `void AcquireVertexLock(size_t vid)`：对点vid加锁，禁止其它线程对该锁对应的点数据进行访存
+- `void ReleaseVertexLock(size_t vid)`：对点vid解锁，所有线程均可访存该锁对应的点数据
+- `VertexLockGuard GuardVertexLock(size_t vid)`：在对vid操作时，对点vid加锁，退出作用域时时自动释放锁' metadata={'Header 1': 'OlapBase API', 'Header 2': '7. 图类OlapBase', 'Header 3': '7.3 锁机制'}","page_content='运维监控
 
-public class IncrGraphCompute {
+1.设计思路
 
-private static final Logger LOGGER = LoggerFactory.getLogger(IncrGraphCompute.class);
-// 计算结果路径
-public static final String RESULT_FILE_PATH = ""./target/tmp/data/result/incr_graph"";
-// 结果对比路径
-public static final String REF_FILE_PATH = ""data/reference/incr_graph"";
+可视化监控并不是TuGraph自身不可或缺的一部分，因此在设计时将可视化监控作为TuGraph周边生态中的一个应用，来减少和TuGraph数据库的耦合度，以及对于TuGraph自身的影响。TuGraph可视化监控采用目前最火热的开源解决方案，TuGraph Monitor + Prometheus + Grafana来实现。其中TuGraph Monitor作为TuGraph服务的客户端，通过TCP链接向TuGraph服务发起Procedure请求，TuGraph服务在接收到请求后收集自身所在机器的cpu，memory，disk，io，以及请求数量等指标的统计结果进行响应。TuGraph Monitor在接收到TuGraph响应的指标数据后，将数据包装成prometheus需要的格式，保存在内存中，等待Prometheus服务通过http请求获取。Prometheus服务会定期通过http请求从TuGraph Monitor获取封装好的请求数据，按照获取的时间保存在自己的时序数据库中。Grafana可以根据用户的配置，从Prometheus处获取某个时间段内的统计数据，并在web界面上绘制浅显易懂的图形来展示最终结果。整个请求链路中，都采用了主动获取，即PULL的模型，好处之一是它能最大限度的避免数据生产者和数据消费者之间的耦合度，使得开发更简单，好处之二是数据生产者不需要考虑数据消费者的数据处理能力，即使某个消费者的数据处理能力较弱，也不会因为生产者生产数据过快而压垮消费者。主动拉取模型的不足之处在于数据的实时性不够，但在这个场景中，数据并没有很高的实时性要求。' metadata={'Header 1': '运维监控', 'Header 2': '1.设计思路'}","page_content='运维监控
 
-public static void main(String[] args) {
-// 获取执行环境
-Environment environment = EnvironmentFactory.onLocalEnvironment();
-// 执行作业提交
-IPipelineResult result = submit(environment);
-// 等待执行完成
-result.get();
-// 关闭执行环境
-environment.shutdown();
-}
+1.设计思路
 
-public static IPipelineResult<?> submit(Environment environment) {
-// 构建任务执行流
-final Pipeline pipeline = PipelineFactory.buildPipeline(environment);
-// 获取作业环境配置
-Configuration envConfig = ((EnvironmentContext) environment.getEnvironmentContext()).getConfig();
-// 指定保存计算结果的路径
-envConfig.put(FileSink.OUTPUT_DIR, RESULT_FILE_PATH);
+1.3.Prometheus
 
-// graphview 名称
-final String graphName = ""graph_view_name"";
-// 创建增量图 graphview
-GraphViewDesc graphViewDesc = GraphViewBuilder
-.createGraphView(graphName)
-// 设置 graphview 分片数, 可从配置中指定
-.withShardNum(envConfig.getInteger(ExampleConfigKeys.ITERATOR_PARALLELISM))
-// 设置 graphview backend 类型
-.withBackend(BackendType.RocksDB)
-// 指定 graphview 点边以及属性等schema信息
-.withSchema(new GraphMetaType(IntegerType.INSTANCE, ValueVertex.class, Integer.class, ValueEdge.class, IntegerType.class))
-.build();
-// 将创建好的graphview信息添加到任务执行流
-pipeline.withView(graphName, graphViewDesc);
-
-// 提交任务并执行
-pipeline.submit(new PipelineTask() {
-@Override
-public void execute(IPipelineTaskContext pipelineTaskCxt) {
-Configuration conf = pipelineTaskCxt.getConfig();
-// 1. 构建点数据输入源
-PWindowSource<IVertex<Integer, Integer>> vertices =
-// extract vertex from edge file
-pipelineTaskCxt.buildSource(new RecoverableFileSource<>(""data/input/email_edge"",
-// 指定每行数据的解析格式
-line -> {
-String[] fields = line.split("","");
-IVertex<Integer, Integer> vertex1 = new ValueVertex<>(
-Integer.valueOf(fields[0]), 1);
-IVertex<Integer, Integer> vertex2 = new ValueVertex<>(
-Integer.valueOf(fields[1]), 1);
-return Arrays.asList(vertex1, vertex2);
-}), SizeTumblingWindow.of(10000))
-// 指定点数据source并发数
-.withParallelism(pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SOURCE_PARALLELISM));
-
-// 2. 构建边数据输入源
-PWindowSource<IEdge<Integer, Integer>> edges =
-pipelineTaskCxt.buildSource( new RecoverableFileSource<>(""data/input/email_edge"",
-// 指定每行数据的解析格式
-line -> {
-String[] fields = line.split("","");
-IEdge<Integer, Integer> edge = new ValueEdge<>(Integer.valueOf(fields[0]),
-Integer.valueOf(fields[1]), 1);
-return Collections.singletonList(edge);
-}), SizeTumblingWindow.of(5000))
-// 指定边数据source并发数
-.withParallelism(pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SOURCE_PARALLELISM));
-
-// 获取定义的graphview, 并构建图数据
-PGraphView<Integer, Integer, Integer> fundGraphView =
-pipelineTaskCxt.getGraphView(graphName);
-PIncGraphView<Integer, Integer, Integer> incGraphView =
-fundGraphView.appendGraph(vertices, edges);
-// 获取作业执行map算子的并发数
-int mapParallelism = pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.MAP_PARALLELISM);
-// 获取作业执行sink算子的并发数
-int sinkParallelism = pipelineTaskCxt.getConfig().getInteger(ExampleConfigKeys.SINK_PARALLELISM);
-// 创建sink方法
-SinkFunction<String> sink = ExampleSinkFunctionFactory.getSinkFunction(conf);
-// 基于图算法，执行动态图计算
-incGraphView.incrementalCompute(new IncGraphAlgorithms(3))
-// 获取结果点数据并作map操作
-.getVertices()
-.map(v -> String.format(""%s,%s"", v.getId(), v.getValue()))
-.withParallelism(mapParallelism)
-.sink(sink)
-.withParallelism(sinkParallelism);
-}
-});
-
-return pipeline.execute();
-}
-
-// 创建Pagerank动态图算法
-public static class IncGraphAlgorithms extends IncVertexCentricCompute<Integer, Integer,
-Integer, Integer> {
-
-public IncGraphAlgorithms(long iterations) {
-// 设置算法最大迭代次数
-super(iterations);
-}
-
-@Override
-public IncVertexCentricComputeFunction<Integer, Integer, Integer, Integer> getIncComputeFunction() {
-// 指定Pagerank计算逻辑
-return new PRVertexCentricComputeFunction();
-}
-
-@Override
-public VertexCentricCombineFunction<Integer> getCombineFunction() {
-return null;
-}
-
-}
-
-public static class PRVertexCentricComputeFunction implements
-IncVertexCentricComputeFunction<Integer, Integer, Integer, Integer> {
-
-private IncGraphComputeContext<Integer, Integer, Integer, Integer> graphContext;
-
-// init方法, 获取graphContext
-@Override
-public void init(IncGraphComputeContext<Integer, Integer, Integer, Integer> graphContext) {
-this.graphContext = graphContext;
-}
-
-// 第一轮迭代evolve方法实现
-@Override
-public void evolve(Integer vertexId,
-TemporaryGraph<Integer, Integer, Integer> temporaryGraph) {
-// 动态图版本指定为0
-long lastVersionId = 0L;
-// 从增量图中获取id等于 vertexId 的点
-IVertex<Integer, Integer> vertex = temporaryGraph.getVertex();
-// 获取历史底图
-HistoricalGraph<Integer, Integer, Integer> historicalGraph = graphContext
-.getHistoricalGraph();
-if (vertex == null) {
-// 如果增量图中不存在id 等于 vertexId 的点, 就从历史图中获取
-vertex = historicalGraph.getSnapShot(lastVersionId).vertex().get();
-}
-
-if (vertex != null) {
-// 从增量图中获取点对应的所有出边
-List<IEdge<Integer, Integer>> newEs = temporaryGraph.getEdges();
-// 从历史图中获取点对应的所有出边
-List<IEdge<Integer, Integer>> oldEs = historicalGraph.getSnapShot(lastVersionId)
-.edges().getOutEdges();
-if (newEs != null) {
-for (IEdge<Integer, Integer> edge : newEs) {
-// 向增量图中所有边的终点，发送消息，内容为vertexId
-graphContext.sendMessage(edge.getTargetId(), vertexId);
-}
-}
-if (oldEs != null) {
-for (IEdge<Integer, Integer> edge : oldEs) {
-// 向历史图中所有边的终点，发送消息，内容为vertexId
-graphContext.sendMessage(edge.getTargetId(), vertexId);
-}
-}
-}
-
-}
-
-@Override
-public void compute(Integer vertexId, Iterator<Integer> messageIterator) {
-int max = 0;
-// 迭代vertexId收到的所有消息, 并取其中的最大值
-while (messageIterator.hasNext()) {
-int value = messageIterator.next();
-max = max > value ? max : value;
-}
-// 从增量图中获取id 等于vertexId的点
-IVertex<Integer, Integer> vertex = graphContext.getTemporaryGraph().getVertex();
-// 从历史图中获取id等于 vertexId 的点
-IVertex<Integer, Integer> historyVertex = graphContext.getHistoricalGraph().getSnapShot(0).vertex().get();
-// 将增量图中的点属性值和消息的最大值，两者取最大
-if (vertex != null && max < vertex.getValue()) {
-max = vertex.getValue();
-}
-// 将历史图中的点属性值和消息的最大值，两者取最大
-if (historyVertex != null && max < historyVertex.getValue()) {
-max = historyVertex.getValue();
-}
-// 更新增量图中点的属性值
-graphContext.getTemporaryGraph().updateVertexValue(max);
-}
-
-
-@Override
-public void finish(Integer vertexId, MutableGraph<Integer, Integer, Integer> mutableGraph) {
-// 从增量图中获取vertexId相关的点边
-IVertex<Integer, Integer> vertex = graphContext.getTemporaryGraph().getVertex();
-List<IEdge<Integer, Integer>> edges = graphContext.getTemporaryGraph().getEdges();
-if (vertex != null) {
-// 将增量图中的点添加到图数据中。
-mutableGraph.addVertex(0, vertex);
-graphContext.collect(vertex);
-} else {
-LOGGER.info(""not found vertex {} in temporaryGraph "", vertexId);
-}
-if (edges != null) {
-// 将增量中的边添加到图数据中。
-edges.stream().forEach(edge -> {
-mutableGraph.addEdge(0, edge);
-});
-}
-}
-}
-
-}
-
-```' metadata={'Header 1': '典型示例', 'Header 2': 'PageRank动态图计算示例介绍', 'Header 3': '实例代码'}"
-VertexLockGuard是什么？,"page_content='Cypher API
-
-5.附录2. 内置procedures列表
-
-5.1.procedures样例
-
-* dbms.procedures()  
-Lists all available procedures.  
-**Scope:** whole instance.  
-**Output:** a list of {`signature`, `name`}.  
-**Example input:**  
-```
-CALL dbms.procedures()
-```  
-**Example output:**  
-| signature                        | name         |
-| ---------------------------------------------------- | -------------------- |
-| db.vertexLabels() :: (label::STRING)               | db.vertexLabels        |
-| db.edgeLabels() :: (edgeLabels::STRING) | db.edgeLabels |
-| db.indexes() :: (index::LIST)            | db.indexes       |
-| ...                          | ...          |  
-* db.subgraph()  
-**Scope:** whole instance.  
-**Parameters:**  
-| parameter  | parameter type | description                                                           |
-| ---------- | -------------- | --------------------------------------------------------------------- |
-| vids       | list           | list of vertex id                                                     |  
-**Output:**  
-Get a json containing all the properties of nodes and relationships.  
-**Example input:**  
-```
-CALL db.subgraph([3937,4126,4066,4010])
-```  
-**Example output**  
-| subgraph |
-| -------- |
-| {""nodes"":[{""identity"":3937,""label"":""movie"",""properties"":{""duration"":136,""id"":1,""poster_image"":""http://image.tmdb.org/t/p/w185/gynBNzwyaHKtXqlEKKLioNkjKgN.jpg"",""rated"":""R"",""summary"":""Thomas A. Anderson is a man living two lives. By day he is an average computer programmer and by night a malevolent hacker known as Neo who finds himself targeted by the police when he is contacted by Morpheus a legendary computer hacker who reveals the shocking truth about our reality."",""tagline"":""Welcome to the Real World."",""title"":""The Matrix""}},{""identity"":4010,""label"":""user"",""properties"":{""id"":44,""login"":""Howard""}},{""identity"":4066,""label"":""user"",""properties"":{""id"":202,""login"":""Enoch""}},{""identity"":4126,""label"":""user"",""properties"":{""id"":464,""login"":""Wilburn""}}],""relationships"":[{""dst"":4126,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4010,""temporal_id"":0},{""dst"":4010,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4066,""temporal_id"":0},{""dst"":4066,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4126,""temporal_id"":0}]} |  
-* db.vertexLabels()  
-Lists all available vertex labels of vertex.  
-**Scope:** whole instance.  
-**Output:** a list of {`name`}.  
-**Example input:**  
-```
-CALL db.vertexLabels()
-```
-**Example output:**  
-| label   |
-| ------- |
-| genre   |
-| keyword |
-| movie   |
-| ...     |  
-* db.edgeLabels()  
-Lists all available labels of edges.  
-**Scope:** whole instance.  
-**Output:** a list of {edge labels}.  
-**Example input:**  
-```
-CALL db.edgeLabels()
-```  
-**Example output:**  
-| relationshipType |
-| ---------------- |
-| acted_in     |
-| directed     |
-| ...          |  
-* db.createVertexLabel(label_name, primary_field, field_spec...)  
-Create a vertex label.  
-**Scope:** whole instance.  
-**Parameters:**  
-| parameter  | parameter type | description          |
-| ---------- | -------------- | ------------------------ |
-| label_name | string     | name of  vertex label    |
-| primary_field | string  | primary field of vertex label |
-| field_spec | list       | specification of a field |  
-in which each `field_spec` is a list of string in the form of `[field_name, field_type, true]`, where true is specified only for optional fields.  
-**Output:** If successful, it returns a success message.  
-**Example input:**  
-```
-CALL db.createVertexLabel('Person', 'id', 'id', 'int64', false, 'name', 'string', true)
-```  
-**Example output:**  
-```
-Added label [Person]
-```  
-* db.getLabelSchema(label_type, label_name)  
-Get the schema definition of the label in a subgraph.  
-**Scope:** subgraph, as specified in the `graph` parameter in REST or RPC request.  
-**Parameters:**  
-| parameter  | parameter type | description           |
-| ---------- | -------------- | ------------------------- |
-| label_type | string     | either 'vertex' or 'edge' |
-| label_name | string     | name of the label     |  
-**Output:** a list of label specifications, in which each element is a list of the following fields:  
-| field_name | field_type | description           |
-| ---------- | ---------- | ----------------------------- |
-| name       | string     | name of the field         |
-| type       | string     | type of the field         |
-| optional   | boolean    | whether the field is optional |  
-**Example input:**  
-```
-CALL db.getLabelSchema('vertex', 'Person')
-```  
-**Example output:**  
-| name     | type   | optional |
-| ------------ | ------ | -------- |
-| id       | INT32  | false    |
-| born     | INT32  | true     |
-| name     | STRING | true     |
-| poster_image | STRING | true     |  
-* db.createLabel(label_type, label_name, extra, field_spec...)  
-Create a vertex or edge label.  
-**Parameters:**  
-| parameter  | parameter type | description           |
-| ---------- | -------------- | ------------------------- |
-| label_type | string     | either 'vertex' or 'edge' |
-| label_name | string     | name of the label     |
-| extra      | string     | for edge, it means constraints; for vertex, it means primary property |
-| field_spec | list       | specification of a field  |  
-in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`.
-for edge, `extra` should be a json array string, like this `[[""label1"",""label2""], [""label3"",""label4""]]`, if edge has no constraints, give an empty json array, like this `[]`  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL db.createLabel('vertex', 'new_label', 'id', ['id','int32',false], ['name','string', true]);
-CALL db.createLabel('edge', 'new_edge', '[[""id1"",""id2""]]', ['id','int32',false], ['name', 'string', true]);
-```  
-**Example output:**  
-```
-Vertex label [new_label] successfully added.
-```  
-* db.deleteLabel(label_type, label_name)  
-Delete a vertex or edge label.  
-**Parameters:**  
-| parameter  | parameter type | description           |
-| ---------- | -------------- | ------------------------- |
-| label_type | string     | either 'vertex' or 'edge' |
-| label_name | string     | name of the label     |  
-**Output:**  
-| field_name | field_type | description              |
-| ---------- | ---------- | -------------------------------- |
-| affected   | integer    | number of vertexes/edges deleted |  
-**Example input:**  
-```
-CALL db.deleteLabel('vertex', 'Person')
-```  
-**Example output:**  
-| affected |
-| -------- |
-| 1024     |  
-* db.alterLabelDelFields(label_type, label_name, field_names)  
-Delete specified fields from the label.  
-**Parameters:**  
-| parameter   | parameter type  | description           |
-| ----------- | --------------- | ----------------------------- |
-| label_type  | string      | either 'vertex' or 'edge'     |
-| label_name  | string      | name of the label         |
-| field_names | list of strings | names of the fields to delete |  
-**Output:**  
-| field_name | field_type | description               |
-| ---------- | ---------- | --------------------------------- |
-| affected   | integer    | number of vertexes/edges modified |  
-**Example input:**  
-```
-CALL db.alterLabelDelFields('vertex', 'Person', ['name', 'image'])
-```  
-**Example output:**  
-| affected |
-| -------- |
-| 1024     |  
-* db.alterLabelAddFields(label_type, label_name, field_value_spec...)  
-Adds specified fields to the label.  
-**Parameters:**  
-| parameter    | parameter type | description           |
-| ---------------- | -------------- | ------------------------- |
-| label_type       | string     | either 'vertex' or 'edge' |
-| label_name       | string     | name of the label     |
-| field_value_spec | list       | specification of a field  |  
-in which each `field_value_spec` is a list of string in the form of `[field_name, field_type, field_value, optional]`, where: `field_value` is the default value of the field.  
-**Output:**  
-| field_name | field_type | description               |
-| ---------- | ---------- | --------------------------------- |
-| affected   | integer    | number of vertexes/edges modified |  
-**Example input:**  
-```
-CALL db.alterLabelAddFields(
-'vertex',
-'new_label',
-['birth_date', DATE, '', true],
-['img', BLOB, '', true])
-```  
-**Example output:**  
-| affected |
-| -------- |
-| 1024     |  
-* db.alterLabelModFields(label_type, label_name, field_spec...)  
-Modifies the specified fields in the label.  
-**Parameters:**  
-| parameter  | parameter type | description           |
-| ---------- | -------------- | ------------------------- |
-| label_type | string     | either 'vertex' or 'edge' |
-| label_name | string     | name of the label     |
-| field_spec | list       | specification of a field  |  
-in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`.The target field should exist.  
-**Output:**  
-| field_name | field_type | description               |
-| ---------- | ---------- | --------------------------------- |
-| affected   | integer    | number of vertexes/edges modified |  
-**Example input:**  
-```
-CALL db.alterLabelModFields(
-'vertex',
-'new_label',
-['birth_date', DATETIME, true],
-['gender', BOOL, true])
-```  
-**Example output:**  
-| affected |
-| -------- |
-| 1024     |  
-* db.createEdgeLabel( label_name, field_spec...)  
-Create an edge label.  
-**Parameters:**  
-| parameter  | parameter type | description          |
-| ---------- | -------------- | ------------------------ |
-| label_name | string     | name of the label    |
-| edge_constraints | string | edge constraints |
-| field_spec | list       | specification of a field |  
-in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`, where optional is specified as true, only for  optional fields.  
-`edge_constraints` is a json array string, This parameter limits the combination of starting and ending vertex of the edge, for example: `'[[""vertex_label1"",""vertex_label2""],[""vertex_label3"",""vertex_label4""]]'`, which limits the edge direction can only be from `vertex_label1` to `vertex_label2` or from `vertex_label3` to `vertex_label4`. If you don't want to have any constraints, give an empty array string, like this `'[]'`  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL db.createEdgeLabel('KNOWS', '[]', 'name', 'int32', true)
-```  
-**Example output:**  
-```
-Added type [KNOWS]
-```  
-* db.addIndex(label_name, field_name, unique)  
-create an index on some field of one vertex label .  
-**Parameters:**  
-| parameter | parameter type | description               |
-| ---------- | -------------- | ------------------------------------- |
-| label_name | string     | name of the label             |
-| field_name | string     | specification of a field          |
-| unique  | boolean    | Specifies whether the index is unique |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL db.addIndex('Person', 'id', true)
-```  
-**Example output:**  
-```
-Added index [Perosn:id]
-```
-* db.addEdgeIndex(label_name, field_name, unique, pair_unique)  
-create an index on some field of one edge label .  
-**Parameters:**  
-| parameter | parameter type | description               |
-| ---------- | -------------- | ------------------------------------- |
-| label_name | string     | name of the label             |
-| field_name | string     | specification of a field          |
-| unique  | boolean    | Specifies whether the index is unique |
-| pair_unique | boolean    | Specifies whether the index is pair_unique |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL db.addEdgeIndex('BornIn', 'id', true, false)
-```  
-**Example output:**  
-```
-Added index [BornIn:id]
-```  
-* dbms.security.changePassword(current_password ,new_password)  
-Change the current user's password.  
-**Parameters:**  
-| parameter    | parameter type | description      |
-| ---------------- | -------------- | -------------------- |
-| current_password | string     | the current password |
-| new_password     | string     | new password     |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL dbms.security.changePassword('73@TuGraph','admin')
-```  
-**Example output:**  
-```
-true
-```  
-* dbms.security.changeUserPassword(user_name, new_password)  
-Change the current user's password.  
-**Parameters:**  
-| parameter    | parameter type | description     |
-| ------------ | -------------- | --------------- |
-| user_name    | string     | the user's name |
-| new_password | string     | new password    |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL dbms.security.changeUserPassword('quest','73@TuGraph')
-```  
-**Example output:**  
-```
-true
-```  
-* dbms.security.createUser(user_name, password)  
-create  new user on this graph database.  
-**Parameters:**  
-| parameter | parameter type | description              |
-| --------- | -------------- | -------------------------------- |
-| user_name | string     | the new user name        |
-| password  | string     | the password of new user     |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL dbms.security.createUser('quest',""admin"")
-```  
-**Example output:**  
-```
-true
-```  
-* dbms.security.deleteUser(user_name)  
-delete user on this graph database.  
-**Parameters:**  
-| parameter | parameter type | description         |
-| --------- | -------------- | --------------------------- |
-| user_name | string     | the user name to be deleted |  
-**Output:**  
-If successful, it returns a success message.  
-**Example input:**  
-```
-CALL dbms.security.deleteUser('quest')
-```  
-**Example output:**  
-```
-true
-```  
-* dbms.security.listUsers()  
-get all user's name of the graph database.  
-**Output:**  
-a list of user names, in which each element is a list of the following fields:  
-| parameter | parameter type | description         |
-| --------- | -------------- | --------------------------- |
-| user.name | string     | the user name           |
-| is.admin  | boolean    | the permission of this user |  
-**Example input:**  
-```
-CALL dbms.security.listUsers()
-```  
-**Example output:**  
-| user.name | is.admin |
-| --------- | -------- |
-| admin     | true     |
-| ...       |  ...    |  
-* dbms.security.showCurrentUser()  
-get current user's name.  
-**Output:**  
-a list of user names, in which each element is a list of the following fields:  
-| parameter | parameter type | description       |
-| --------- | -------------- | --------------------- |
-| user.user | string     | the current user name |  
-**Example input:**  
-```
-CALL dbms.security.showCurrentUser()
-```  
-**Example output:**  
-| user.name |
-| --------- |
-| admin     |  
-* dbms.security.listAllowedHosts()  
-get the list of ips to be allowed .  
-**Output:**  
-a list of  ips which are allowed.  
-**Example input:**  
-```
-CALL dbms.security.listAllowedHosts()
-```  
-**Example output:**  
-| host     |
-| ------------ |
-| 192.168.1.22 |
-| ...      |  
-* dbms.security.deleteAllowedHosts(hosts)  
-delete some ips from the list of ips to be allowed .  
-**Output:**  
-the number of ip which been deleted.  
-**Example input:**  
-```
-CALL dbms.security.deleteAllowedHosts('192.168.1.22','192.168.1.23')
-```  
-**Example output:**  
-| success |
-| ------- |
-| 2       |  
-* dbms.security.addAllowedHosts(hosts)  
-add some ips from the list of ips to be allowed .  
-**Output:**  
-the number of ip which been added.  
-**Example input:**  
-```
-CALL dbms.security.addAllowedHosts('192.168.1.22','192.168.1.23')
-```  
-**Example output:**  
-| success |
-| ------- |
-| 2       |  
-* dbms.graph.createGraph(graph_name, description, max_size_GB)  
-create a new subgraph in this graph database .  
-**Parameters:**  
-| parameter   | parameter type | description              |
-| ----------- | -------------- | -------------------------------- |
-| graph_name  | string     | the name of new subgraph     |
-| description | string     | description of new subgraph      |
-| max_size_GB | integer    | Upper limit of subgraph capacity |  
-**Output:**  
-if successful , it will return true.  
-**Example input:**  
-```
-CALL dbms.graph.createGraph('graph1', 'description', 2045)
-```  
-**Example output:**  
-| success |
-| ------- |
-| true    |  
-* dbms.graph.deleteGraph(graph_name)  
-delete a subgraph in this graph database .  
-| parameter  | parameter type | description              |
-| ---------- | -------------- | ------------------------------------ |
-| graph_name | string     | the name of subgraph to been deleted |  
-**Output:**  
-if successful , it will return true.  
-**Example input:**  
-```
-CALL dbms.graph.deleteGraph('graph1')
-```  
-**Example output:**  
-| success |
-| ------- |
-| true    |  
-* dbms.graph.modGraph(graph_name, config)  
-delete a subgraph in this graph database .  
-**Parameters:**  
-| parameter  | parameter type | description              |
-| ---------- | -------------- | ------------------------------------ |
-| graph_name | string     | the name of subgraph to been deleted |
-| config     | map        | the configuration to be modified     |  
-**Output:**  
-if successful , it will return true.  
-**Example input:**  
-```
-CALL dbms.graph.modGraph('graph1',{description:'this graph', max_size_GB:20})
-```  
-**Example output:**  
-| success |
-| ------- |
-| true    |  
-* dbms.graph.listGraphs()  
-get all subgraphs in this graph database.  
-**Output:**  
-a list of {subgraph and configuration}.  
-**Example input:**  
-```
-CALL dbms.graph.listGraphs()
-```  
-**Example output:**  
-| graph.name | configuration                 |
-| ---------- | --------------------------------------------- |
-| default    | {""description"":"""",""max_size_GB"":1024}     |
-| graph1     | {""description"":""this graph"",""max_size_GB"":20} |
-| ...    |         ...                  |  
-* dbms.graph.listUserGraphs(user_name)  
-get subgraph list which specified user can read or write  
-**Output:**  
-a list of {subgraph and configuration}.  
-**Example input:**  
-```
-CALL dbms.graph.listUserGraphs(""test_user"")
-```  
-**Example output:**  
-| graph.name | configuration                 |
-| ---------- | --------------------------------------------- |
-| default    | {""description"":"""",""max_size_GB"":1024}     |
-| graph1     | {""description"":""this graph"",""max_size_GB"":20} |
-| ...    |         ...                  |  
-* dbms.config.list()  
-get config of this graph database.  
-**Output:**  
-a list of {configuration}.  
-**Example input:**  
-```
-CALL dbms.config.list()
-```  
-**Example output:**  
-| name      | value   |
-|-----------| ---------|
-| bind_host | 0.0.0.0 |
-| durable   | true    |
-| ...       |  ...    |  
-* dbms.config.update(updates)  
-get some config of this graph database.  
-**Output:**  
-If successful, it returns a success message  
-**Example input:**  
-```
-CALL dbms.config.update({
-enable_ip_check:false,
-durable:true,
-optimistic_txn:true,
-enable_audit_log:true})
-```  
-**Example output:**  
-```
-Update succeeded.
-```  
-* dbms.takeSnapshot()  
-take the  snapshot  on this current graph database.  
-**Output:**  
-If successful, it returns the path of snapshot.  
-**Example input:**  
-```
-CALL dbms.takeSnapshot()
-```  
-**Example output:**  
-| path                |
-| ----------------------------------- |
-| log/db/snapshot/2020-07-20_17.20.03 |  
-* dbms.listBackupFiles()  
-get the path of backuped files.  
-**Output:**  
-If successful, it returns the path of snapshot.  
-**Example input:**  
-```
-CALL dbms.listBackupFiles()
-```  
-**Example output:**  
-| path               |
-| -------------------------- |
-| tugraph/db/binlog/binlog_0 |  
-* algo.shortestPath(startNode, endNode, config)  
-get one of the shortest paths between two vertexes.  
-**Parameters:**  
-| parameter | parameter type | description                          |
-| --------- | -------------- | ------------------------------------------------------------ |
-| startNode | Node       | the source node of paths                     |
-| endNode   | Node       | the destination node paths                   |
-| config    | MAP        | the filter of shortest paths, the formate as {maxHops:3, relationshipQuery:'HAS_CHILD'} |  
-**Output:**  
-If successful, it will returns one group result of the shortest path.  
-**Example input:**  
-```
-MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'})
-CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost
-```  
-**Example output:**  
-| nodeCount | totalCost |
-| --------- | --------- |
-| 2     | 1     |  
-* algo.allShortestPaths(startNode, endNode, config))  
-get the path of backuped files.  
-**Output:**  
-If successful, it returns the path of snapshot.  
-**Example input:**  
-```
-MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'})
-CALL algo.allShortestPaths(n1,n2) YIELD nodeIds,cost RETURN nodeIds,cost
-```  
-**Example output:**  
-| nodeIds | cost |
-| ------- | ---- |
-| [2,665] | 1    |
-| ...     |      |  
-* algo.algo.native.extract(id, config))  
-get the field values of a list of vertexes or edges.  
-**Parameters:**  
-| parameter | parameter type | description                        |
-| --------- | -------------- | ---------------------------------------------------------- |
-| id    | ANY        | the id of vertexes or edges , the id must be variable      |
-| config    | MAP        | the configuration of  this extraction of vertexes or edges |  
-in which each `config` is a map in the form of `{isNode:true, filed:'HAS_CHILD'}`, if `isNode` is specified true, the `id` is a vertex id, or  it is an edge id.  
-**Output:**  
-If successful, it returns a list of the value of vertexes or edges specified field .  
-**Example input:**  
-```
-with [2,3] as vids CALL algo.native.extract(vids,{isNode:true, field:'id'})
-YIELD value  RETURN value
-```  
-**Example output:**  
-| value |
-| ----- |
-| [4,5] |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '5.1.procedures样例'}","page_content='动态图
-
-接口
-
-| API | 接口说明 | 入参说明 |
-| --- | --- | --- |
-| void init(IncGraphComputeContext<K, VV, EV, M> incGraphContext) | 图计算初始化接口 | incGraphContext： 增量动态图计算的上下文，K表示vertex id的类型，VV表示vertex value类型，EV表示edge value类型，M表示发送消息的类型。 |
-| void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph) | 首轮迭代对增量图实现处理逻辑 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>temporaryGraph：临时增量图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |
-| void compute(K vertexId, Iterator messageIterator) | 迭代计算接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。 |
-| void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph) | 迭代计算完成接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>mutableGraph：可变图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型 |  
-- 详细接口  
-```java
-public interface IncVertexCentricFunction<K, VV, EV, M> extends Function {
-
-void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph);
-
-void compute(K vertexId, Iterator<M> messageIterator);
-
-void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph);
-
-interface IncGraphContext<K, VV, EV, M> {
-/** 获取job id */
-long getJobId();
-
-/** 获取当前迭代 id */
-long getIterationId();
-
-/** 获取运行时上下文 */
-RuntimeContext getRuntimeContext();
-
-/** 获取可变图 */
-MutableGraph<K, VV, EV> getMutableGraph();
-
-/** 获取增量图 */
-TemporaryGraph<K, VV, EV> getTemporaryGraph();
-
-/** 获取图存储上的历史图 */
-HistoricalGraph<K, VV, EV> getHistoricalGraph();
-
-/** 给指定vertex发送消息 */
-void sendMessage(K vertexId, M message);
-
-/** 给当前vertex邻居节点发送消息 */
-void sendMessageToNeighbors(M message);
-
-}
-
-interface TemporaryGraph<K, VV, EV> {
-/** 从增量图中获取vertex */
-IVertex<K, VV> getVertex();
-
-/** 从增量图中获取edges */
-List<IEdge<K, EV>> getEdges();
-
-/** 更新vertex value */
-void updateVertexValue(VV value);
-
-}
-
-interface HistoricalGraph<K, VV, EV> {
-/** 获取图数据最新版本id */
-Long getLatestVersionId();
-
-/** 获取图数据所有版本 */
-List<Long> getAllVersionIds();
-
-/** 获取图数据所有vertex */
-Map<Long, IVertex<K, VV>> getAllVertex();
-
-/** 获取图数据指定版本的vertex */
-Map<Long, IVertex<K, VV>> getAllVertex(List<Long> versions);
-
-/** 获取图数据指定版本并满足过滤条件的vertex */
-Map<Long, IVertex<K, VV>> getAllVertex(List<Long> versions, IVertexFilter<K, VV> vertexFilter);
-
-/** 获取图数据指定版本的快照 */
-GraphSnapShot<K, VV, EV> getSnapShot(long version);
-
-}
-
-interface GraphSnapShot<K, VV, EV> {
-/** 获取当前版本id */
-long getVersion();
-/** 获取vertex */
-VertexQuery<K, VV> vertex();
-/** 获取edges */
-EdgeQuery<K, EV> edges();
-
-}
-
-interface MutableGraph<K, VV, EV> {
-/** 向图中添加vertex，并指定其版本id */
-void addVertex(long version, IVertex<K, VV> vertex);
-/** 向图中添加edge，并指定其版本id */
-void addEdge(long version, IEdge<K, EV> edge);
-
-}
-
-
-}
-
-public interface IncVertexCentricComputeFunction<K, VV, EV, M> extends
-IncVertexCentricFunction<K, VV, EV, M> {
-
-void init(IncGraphComputeContext<K, VV, EV, M> incGraphContext);
-
-interface IncGraphComputeContext<K, VV, EV, M> extends IncGraphContext<K, VV, EV, M> {
-void collect(IVertex<K, VV> vertex);
-}
-
-}
-```' metadata={'Header 1': '动态图', 'Header 2': '接口'}","page_content='动态图
-
-接口
-
-| API | 接口说明 | 入参说明 |
-| --- | --- | --- |
-| void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext) | vertexCentricFunction进行open操作 | vertexCentricFuncContext：K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型，M表示图遍历中定义的消息类型，R表示遍历结果类型。 |
-| void init(ITraversalRequest traversalRequest) | 图遍历初始化接口 | traversalRequest：图遍历触发点，其中K表示vertex id的类型。 |
-| void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph) | 首轮计算对增量图实现处理逻辑 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>temporaryGraph：临时增量图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |
-| void compute(K vertexId, Iterator messageIterator) | 图遍历接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>messageIterator：图遍历过程中所有发送给当前vertex的消息，其中M表示遍历迭代过程中定义的发送消息类型。 |
-| void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph) | 图遍历完成接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>mutableGraph：可变图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |  
-- 详细接口  
-```java
-public interface IncVertexCentricTraversalFunction<K, VV, EV, M, R> extends IncVertexCentricFunction<K, VV
-, EV, M> {
-
-void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext);
-
-void init(ITraversalRequest<K> traversalRequest);
-
-void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph);
-
-void compute(K vertexId, Iterator<M> messageIterator);
-
-void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph);
-
-interface IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> extends IncGraphContext<K, VV, EV,
-M> {
-/** 激活遍历起点用以下一轮迭代使用 */
-void activeRequest(ITraversalRequest<K> request);
-/** 收集遍历结果 */
-void takeResponse(ITraversalResponse<R> response);
-
-void broadcast(IGraphMessage<K, M> message);
-/** 获取历史图数据 */
-TraversalHistoricalGraph<K, VV, EV> getHistoricalGraph();
-}
-
-
-interface TraversalHistoricalGraph<K, VV, EV>  extends HistoricalGraph<K, VV, EV> {
-/** 获取指定版本快照 */
-TraversalGraphSnapShot<K, VV, EV> getSnapShot(long version);
-}
-
-interface TraversalGraphSnapShot<K, VV, EV> extends GraphSnapShot<K, VV, EV> {
-/** 获取开始图遍历的点 */
-TraversalVertexQuery<K, VV> vertex();
-/** 获取开始图遍历的边 */
-TraversalEdgeQuery<K, EV> edges();
-}
-}
-```' metadata={'Header 1': '动态图', 'Header 2': '接口'}"
+Prometheus是一个开源的监控平台，并配备有专属的时序数据库，它会定期通过http请求从TuGraph Monitor服务获取统计指标，并保存在自己的时序数据库中。详细信息请参考官网: [https://prometheus.io/docs/introduction/first_steps](https://prometheus.io/docs/introduction/first_steps)' metadata={'Header 1': '运维监控', 'Header 2': '1.设计思路', 'Header 3': '1.3.Prometheus'}"
 value pack时的null array的具体含义是什么？,"page_content='RESTful API Legacy
 
 6.Deprecated
@@ -5261,7 +4199,30 @@ LOG_FATAL() << ""This is a fatal level log message."";
 }
 ```
 更多用法可以参考test/test_lgraph_log.cpp中的日志宏的使用方法' metadata={'Header 1': '日志信息', 'Header 2': '2.服务器日志', 'Header 3': '2.2.服务器日志输出宏使用示例'}"
-当调用算法 `algo.shortestPath` 实际应用中的例子是什么？,"page_content='QA汇总
+当调用算法 `algo.shortestPath` 实际应用中的例子是什么？,"page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* algo.shortestPath(startNode, endNode, config)
+
+get one of the shortest paths between two vertexes.  
+**Parameters:**  
+| parameter | parameter type | description                          |
+| --------- | -------------- | ------------------------------------------------------------ |
+| startNode | Node       | the source node of paths                     |
+| endNode   | Node       | the destination node paths                   |
+| config    | MAP        | the filter of shortest paths, the formate as {maxHops:3, relationshipQuery:'HAS_CHILD'} |  
+**Output:**  
+If successful, it will returns one group result of the shortest path.  
+**Example input:**  
+```
+MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'})
+CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost
+```  
+**Example output:**  
+| nodeCount | totalCost |
+| --------- | --------- |
+| 2     | 1     |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* algo.shortestPath(startNode, endNode, config)'}","page_content='QA汇总
 
 Cypher QA
 
@@ -5274,20 +4235,78 @@ MATCH (n1 {name:'Corin Redgrave'}),(n2 {name:'Liam Neeson'})
 CALL algo.allShortestPaths(n1,n2) YIELD nodeIds,relationshipIds,cost
 RETURN nodeIds,relationshipIds,cost
 ```  
-详尽使用方案请参考官网文档https://www.tugraph.org/doc?version=V3.3.0&id=10000000000658658。' metadata={'Header 1': 'QA汇总', 'Header 2': 'Cypher QA', 'Header 3': '查询最短路径'}","page_content='内置算法
+详尽使用方案请参考官网文档https://www.tugraph.org/doc?version=V3.3.0&id=10000000000658658。' metadata={'Header 1': 'QA汇总', 'Header 2': 'Cypher QA', 'Header 3': '查询最短路径'}","page_content='Cypher API
 
-扩展算法包
+5.附录2. 内置procedures列表
 
-全对最短路径
+* algo.allShortestPaths(startNode, endNode, config))
 
-全对最短路径程序实现了All-Pair Shortest Path算法，计算图中任意两点间的最短路径。返回结果为任意存在路径的点对之间的最短路径长度。算法内容请参考[https://en.wikipedia.org/wiki/Floyd-Warshall_algorithm](https://en.wikipedia.org/wiki/Floyd-Warshall_algorithm ""Floyd-Warshall algorighm wiki"")' metadata={'Header 1': '内置算法', 'Header 2': '扩展算法包', 'Header 3': '全对最短路径'}","page_content='内置算法
+get the path of backuped files.  
+**Output:**  
+If successful, it returns the path of snapshot.  
+**Example input:**  
+```
+MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'})
+CALL algo.allShortestPaths(n1,n2) YIELD nodeIds,cost RETURN nodeIds,cost
+```  
+**Example output:**  
+| nodeIds | cost |
+| ------- | ---- |
+| [2,665] | 1    |
+| ...     |      |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* algo.allShortestPaths(startNode, endNode, config))'}"
+方法 GetLabel() 返回什么类型的结果？,"page_content='Cypher API
 
-基础算法包
+5.附录2. 内置procedures列表
 
-单源最短路径
+* db.getLabelSchema(label_type, label_name)
 
-单源最短路径实现了Single Source Shortest Path算法，根据给定的源点，计算从该源点出发到其他任意点的最短路径长度。算法内容请参考 [https://en.wikipedia.org/wiki/Shortest_path_problem](https://en.wikipedia.org/wiki/Shortest_path_problem ""shortest path wiki"")。' metadata={'Header 1': '内置算法', 'Header 2': '基础算法包', 'Header 3': '单源最短路径'}"
-方法 GetLabel() 返回什么类型的结果？,"page_content='RESTful API Legacy
+Get the schema definition of the label in a subgraph.  
+**Scope:** subgraph, as specified in the `graph` parameter in REST or RPC request.  
+**Parameters:**  
+| parameter  | parameter type | description           |
+| ---------- | -------------- | ------------------------- |
+| label_type | string     | either 'vertex' or 'edge' |
+| label_name | string     | name of the label     |  
+**Output:** a list of label specifications, in which each element is a list of the following fields:  
+| field_name | field_type | description           |
+| ---------- | ---------- | ----------------------------- |
+| name       | string     | name of the field         |
+| type       | string     | type of the field         |
+| optional   | boolean    | whether the field is optional |  
+**Example input:**  
+```
+CALL db.getLabelSchema('vertex', 'Person')
+```  
+**Example output:**  
+| name     | type   | optional |
+| ------------ | ------ | -------- |
+| id       | INT32  | false    |
+| born     | INT32  | true     |
+| name     | STRING | true     |
+| poster_image | STRING | true     |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.getLabelSchema(label_type, label_name)'}","page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* db.deleteLabel(label_type, label_name)
+
+Delete a vertex or edge label.  
+**Parameters:**  
+| parameter  | parameter type | description           |
+| ---------- | -------------- | ------------------------- |
+| label_type | string     | either 'vertex' or 'edge' |
+| label_name | string     | name of the label     |  
+**Output:**  
+| field_name | field_type | description              |
+| ---------- | ---------- | -------------------------------- |
+| affected   | integer    | number of vertexes/edges deleted |  
+**Example input:**  
+```
+CALL db.deleteLabel('vertex', 'Person')
+```  
+**Example output:**  
+| affected |
+| -------- |
+| 1024     |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.deleteLabel(label_type, label_name)'}","page_content='RESTful API Legacy
 
 6.Deprecated
 
@@ -5448,151 +4467,7 @@ Output:
 {
 ""log"": """"
 }
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}","page_content='内置算法
-
-基础算法包
-
-标签传播
-
-标签传播算法程序实现了Label Propagation Algorithm算法。该算法是基于标签传播的社区发现算法，计算对象为无权图。在标签传递时，每个点对收到的所有标签进行次数累加，在累加和最高的标签中随机选择一个。迭代收敛或执行到给定轮数后算法终止。最终输出结果为每个点的标签，标签值相同的点视为在同一社区。算法内容请参考 [https://en.wikipedia.org/wiki/Label_Propagation_Algorithm](https://en.wikipedia.org/wiki/Label_Propagation_Algorithm ""lpa wiki"")。' metadata={'Header 1': '内置算法', 'Header 2': '基础算法包', 'Header 3': '标签传播'}","page_content='RESTful API Legacy
-
-6.Deprecated
-
-6.9.索引
-
-URI 格式为  
-```
-http://{host}:{port}/db/{graph_name}/index/{label}/{field}
-```  
-提供索引操作，接受 GET/POST 请求。  
-#### 6.9.1.创建索引  
-该操作会启动一个创建索引的后台任务，用户可以通过列出该 Label 相关的所有索引来检查新建索引的状态。  
-- **URI**: `/db/{graph_name}/index`
-- **METHOD**: POST
-- **REQUEST**:  
-| 域名    | 说明     | 类型                                  |
-|-------|--------|-------------------------------------|
-| label | Label 名 | 字符串                                 |
-| field | 域名     | 字符串                                 |
-| type  | 索引类型   | int类型，0表示非唯一索引，1表示全局唯一索引，2表示两点间唯一索引 |  
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
-```
-• POST http://localhost:7070/db/graph1/index
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json
-Input:
-{
-""label"": ""Person"",
-""field"": ""birthyear"",
-""is_unique"" : false
-}
-```  
-**Example response.**  
-```
-• 200: OK
-```  
-#### 6.9.2.列出所有索引  
-- **URI**: `/db/{graph_name}/index`
-- **METHOD**: GET
-- **RESPONSE**: 索引列表，其中每一个元素是一个索引描述，格式与[创建索引](#indexspec)时使用格式相同。  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/index
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-[
-{
-""field"": ""name"",
-""label"": ""City"",
-""is_unique"": false
-},
-{
-""field"": ""title"",
-""label"": ""Film"",
-""is_unique"": false
-},
-{
-""field"": ""name"",
-""label"": ""Person"",
-""is_unique"": true
-},
-{
-""label"": ""Person"",
-""field"": ""age"",
-""is_unique"": false
-}
-]
-}
-```  
-#### 6.9.3.列出所有与某个 Label 相关的索引  
-- **URI**: `/db/{graph_name}/index/{label}`
-- **METHOD**: GET
-- **RESPONSE**: 索引列表，其中每一个元素是一个索引描述，格式与[创建索引](#indexspec)时使用格式相同。  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/index/Person
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-[
-{
-""label"": ""Person"",
-""field"": ""name"",
-""is_unique"": true
-},
-{
-""label"": ""Person"",
-""field"": ""age"",
-""is_unique"": false
-}
-]
-}
-```  
-#### 6.9.4.删除索引  
-- **URI**: `/db/{graph_name}/index/{label}/{field}`
-- **METHOD**: DELETE
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
-```
-• DELETE http://localhost:7070/db/graph1/index/Person/name
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-```  
-#### 6.9.5.根据索引获取点  
-- **URI**: `/db/{graph_name}/index/{label}/?field={field}&value={value}`
-- **METHOD**: GET
-- **RESPONSE**: 点 vid 列表  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/index/Person/?field=birthyear&value=1986
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-Output:
-{
-[
-1,
-8
-]
-}
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.9.索引'}"
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}"
 Rust 存储过程目前支持哪个版本？,"page_content='Rust 存储过程
 
 1. 介绍
@@ -5636,7 +4511,33 @@ TuGraph 由蚂蚁集团和清华大学共同研发，是图数据库权威测试
 LDBC（关联数据基准委员会）发布最新图数据库 SNB 测试结果，TuGraph 在功能完整性、吞吐率、响应速度等层面全球领先。  
 目前，蚂蚁集团已形成了一套以图数据库为底座、同时包含流式图计算，离线图学习的大规模图计算系统。  
 蚂蚁集团图数据库负责人洪春涛表示，图技术是未来大数据、人工智能和高性能计算产业发展的关键所在，它很有可能会成为下一代的数据底座。蚂蚁集团愿意通过开源持续输出核心技术优势，推动图数据库更广泛的应用生态，携手行业抢占技术高地，不断探索技术的可能性。' metadata={'Header 1': 'TuGraph由LDBC认定全球领先', 'Header 2': '基本介绍'}"
-创建 Label 的请求是否需要指定该 Label 是否为点（vertex）或边（relationship）？,"page_content='RESTful API Legacy
+创建 Label 的请求是否需要指定该 Label 是否为点（vertex）或边（relationship）？,"page_content='Cypher API
+
+5.附录2. 内置procedures列表
+
+* db.createLabel(label_type, label_name, extra, field_spec...)
+
+Create a vertex or edge label.  
+**Parameters:**  
+| parameter  | parameter type | description           |
+| ---------- | -------------- | ------------------------- |
+| label_type | string     | either 'vertex' or 'edge' |
+| label_name | string     | name of the label     |
+| extra      | string     | for edge, it means constraints; for vertex, it means primary property |
+| field_spec | list       | specification of a field  |  
+in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`.
+for edge, `extra` should be a json array string, like this `[[""label1"",""label2""], [""label3"",""label4""]]`, if edge has no constraints, give an empty json array, like this `[]`  
+**Output:**  
+If successful, it returns a success message.  
+**Example input:**  
+```
+CALL db.createLabel('vertex', 'new_label', 'id', ['id','int32',false], ['name','string', true]);
+CALL db.createLabel('edge', 'new_edge', '[[""id1"",""id2""]]', ['id','int32',false], ['name', 'string', true]);
+```  
+**Example output:**  
+```
+Vertex label [new_label] successfully added.
+```' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.createLabel(label_type, label_name, extra, field_spec...)'}","page_content='RESTful API Legacy
 
 6.Deprecated
 
@@ -5797,325 +4698,31 @@ Output:
 {
 ""log"": """"
 }
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}","page_content='图相关DDL
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}","page_content='Cypher API
 
-Create Graph
+5.附录2. 内置procedures列表
 
-**Syntax**
-一个图至少包含一对点边，点表必须包含一个id字段作为主键，边表必须包含srcId和targetId作为主键，边表还可以有一个时间戳字段标识时间。  
-```
-CREATE GRAPH <graph name>
-(
-<graph vertex>
-[ { , <graph vertex> } ... ]
-, <graph edge>
-[ { , <graph edge> } ... ]
-) WITH （
-storeType = <graph store type>
-[ { , <config key> = <config value> } ... ]
-);
+* db.createEdgeLabel( label_name, field_spec...)
 
-<graph vertex>  ::=
-VERTEX <vertex name>
-(
-<column name> <data type> ID
-[ {, <column name> <data type> } ... ]
-)
-
-<graph edge>  ::=
-Edge <edge name>
-(
-<column name> <data type> SOURCE ID
-, <column name> <data type> DESTINATION ID
-[ , <column name> <data type> TIMESTAMP ]
-[ {, <column name> <data type> } ... ]
-)
-
+Create an edge label.  
+**Parameters:**  
+| parameter  | parameter type | description          |
+| ---------- | -------------- | ------------------------ |
+| label_name | string     | name of the label    |
+| edge_constraints | string | edge constraints |
+| field_spec | list       | specification of a field |  
+in which each `field_spec` is a list of string in the form of `[field_name, field_type, optional]`, where optional is specified as true, only for  optional fields.  
+`edge_constraints` is a json array string, This parameter limits the combination of starting and ending vertex of the edge, for example: `'[[""vertex_label1"",""vertex_label2""],[""vertex_label3"",""vertex_label4""]]'`, which limits the edge direction can only be from `vertex_label1` to `vertex_label2` or from `vertex_label3` to `vertex_label4`. If you don't want to have any constraints, give an empty array string, like this `'[]'`  
+**Output:**  
+If successful, it returns a success message.  
+**Example input:**  
+```
+CALL db.createEdgeLabel('KNOWS', '[]', 'name', 'int32', true)
 ```  
-**Example**
-```sql
-CREATE GRAPH dy_modern (
-Vertex person (
-id bigint ID,
-name varchar,
-age int
-),
-Vertex software (
-id bigint ID,
-name varchar,
-lang varchar
-),
-Edge knows (
-srcId bigint SOURCE ID,
-targetId bigint DESTINATION ID,
-weight double
-),
-Edge created (
-srcId bigint SOURCE ID,
-targetId bigint DESTINATION ID,
-weight double
-)
-) WITH (
-storeType = 'rocksdb',
-shardCount = 2
-);
+**Example output:**  
 ```
-这个例子创建了一张包含2个点2个边的图，存储类型为rocksdb, 分片数2个。' metadata={'Header 1': '图相关DDL', 'Header 2': 'Create Graph'}","page_content='RESTful API Legacy
-
-6.Deprecated
-
-6.8.边操作
-
-URI 格式为  
-```
-http://{host}:{port}/db/{graph_name}/relationship/{euid}
-```  
-与 Nodes 功能类似，Relationships 提供边（edge）的 CRUD 操作，接受 GET/POST/PUT/DELETE 请求。每一条边都可以由一个唯一 ID（euid）来标识。这个 ID 可以从在插入边时获得，或者在 [列出所有边](#%E5%88%97%E5%87%BA%E6%89%80%E6%9C%89%E8%BE%B9) 操作中得到。  
-#### 6.8.1.创建一条边  
-- **URI**: `/db/{graph_name}/node/{src}/relationship`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| label | 边 Label | 字符串 |
-| destination | 目的点 ID | 整数值 |
-| property | 边属性 | 字典 |  
-- **RESPONSE**: 如果成功，返回代码 200，同时返回新建立的边的 euid（字符串）。  
-**Example request.**  
-```
-• POST http://localhost:7070/db/{graph_name}/node/{src}/relationship
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json
-Input:
-{
-""destination"" : 14,
-""label"" : ""BORN_IN"",
-""property"" : {}
-}
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-""1_14_1_0""
-}
-```  
-#### 6.8.2.批量创建边  
-- **URI**: `/db/{graph_name}/relationship`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| label | 边 Label | 字符串 |
-| fields | 数据列名 | 列表 |
-| edge | 边数据 | 列表 |  
-其中 edge 是一个数据列表，其中每个元素都是一条边，其定义如下：  
-| 域名        | 说明     | 类型                                                   |
-| ----------- | -------- | ------------------------------------------------------ |
-| source      | 起点 id  | 整数                                                   |
-| destination | 终点 id  | 整数                                                   |
-| values      | 数据列表 | 列表，每列对应 fields 中的一个列，类型是该列对应的类型 |  
-- **RESPONSE**: 如果成功，返回代码 200，同时返回新建立的边的 euid 列表。  
-**Example request.**  
-```
-• POST http://localhost:7070/db/{graph_name}/relationship
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json
-Input:
-{
-""label"" : ""knows"",
-""fields"" : [""from_year"", ""weight""],
-""edge"" : [
-{""source"":0, ""destination"":1, ""values"":[2011, 0.8]},
-{""source"":1, ""destination"":2, ""values"":[2008, 0.9]}
-]
-}
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-[
-""0_1_0_0"",
-""1_2_0_0""
-]
-}
-```  
-#### 6.8.3.列出所有出边（outgoing relationships）  
-- **URI**: `/db/{graph_name}/node/{src}/relationship/out`
-- **METHOD**: GET
-- **RESPONSE**: 点 src 的所有出边 euid 列表  
-**Example request.**  
-```
-• GET http://localhost:7070/db/{graph_name}/node/4/relationship/out
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-[
-""4_5_0_0"",
-""4_7_1_2""
-]
-}
-```  
-#### 6.8.4.列出所有入边（incoming relationships）  
-- **URI**: `/db/{graph_name}/node/{dst}/relationship/in`
-- **METHOD**: GET
-- **RESPONSE**: 点 dst 的所有入边 euid 列表  
-**Example request.**  
-```
-• GET http://localhost:7070/db/{graph_name}/node/4/relationship/in
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-[
-""0_4_0_0"",
-""3_4_3_1""
-]
-}
-```  
-#### 6.8.5.列出所有边  
-- **URI**: `/db/{graph_name}/node/{src}/relationship/all`
-- **METHOD**: GET
-- **RESPONSE**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| in | 入边 | 列表 |
-| out | 出边 | 列表 |  
-**Example request.**  
-```
-• GET http://localhost:7070/db/{graph_name}/node/4/relationships/all
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-""out"": [
-""4_5_0_0"",
-""4_7_1_2""
-],
-""in"": [
-""0_4_0_0"",
-""3_4_3_1""
-]
-}
-```  
-#### 6.8.6.获取边  
-- **URI**: `/db/{graph_name}/relationship/{euid}`
-- **METHOD**: GET
-- **RESPONSE**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| label | 边 Label | 字符串 |
-| property | 边属性 | 字典 |  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/relationship/0_4_0_0
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-""property"": {
-},
-""label"": ""MARRIED""
-}
-```  
-#### 6.8.7.删除边  
-- **URI**: `/db/{graph_name}/relationship/{euid}`
-- **METHOD**: DELETE
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
-```
-• DELETE http://localhost:7070/db/graph1/relationship/14_0_1_0
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-```  
-#### 6.8.8.获取边的所有属性  
-- **URI**: `/db/{graph_name}/relationship/{euid}/property`
-- **METHOD**: GET
-- **RESPONSE**: 边属性字典  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/relationship/14_0_2_0/property
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-{
-""weight"": 0.8,
-""begin"": 20180922
-}
-}
-```  
-#### 6.8.9.获取边的属性  
-- **URI**: `/db/{graph_name}/relationship/{euid}/property/{field}`
-- **METHOD**: GET
-- **RESPONSE**: 如果成功,返回代码 200,同时返回边的属性。如果失败,返回代码 400,同时返回 ""Illegal field.""。  
-**Example request.**  
-```
-• GET http://localhost:7070/db/graph1/relationship/17_0_2_2/property/charactername
-• Accept: application/json; charset=UTF-8
-```  
-**Example response.**  
-```
-• 200: OK
-• Content-Type: application/json; charset=UTF-8
-Output:
-{
-""Henri Ducard""
-}
-```  
-#### 6.8.10.更新边的属性  
-- **URI**: `/db/{graph_name}/relationship/{euid}`
-- **METHOD**: PUT
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| property | 边属性 | 字典 |  
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
-```
-• PUT http://localhost:7070/db/graph1/relationship/17_0_2_2
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json
-Input:
-{
-""property"" : {
-""charactername"" : ""Henri Ducard/passer a""
-}
-}
-```  
-**Example response.**  
-```
-• 200: OK
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.8.边操作'}"
+Added type [KNOWS]
+```' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.createEdgeLabel( label_name, field_spec...)'}"
 TuGraph 中使用的两种主要图分析操作是什么？,"page_content='图分析引擎技术解析
 
 1 TuGraph 图分析引擎概览
@@ -6154,7 +4761,37 @@ TuGraph图计算系统社区版内置6个算法，商业版内置了25种算法�
 根据数据来源及实现不同，可分为Procedure、Embed和Standalone三种运行方式，均继承于OlapBase API，OlapBase API接口文档可参考olapbase-api.md。  
 其中Procedure和Embed的数据来源是图数据库中预加载的db数据，可以分别编译生成tugraph-web加载使用的.so文件和后台终端使用的embed文件，输入的图数据均通过db的加载形式，其接口文档可参考olapondb-api.md。
 Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}"
-TuGraph-DB如何在代码中增加日志输出埋点？,"page_content='技术规划
+TuGraph-DB如何在代码中增加日志输出埋点？,"page_content='TuGraph Management
+
+简介
+
+TuGraph Management 是一款为TuGraph开发的算法任务管理工具。采用了sofastack与brpc作为通信框架，并使用sqlite进行持久化存储。  
+主要功能：  
+- 算法任务状态持久化存储  
+- 算法任务结果持久化存储  
+- 延时触发与定时触发算法任务支持' metadata={'Header 1': 'TuGraph Management', 'Header 2': '简介'}","page_content='TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
+
+2 使用示例
+
+**2.3 通过OGM进行增操作**
+
+OGM支持对TuGraph的实体执行CRUD 操作，同时支持发送任意TuGraph支持的Cypher语句，包括通过CALL调用存储过程。  
+**CREATE**  
+在完成图对象的构建后，即可通过类的实例化创建节点，当两个节点互相存储在对方的集合（该集合在构建时被标注为边）中，就形成了一条边，最后使用session.save方法将数据存入数据库。  
+注意：TuGraph数据库为强schema类型数据库，在创建实体前需要该数据的label已经存在，且新建过程中需要提供唯一的主键。  
+```
+Movie jokes = new Movie（""Jokes""，1990）； // 新建Movie节点jokes session.save(jokes); // 将jokes存储在TuGraph中
+
+Movie speed = new Movie(""Speed"", 2019);
+
+Actor alice = new Actor(""Alice Neeves"");
+
+alice.actsIn(speed);
+
+session.save(speed);
+
+/1 将speed节点与alice节点通过ACTS_IN进行连接 11 存储speed节点以及speed关联的边和alice节点
+```' metadata={'Header 1': 'TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态', 'Header 2': '2 使用示例', 'Header 3': '**2.3 通过OGM进行增操作**'}","page_content='技术规划
 
 2. 已完成功能
 
@@ -6174,20 +4811,7 @@ TuGraph-DB于2022年9月1日开源，TuGraph-DB在社区的反馈声中，进行
 | 4.0.1 | 支持时序边排序，新增5个开源图算法                | 2023.9.28  |
 | 4.1.0 | 支持Bolt协议，支持快速在线全量导入，支持地理空间数据类型   | 2023.12.25 |  
 除此之外，TuGraph-DB搭建了较为完善的质量体系，涵盖自动化的单元测试、集成测试、性能测试等。  
-更详细的描述可以在源码目录在的 ""[root]/release/CHANGELOG.md"" 文件查看。' metadata={'Header 1': '技术规划', 'Header 2': '2. 已完成功能'}","page_content='QA汇总
-
-存储过程QA
-
-内置算法包
-
-Q:开源内置的算法包在哪里？
-A：代码地址https://github.com/TuGraph-db/tugraph-db/tree/master/plugins' metadata={'Header 1': 'QA汇总', 'Header 2': '存储过程QA', 'Header 3': '内置算法包'}","page_content='TuGraph-db
-
-2. 快速上手
-
-一个简单的方法是使用docker进行设置，可以在DockerHub)中找到, 名称为`tugraph/tugraph-runtime-[os]:[tugraph version]`,
-例如， `tugraph/tugraph-runtime-centos7:3.3.0`。  
-更多详情请参考 [快速上手文档](和 [业务开发指南]' metadata={'Header 1': 'TuGraph-db', 'Header 2': '2. 快速上手'}"
+更详细的描述可以在源码目录在的 ""[root]/release/CHANGELOG.md"" 文件查看。' metadata={'Header 1': '技术规划', 'Header 2': '2. 已完成功能'}"
 在删除边的全文索引时，如果边标签或字段不存在会抛出什么异常？,"page_content='业务开发指南
 
 边类型操作
@@ -7316,16 +5940,27 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='OlapBase API
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='Cypher API
 
-7. 图类OlapBase
+5.附录2. 内置procedures列表
 
-7.3 锁机制
+* db.subgraph()
 
-TuGraph实现了一对锁机制，来控制程序对于点数据的访存权限。分别是：  
-- `void AcquireVertexLock(size_t vid)`：对点vid加锁，禁止其它线程对该锁对应的点数据进行访存
-- `void ReleaseVertexLock(size_t vid)`：对点vid解锁，所有线程均可访存该锁对应的点数据
-- `VertexLockGuard GuardVertexLock(size_t vid)`：在对vid操作时，对点vid加锁，退出作用域时时自动释放锁' metadata={'Header 1': 'OlapBase API', 'Header 2': '7. 图类OlapBase', 'Header 3': '7.3 锁机制'}"
+**Scope:** whole instance.  
+**Parameters:**  
+| parameter  | parameter type | description                                                           |
+| ---------- | -------------- | --------------------------------------------------------------------- |
+| vids       | list           | list of vertex id                                                     |  
+**Output:**  
+Get a json containing all the properties of nodes and relationships.  
+**Example input:**  
+```
+CALL db.subgraph([3937,4126,4066,4010])
+```  
+**Example output**  
+| subgraph |
+| -------- |
+| {""nodes"":[{""identity"":3937,""label"":""movie"",""properties"":{""duration"":136,""id"":1,""poster_image"":""http://image.tmdb.org/t/p/w185/gynBNzwyaHKtXqlEKKLioNkjKgN.jpg"",""rated"":""R"",""summary"":""Thomas A. Anderson is a man living two lives. By day he is an average computer programmer and by night a malevolent hacker known as Neo who finds himself targeted by the police when he is contacted by Morpheus a legendary computer hacker who reveals the shocking truth about our reality."",""tagline"":""Welcome to the Real World."",""title"":""The Matrix""}},{""identity"":4010,""label"":""user"",""properties"":{""id"":44,""login"":""Howard""}},{""identity"":4066,""label"":""user"",""properties"":{""id"":202,""login"":""Enoch""}},{""identity"":4126,""label"":""user"",""properties"":{""id"":464,""login"":""Wilburn""}}],""relationships"":[{""dst"":4126,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4010,""temporal_id"":0},{""dst"":4010,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4066,""temporal_id"":0},{""dst"":4066,""forward"":true,""identity"":0,""label"":""is_friend"",""label_id"":3,""src"":4126,""temporal_id"":0}]} |' metadata={'Header 1': 'Cypher API', 'Header 2': '5.附录2. 内置procedures列表', 'Header 3': '* db.subgraph()'}"
 在上述文本中，类FieldData用于表示哪些类型的数据？,"page_content='OlapBase API
 
 6. 自定义数据结构
@@ -7712,13 +6347,7 @@ g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/local/include/lgraph -rdynamic -
 
 在单命令模式下，`lgraph_cypher`可用于提交单个 Cypher 查询并将结果直接打印到终端，打印结果也可以容易地重定向写入指定文件。当用户需要从服务器获取大量结果并将其保存在文件中时，这非常便利。
 在此模式下，`lgraph_cypher`工具具有以下选项：' metadata={'Header 1': '命令行工具', 'Header 2': '1.单命令模式'}"
-当前图数据库应用程序使用的CPU比率是多少？,"page_content='环境准备
-
-1.硬件环境
-
-1.2. 内存
-
-我们建议内存容量不小于实际的数据大小。如果最求极致的性能，把所有的数据缓存到内存里是最理想的。在数据访问的局部性上，图数据库的局部性要比关系型数据库差，因此如果数据在内存中放不下，通常会频繁地换入换出。' metadata={'Header 1': '环境准备', 'Header 2': '1.硬件环境', 'Header 3': '1.2. 内存'}","page_content='性能优先
+当前图数据库应用程序使用的CPU比率是多少？,"page_content='性能优先
 
 1.简介
 
@@ -7730,4 +6359,14 @@ TuGraph目前是世界上最快的图数据库，在图数据库标准评测LDBC
 
 在高速信息化的21世纪，计算机软硬件均经历着翻天覆地的变化，从Intel和AMD的x86 CPU架构到ARM RISC精简指令CPU，内存也演进出超高带宽内存HBM、非易失内存NVM。近年来基于ARM架构的CPU越来越普遍，在手机中ARM芯片已占90%以上份额，个人PC中苹果M1/M2均采用ARM架构，在服务器领域华为鲲鹏、飞腾等ARM架构CPU也逐步被接纳。本次测试使用的倚天710，是阿里基于ARMv9架构自研的CPU，已在阿里云服务中大规模部署，成为中国首个云上大规模应用的自研CPU。  
 数据库作为底层系统软件，面对CPU的更新换代也迎来了更多的挑战和机遇。在ARM架构中，CPU通常拥有更多的核数、更低的能耗、更高的性价比。作为拥抱开源的图数据库产品，TuGraph不仅需要兼容新型硬件，更需要充分发挥出新硬件的功能和性能优势。适配和测试工作包括超多线程的支持、更加细致的负载均衡策略、并发读写性能优化等。  
-**本次测试机构国际关联数据基准委员会LDBC是由高校、研究所、企业联合组成的非盈利组织，其中企业成员包括Intel、Oracle、Neo4j、蚂蚁集团等国内外知名图数据厂商，致力于推进图数据的规范标准化。**本次测试使用的图数据来自LDBC的社交网络运营场景SNB（Social Network Benchmark），LDBC SNB的图数据是一个包含14类顶点和20类边的属性图，用户可以指定scale factor生成不同规模的数据。LDBC SNB的交互式工作负载由14个复杂的只读查询、7个简单的只读查询和8个事务型更新查询组成。' metadata={'Header 1': 'TuGraph与ARM架构', 'Header 2': '内容：', 'Header 3': '**背景介绍：**'}"
+**本次测试机构国际关联数据基准委员会LDBC是由高校、研究所、企业联合组成的非盈利组织，其中企业成员包括Intel、Oracle、Neo4j、蚂蚁集团等国内外知名图数据厂商，致力于推进图数据的规范标准化。**本次测试使用的图数据来自LDBC的社交网络运营场景SNB（Social Network Benchmark），LDBC SNB的图数据是一个包含14类顶点和20类边的属性图，用户可以指定scale factor生成不同规模的数据。LDBC SNB的交互式工作负载由14个复杂的只读查询、7个简单的只读查询和8个事务型更新查询组成。' metadata={'Header 1': 'TuGraph与ARM架构', 'Header 2': '内容：', 'Header 3': '**背景介绍：**'}","page_content='TuGraph产品架构
+
+1.简介
+
+![产品架构](../../../images/architecture.png)  
+上图从功能模块的角度，以 TuGraph 为例，给出了企业级图数据库的整体架构，自下而上包括：  
+- 软硬件环境。涉及图数据库的开发和使用环境。TuGraph 主要基于底层的 C++语言开发，能够兼容市面上大部分操作系统和 CPU。
+- 存储层，包括 KV 存储层和图存储层。存储层需要支持计算层所需的各个功能。
+- 计算层。计算层应包括图事务引擎、图分析引擎和图神经网络引擎，也包含了服务端提供的多种编程接口，包括描述式查询语言 Cypher，存储过程等。
+- 客户端。客户端 SDK 应支持 Java、Python、C++ 等多种语言，也支持命令行的交互方式。Browser 和 Explorer 通过网页端交互的方式，降低了图数据库的使用门槛。
+- 在生态工具方面，覆盖了企业级图数据库的开发、运维、管理等链路，提升可用性。' metadata={'Header 1': 'TuGraph产品架构', 'Header 2': '1.简介'}"
