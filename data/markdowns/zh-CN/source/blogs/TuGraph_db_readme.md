@@ -2,6 +2,7 @@
 
 ## 1. 简介
 TuGraph 是支持大数据容量、低延迟查找和快速图分析功能的高效图数据库。
+TuGraph的支持邮箱：tugraph@service.alipay.com
 
 主要功能：
 
