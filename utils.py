@@ -27,7 +27,7 @@ def write_jsonl(data, output_file_path):
         for item in data:
             file.write(json.dumps(item, ensure_ascii=False) + '\n')
 
-def write_csv(score_output, file_path):
+def write_csv(score_output, file_path): # score_output实际是要写到csv的数据
     # 确定表头（即字典的键）
     if score_output:
         fieldnames = score_output[0].keys()

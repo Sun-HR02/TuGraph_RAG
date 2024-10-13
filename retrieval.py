@@ -21,7 +21,7 @@ markdown_files_path = './data/markdowns/zh-CN/source'
 # embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
 
-concat_header_with_content = 0 #是否要把header拼接到content中
+concat_header_with_content = 1 #是否要把header拼接到content中
 
 counter = 0
 

@@ -1,51 +1,51 @@
 id,score,correct_answer,our_answer
-VAL-1,0.9639802690574009,三个级别（0，1，2）。,"""三个级别（0，1，2）。"""
-VAL-2,0.6152400468040304,value大于10000时。,"""当磁盘读速率或写速率大于10000时，会触发危急颜色模式。"""
-VAL-3,0.8142098413729335,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,`FieldData` 类中的函数 `IsReal()` 是用来查询数据是否为实数类型。
+VAL-1,1.0000039184205125,三个级别（0，1，2）。,三个级别（0，1，2）。
+VAL-2,0.6073297079752401,value大于10000时。,"""当磁盘IO的读或写延迟值大于10000时会触发危急颜色模式。"""
+VAL-3,0.8408017518610827,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,`IsReal()` 函数用于查询数据是否为实数类型。
 VAL-4,0.6913122552268303,200,“200”
-VAL-5,0.6116945064635114,是的,不是，边关联的两个点的字段不一定是点的主键，可以通过增加边上的特定属性来确定唯一性。
-VAL-6,0.7347354711299631,Deletes current edge. The iterator will point to the next out edge if there is any.,`OutEdgeIterator` 类的 `Delete` 方法用于删除指定的边。
-VAL-7,0.7242905179153913,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。",“日志等级通过配置文件进行调整。”
-VAL-8,0.7999799397027471,“memory”是内存，是用于监控服务性能的重要指标之一。,“memory”是指机器在运行过程中可用于存储数据和程序的内存资源。
-VAL-9,0.7117161028009367,每次执行查询的结果会追加至画布区域。,如果不选择清空画布数据按钮，导入的数据会追加到现有数据中。
-VAL-10,0.7610967367095848,邮件地址为tugraph@service.alipay.com。,通过邮件提出关于TuGraph产品的建议，请发送到蚂蚁集团的官方联系方式或支持邮箱，具体邮箱地址可在蚂蚁集团的官方网站上找到。
-VAL-11,0.5459389031052412,暂不支持,边索引支持查询加速。
-VAL-12,0.6954026561612427,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,"""TuGraph Monitor的主要功能包括监控图数据库的性能、事务处理状态、图分析算法的执行情况，以及提供图可视化工具和API接口的管理。"""
-VAL-13,0.6332290537462918,管理工具为lgraph_peer。,"""TuGraph HA 集群的管理工具是 TuGraph-OGM。"""
-VAL-14,0.5568678682417163,通过设置refresh_time和expire_time参数均为0。,要通过POST方法将Token的有效期修改为无限期，需要在请求中设置`expire_time`为一个较长的时间戳或特定的标识符以表示无限期。具体的操作步骤可能依赖于TuGraph的API设计，通常需要提供Token的当前状态及新的有效期参数。请参考具体的API文档以获取详细的请求格式和参数要求。
-VAL-15,0.8199822567007862,蚂蚁集团与清华大学联合研发的。,"""蚂蚁集团和清华大学。"""
-VAL-16,0.7525078242096028,它依赖于TuGraph的数据库管理系统。,"""TuGraph图学习模块依赖于TuGraph的C++图分析引擎。"""
-VAL-17,0.500069948619829,需要字段名称、字段类型和一个布尔值标识字段是否可选。,构造FieldSpec时需要的参数包括：defaults、overrides。
-VAL-18,0.5148231510012526,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,主要问题是系统性能可能会由于频繁的 IO 操作而变差。
-VAL-19,0.7525736386461536,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。",“需要三个参数：url（格式为ip:port）、user（登录用户名）、pass（登录密码）。”
-VAL-20,0.8944308766260265,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,当前，TuGraph-DB支持使用ISO GQL查询语言，未来计划支持Bolt协议。
-VAL-21,0.7483178503678412,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。",DeleteProcedure 函数接受三个参数，分别为：procedure_type（类型: str）、procedure_name（类型: str）和graph（类型: str）。
-VAL-22,0.6928747187914178,事务必须是只读的。,"""必须选择增量事务模式。"""
-VAL-23,0.49105292869556244,"url, user, password。","""RpcSingleClient 构造函数需要的参数有两个：channel 和 client_version。"""
-VAL-24,0.7463189425283778,expire_time实体定义为强制过期时间戳，默认设置为24小时。,"""expire_time""默认设置是""0""。"
-VAL-25,0.7535504486508029,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,“四种采样算子是：GetDB、NeighborSampling、EdgeSampling、RandomWalkSampling。”
-VAL-26,0.7604070707394647,如果边已存在，则返回False；如果新建了边，则返回True。,当执行UpsertEdge操作时，如果根据提供的参数存在于现有边，将返回值为“更新边的属性”；如果不存在，则返回“插入新边”。
-VAL-27,0.6983453468338715,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,"“Java, C#, C++, JavaScript, Python, Go, Swift 等目标语言。”"
-VAL-28,0.5963811572953149,抛出OutOfRange异常。,超出范围的微秒数添加到DateTime对象时，可能会导致溢出错误。
-VAL-29,0.8556765263512167,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,“VertexLockGuard”是用于管理图数据库中顶点锁定的机制，确保在事务期间对顶点的并发访问控制，避免数据不一致性。
-VAL-30,0.5690976514988818,标记field是否为空,null array代表一个没有任何元素的数组，表示数组的存在但未初始化具体值。
-VAL-31,0.5861005945367661,可以写where语句进行过滤,TuGraph 支持边属性匹配。使用 MATCH 语句可以过滤边属性，但需要注意语法和结构，确保查询语句的正确性。如果无法过滤边属性，可能是因为查询的构造不符合 TuGraph 的要求。
-VAL-32,0.7157568426734435,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,TuGraph通过`CALL db.createVertexLabel`语句定义点类型和边类型，支持多种地理空间数据类型如Point、Linestring和Polygon。
-VAL-33,0.7657231068902681,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",是的，如果不设置log_dir，将不会保存日志文件。
-VAL-34,0.48341496362978187,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost",实际应用中的例子包括：道路导航系统、网络路由优化、社交网络中的最短联系路径分析、物流配送的最优路径规划等。
-VAL-35,0.4254886255582726,The label.,"""返回点 vid 列表。"""
-VAL-36,0.5978164531826432,目前仅支持v1版本。,"""Rust 存储过程目前支持的版本是最新版本。可以在 crates.io 或 docs.rs 上查找具体信息。"""
-VAL-37,0.9150908504932472,TuGraph单元测试采用gtest框架。,"""TuGraph单元测试使用的是Google的测试框架GTest。"""
-VAL-38,0.657212732444079,是的，需要指定。,不需要。创建 Label 时不需要指定该 Label 是否为点或边。
-VAL-39,0.47112576976271897,简单图分析操作和复杂图分析操作。,"""PageRank 和 LPA（标签传播算法）。"""
-VAL-40,0.7721958699965973,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件",在TuGraph-DB代码中增加日志输出埋点，可以通过修改相应的源代码部分，使用适当的日志库（如glog）进行日志记录。具体步骤包括定位需要埋点的代码位置，然后在该位置插入日志输出代码。
-VAL-41,0.692392354964567,InputError。,会抛出“IndexNotFoundException”异常。
-VAL-42,0.8519688911511609,Grafana主要用于服务性能指标的监控和可视化。,Grafana 主要用于在网页端交互展示监控信息。
-VAL-43,0.6045885477771273,执行用户定义的程序。,"""DeleteProcedure 函数是用来删除存储过程的。"""
-VAL-44,0.4846019119944304,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。","""PairUniqueIndex 的钥匙生成形式是基于图的顶点和边的唯一性，通常由一对相关的属性组合而成，以确保每个键在索引中是唯一的。"""
-VAL-45,0.7313006816248712,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,"""类FieldData用于表示地理空间数据类型，包括Point、Linestring和Polygon。"""
-VAL-46,0.8025163134533366,默认行为是在第一个错误包处停止导入。,默认行为是跳过该数据包并继续导入其他数据包。
-VAL-47,0.8053757925474333,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,"""ORDER BY用于对查询结果进行排序，可以按照指定的字段升序或降序排列。"""
-VAL-48,0.8202777835047586,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,“TuGraph-DB提供HTTP接口，相关的接口代码可以在官方文档中找到。”
-VAL-49,0.7876291328016076,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,“是的，lgraph_peer工具需要通过编译方式部署后才能使用。”
-VAL-50,0.42749242556399264,25%,该问题的信息在提供的材料中没有直接提到CPU比率的相关内容，因此无法提供具体的答案。
+VAL-5,0.5641081132885251,是的,不是一定。边关联的两个点的字段可以是点的主键，也可以是其他唯一标识符，但通常建议使用主键作为关联字段。
+VAL-6,0.6819830279228789,Deletes current edge. The iterator will point to the next out edge if there is any.,Delete 方法用于删除当前迭代器指向的边。
+VAL-7,0.6850495623435113,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。",通过修改配置文件中的日志等级参数来调整TuGraph-DB的日志等级，通常包括DEBUG、INFO、WARN、ERROR等级别。
+VAL-8,0.7589930471273378,“memory”是内存，是用于监控服务性能的重要指标之一。,“memory”指的是计算机系统中用于存储数据和程序的内存容量，通常以字节为单位表示，如GB（千兆字节）。
+VAL-9,0.7776018729757815,每次执行查询的结果会追加至画布区域。,导入的数据会被追加到现有的画布数据中。
+VAL-10,0.7389215722832935,邮件地址为tugraph@service.alipay.com。,请将建议发送至相应的客户服务邮箱，通常可在TuGraph的官方网站找到联系信息。
+VAL-11,0.5962435236030504,暂不支持,支持。边索引可以加速图中边的查询操作。
+VAL-12,0.7088944392414037,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,TuGraph Monitor的主要功能是实时监控TuGraph数据库的性能指标、资源使用情况和系统运行状态。
+VAL-13,0.63662069368789,管理工具为lgraph_peer。,TuGraph HA 集群的管理工具是 TuGraph Manager。
+VAL-14,0.5695793337978953,通过设置refresh_time和expire_time参数均为0。,通过POST方法修改Token的有效期为无限期，应在请求体中设置有效期为`null`或`infinity`，具体取决于TuGraph的API规范。
+VAL-15,0.8482575027400772,蚂蚁集团与清华大学联合研发的。,蚂蚁集团和中国科学院联合研发。
+VAL-16,0.8006266052215738,它依赖于TuGraph的数据库管理系统。,TuGraph图学习模块依赖于TensorFlow系统。
+VAL-17,0.6065779373443629,需要字段名称、字段类型和一个布尔值标识字段是否可选。,构造FieldSpec时需要以下参数：字段名（field name）、字段类型（field type）、字段描述（field description）、是否索引（is indexed）、是否唯一（is unique）。
+VAL-18,0.509202538313426,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,主要问题是“数据竞争与锁竞争”。
+VAL-19,0.7118415568963092,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。",需要的参数包括：`hostname`、`port`、`user` 和 `password`。
+VAL-20,0.8342874425019718,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,目前支持GQL查询语言，计划未来支持Cypher查询语言。
+VAL-21,0.703594250948095,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。",DeleteProcedure 函数接受两个参数：第一个参数是 `procedure_name`（字符串类型），第二个参数是 `cascade`（布尔类型）。
+VAL-22,0.8107629248482584,事务必须是只读的。,“只读”模式。
+VAL-23,0.617649546756868,"url, user, password。",需要两个参数：`address` 和 `timeout`。
+VAL-24,0.5223393854538195,expire_time实体定义为强制过期时间戳，默认设置为24小时。,默认设置是“0”。
+VAL-25,0.7540116279294242,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,包括随机采样、邻居采样、边采样和子图采样。
+VAL-26,0.7952660119680784,如果边已存在，则返回False；如果新建了边，则返回True。,“如果边已存在则返回状态码204，如果边不存在则返回状态码201。”
+VAL-27,0.9553252961940182,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,ANTLR4支持生成多种目标语言的解析器，包括Java、C#、Python、JavaScript、Go、Swift和PHP等。
+VAL-28,0.8350925956021807,抛出OutOfRange异常。,将抛出异常。
+VAL-29,0.8415860858253195,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,“VertexLockGuard”是TuGraph中用于保护顶点数据的锁管理机制，确保在并发操作中对顶点的安全访问与修改。
+VAL-30,0.6008153024623186,标记field是否为空,在TuGraph中，null array表示一个空的、未初始化的数组，通常用来表示没有值或缺失值。在处理聚合或数组操作时，可以通过null array来区分实际的空值与0、空字符串等有效值。
+VAL-31,0.5256915811049288,可以写where语句进行过滤,TuGraph 支持边属性匹配，但需要确保数据模型和查询语法正确。检查是否在边上定义了 `name` 属性。如果定义正确，可以在查询中使用边属性进行过滤。确保使用的标签和属性名称完全匹配。
+VAL-32,0.7149485535736791,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,通过CREATE语句定义点类型和边类型。
+VAL-33,0.7616355687755976,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",是的，如果不设置log_dir，则不会保存日志文件。
+VAL-34,0.48987137666432107,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost",实际应用例子包括：交通导航系统中寻找最短行驶路线、社交网络中分析好友之间的最短联系路径、物流配送优化中的路线规划等。
+VAL-35,0.6020967721866562,The label.,返回一个标签对象。
+VAL-36,0.6967372772609961,目前仅支持v1版本。,支持 Rust 1.68 及以上版本。
+VAL-37,0.732321740082252,TuGraph单元测试采用gtest框架。,使用的测试框架是Google Test。
+VAL-38,0.6679869218431614,是的，需要指定。,是的，创建 Label 的请求需要指定该 Label 是点（vertex）还是边（relationship）。
+VAL-39,0.5296086720791237,简单图分析操作和复杂图分析操作。,邻接矩阵与图遍历。
+VAL-40,0.763335656320118,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件",在TuGraph-DB中，可以使用以下方式增加日志输出埋点：调用日志记录器的相关方法，如`log.info()`、`log.debug()`等，结合必要的上下文信息，确保关键操作和异常情况被记录。这通常涉及到在代码适当的位置插入日志记录语句。
+VAL-41,0.5634449761344121,InputError。,“GraphLabelNotFoundException”
+VAL-42,0.8920861727732101,Grafana主要用于服务性能指标的监控和可视化。,Grafana主要用于可视化和监控时间序列数据。
+VAL-43,0.6289455325169565,执行用户定义的程序。,"""DeleteProcedure 函数是用来执行删除操作的。"""
+VAL-44,0.5140814333058095,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。","“键值为一对(键1, 键2)。”"
+VAL-45,0.710017979251377,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,“类FieldData用于表示图的节点数据和边的数据。”
+VAL-46,0.8440338171927657,默认行为是在第一个错误包处停止导入。,默认行为是跳过错误的数据包。
+VAL-47,0.8995092295827537,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,在GQL中，ORDER BY用于对查询结果进行排序，允许用户指定一个或多个字段作为排序的依据。
+VAL-48,0.7995687768062355,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,TuGraph-DB支持HTTP接口，相关的接口代码通常在TuGraph的GitHub代码库中，可以在API文档中获取详细信息和代码示例。
+VAL-49,0.8082544597403616,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,“是的，lgraph_peer工具需要通过编译部署。”
+VAL-50,0.4233336550337225,25%,具体的CPU比率会根据应用程序和系统负载而异，无法给出统一的答案。请监控应用程序运行时的资源使用情况以获取实时数据。
