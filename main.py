@@ -68,7 +68,7 @@ if options['use_val']:
     write_jsonl(answers_val, options['val_out_path'] )
     if options['save_knowledge']:
         # 知识保存写入文件
-        write_csv(knowledge_val, options['retrieval_path']+ 'retrieval_val.jsonl')
+        write_csv(knowledge_val, options['retrieval_path']+ 'retrieval_val.csv')
     print('val.jsonl 已生成答案！\n \n')
 
 if options['use_val_score']:
@@ -100,7 +100,7 @@ if options['use_test']:
     # 结果写入文件
     write_jsonl(answers_test, options['test_out_path'])
     if options['save_knowledge']:
-        write_csv(knowledge_test, options['retrieval_path']+ 'retrieval_test.jsonl')
+        write_csv(knowledge_test, options['retrieval_path']+ 'retrieval_test.csv')
     print('test1.jsonl 已生成答案！\n \n')
 
 
