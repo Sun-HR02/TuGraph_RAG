@@ -36,7 +36,7 @@ options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输�
 options['use_val'] = 0
 options['use_val_score'] = 0
 options['use_test'] = 1
-options['save_knowledge'] = 1
+options['save_knowledge'] = 0
 
 
 if options['use_val']:
