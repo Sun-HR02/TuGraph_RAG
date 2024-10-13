@@ -3,9 +3,11 @@ from FlagEmbedding import BGEM3FlagModel
 
 
 def embed(content, options):
+    # 设置参数
     base_url = options['gpt-baseurl']
     api_key = options['gpt-apikey']
     model = options['embedding-model']
+    # 初始化并向gpt发送请求
     client = OpenAI(base_url=base_url,
         api_key=api_key)
     response = client.embeddings.create(input=content, model=model).data[0].embedding

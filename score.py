@@ -82,12 +82,14 @@ def get_score(options):
     f_len = count_lines_in_jsonl(val_path)
     val_json = []
     ans_json = []
+    # 先读取两个文件的数据
     for obj in read_jsonl(val_path):
         val_json.append(obj)
     for obj in read_jsonl(ans_path):
         ans_json.append(obj)
     print("Embedding and Score Calculating...")
     output = []
+    # 每对数据计算相似度得分并记录下来
     with tqdm(total=f_len) as pbar:
         for i in range(f_len):
             score = similarity_score(embed(val_json[i]['output_field'], options=options), embed(ans_json[i]['output_field'], options=options))

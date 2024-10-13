@@ -49,28 +49,33 @@ options['save_knowledge'] = 1 # 把问题对应检索知识保存下来
 if options['use_val']:
     print('正在对 val.jsonl 进行生成检索.....')
     answers_val = []
-    if options['save_knowledge']:
+    if options['save_knowledge']: #是否要保存知识
         knowledge_val = []
     with tqdm(total=count_lines_in_jsonl(options['val_path'])) as pbar:
         for obj in read_jsonl(options['val_path']):
-            query = obj.get('input_field')
+            query = obj.get('input_field') # 获取提问
             if options['save_knowledge']:
-                knowledges = read_from_db(query, options['k'], options) # a list of Documents
+                knowledges = read_from_db(query, options['k'], options) # 读取知识a list of Documents
+                # 保存知识
                 knowledge_val.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
+                # 生成答案
                 answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
             # 生成答案
                 answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
-
+    # 答案写入文件
     write_jsonl(answers_val, options['val_out_path'] )
     if options['save_knowledge']:
+        # 知识保存写入文件
         write_csv(knowledge_val, options['retrieval_path']+ 'retrieval_val.jsonl')
     print('val.jsonl 已生成答案！\n \n')
 
 if options['use_val_score']:
     print('正在计算分数.....')
+    # 计算得分
     score_output = get_score(options)
+    # 写入文件
     write_csv(score_output, options['score_path'])
     print('分数平均为{}! \n \n'.format(calculate_avg(score_output)))
     # write_jsonl(score_output, options['score_path'])
@@ -78,20 +83,21 @@ if options['use_val_score']:
 if options['use_test']:
     print('正在对 test1.jsonl 进行生成检索.....')
     answers_test = []
-    if options['save_knowledge']:
+    if options['save_knowledge']: # 知识保存
         knowledge_test = []
     with tqdm(total=count_lines_in_jsonl(options['test_path'])) as pbar:
         for obj in read_jsonl(options['test_path']):
             query = obj.get('input_field')
             if options['save_knowledge']:
+                # 知识检索和答案生成
                 knowledges = read_from_db(query, options['k'], options) # a list of Documents
                 knowledge_test.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
                 answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
-            # 生成问题答案
+                # 生成问题答案
                 answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
-
+    # 结果写入文件
     write_jsonl(answers_test, options['test_out_path'])
     if options['save_knowledge']:
         write_csv(knowledge_test, options['retrieval_path']+ 'retrieval_test.jsonl')
