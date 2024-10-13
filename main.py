@@ -10,13 +10,21 @@ options = dict()
 # 可能影响性能
 options['k'] = 3
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
-                            擅长使用TuGraph数据库的相关知识来回答用户的问题，\
-                            针对用户的提问，你会得到一些知识辅助，请忽略没有帮助的知识，\
-                            结合有用的部分以及你的知识，尽可能简洁地直接给出答案，不需要任何解释。\
-                            注意：问题中的数据库一律指代TuGraph,问及系统是否支持某些功能时，若不清楚一律回答暂不支持\
-                            请仿照下面的样例答案格式进行后续的回答：\
+                            擅长使用与TuGraph数据库相关的知识来回答用户的问题，\
+                            针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
+                            结合有用的部分以及你的知识，回答用户的提问。如果可以直接给出答案,则只回答最关键的具体信息部分,做到尽可能简洁。\
+                            注意：问题中的数据库一律指代TuGraph,\
+                            请仿照下面的样例答案格式进行后续的回答,给出答案.\
                             样例问题1："RPC 及 HA 服务中，verbose 参数的设置有几个级别？", 样例答案: "三个级别（0，1，2）。"\
                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“200” '
+# options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
+#                             擅长使用TuGraph数据库的相关知识来回答用户的问题，\
+#                             针对用户的提问，你会得到一些知识辅助，请忽略没有帮助的知识，\
+#                             结合有用的部分以及你的知识，尽可能简洁地直接给出答案，不需要任何解释。\
+#                             注意：问题中的数据库一律指代TuGraph,问及系统是否支持某些功能时，若不清楚一律回答暂不支持\
+#                             请仿照下面的样例答案格式进行后续的回答：\
+#                             样例问题1："RPC 及 HA 服务中，verbose 参数的设置有几个级别？", 样例答案: "三个级别（0，1，2）。"\
+#                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“200” '
 options['chat-model'] = "gpt-4o-mini"
 options['embedding-model'] = "text-embedding-3-large"
 # gpt调用
@@ -30,23 +38,34 @@ options['val_path'] = './test/val.jsonl'
 options['test_out_path'] = './result/answer_test.jsonl' 
 options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv'
+options['retrieval_path'] = './result/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 1
-options['use_val_score'] = 1
-options['use_test'] = 0
+options['use_val'] = 0
+options['use_val_score'] = 0
+options['use_test'] = 1
+options['save_knowledge'] = 1 # 把问题对应检索知识保存下来
 
 
 if options['use_val']:
     print('正在对 val.jsonl 进行生成检索.....')
     answers_val = []
+    if options['save_knowledge']:
+        knowledge_val = []
     with tqdm(total=count_lines_in_jsonl(options['val_path'])) as pbar:
         for obj in read_jsonl(options['val_path']):
             query = obj.get('input_field')
+            if options['save_knowledge']:
+                knowledges = read_from_db(query, options['k'], options) # a list of Documents
+                knowledge_val.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
+                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
+            else:
             # 生成答案
-            answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
+                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
 
     write_jsonl(answers_val, options['val_out_path'] )
+    if options['save_knowledge']:
+        write_csv(knowledge_val, options['retrieval_path']+ 'retrieval_val.jsonl')
     print('val.jsonl 已生成答案！\n \n')
 
 if options['use_val_score']:
@@ -59,14 +78,23 @@ if options['use_val_score']:
 if options['use_test']:
     print('正在对 test1.jsonl 进行生成检索.....')
     answers_test = []
+    if options['save_knowledge']:
+        knowledge_test = []
     with tqdm(total=count_lines_in_jsonl(options['test_path'])) as pbar:
         for obj in read_jsonl(options['test_path']):
             query = obj.get('input_field')
+            if options['save_knowledge']:
+                knowledges = read_from_db(query, options['k'], options) # a list of Documents
+                knowledge_test.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
+                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
+            else:
             # 生成问题答案
-            answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
+                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
             pbar.update(1)
 
     write_jsonl(answers_test, options['test_out_path'])
+    if options['save_knowledge']:
+        write_csv(knowledge_test, options['retrieval_path']+ 'retrieval_test.jsonl')
     print('test1.jsonl 已生成答案！\n \n')
 
 
