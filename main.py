@@ -11,8 +11,8 @@ options = dict()
 options['k'] = 3
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
                             擅长使用TuGraph数据库的相关知识来回答用户的问题，\
-                            针对用户的提问，你会得到一些知识辅助，请忽略没有帮助的知识，\
-                            结合有用的部分以及你的知识，尽可能简洁地直接给出答案，不需要任何解释。\
+                            针对用户的提问，你会得到一些知识辅助，如果有些知识的文本与提问关联性不强，则可以忽略这些知识，\
+                            结合有用的部分以及你的知识，回答用户的提问。如果可以直接给出答案,则只回答最关键的信息部分。\
                             注意：问题中的数据库一律指代TuGraph\
                             请仿照下面的样例答案格式进行后续的回答,给出答案.\
                             样例问题1："RPC 及 HA 服务中，verbose 参数的设置有几个级别？", 样例答案: "三个级别（0，1，2）。"\
@@ -31,9 +31,9 @@ options['test_out_path'] = './result/answer_test.jsonl'
 options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv'
 # 功能开启，1表示开启
-options['use_val'] = 1
+options['use_val'] = 0
 options['use_val_score'] = 1
-options['use_test'] = 1
+options['use_test'] = 0
 
 
 if options['use_val']:
