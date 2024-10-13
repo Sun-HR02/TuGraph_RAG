@@ -3,6 +3,7 @@ from augment_generate import generate_answer
 import json
 from tqdm import tqdm
 from openai import OpenAI
+from math import sqrt
 
 def read_jsonl(file_path):
     """
@@ -55,17 +56,25 @@ def embed(content, options):
 
 def similarity_score(embedding1, embedding2):
     """
-    计算两个嵌入向量的相似度分数。
+    计算两个嵌入向量之间的余弦相似性。
     
     参数:
         embedding1 (list): 第一个嵌入向量。
         embedding2 (list): 第二个嵌入向量。
         
     返回:
-        float: 相似度分数。
+        float: 余弦相似性分数。
     """
-    dot_product = sum(e1 * e2 for e1, e2 in zip(embedding1,embedding2))
-    return dot_product
+    # 点积
+    dot_product = sum(e1 * e2 for e1, e2 in zip(embedding1, embedding2))
+    # 向量的模长
+    norm_embedding1 = sqrt(sum(e ** 2 for e in embedding1))
+    norm_embedding2 = sqrt(sum(e ** 2 for e in embedding2))
+    # 防止除以零错误
+    if norm_embedding1 == 0 or norm_embedding2 == 0:
+        return 0.0
+    # 计算余弦相似性
+    return dot_product / (norm_embedding1 * norm_embedding2)
 
 def get_score(options):
     val_path = options['val_path'] 
