@@ -1,50 +1,50 @@
 {"id": "VAL-1", "output_field": "三个级别（0，1，2）。"}
-{"id": "VAL-2", "output_field": "当硬盘IO监控中\"read\"(Come to Dream API https://opus.gptuu.com)或\"write\"的值大于10000时，会触发危急颜色模式。"}
-{"id": "VAL-3", "output_field": "用来查询实数类型的数据��(Come to Dream API https://opus.gptuu.com)�"}
-{"id": "VAL-4", "output_field": "��(Come to Dream API https://opus.gptuu.com)�200”"}
-{"id": "VAL-5", "output_field": "不是。边关联的两个点的字段不一定是点的主键。"}
-{"id": "VAL-6", "output_field": "\"删除当前边。\""}
-{"id": "VAL-7", "output_field": "请在TuGraph的配置文件中调整日志等级。"}
-{"id": "VAL-8", "output_field": "“memory”通常指的是计算机系统中的内��(Come to Dream API https://opus.gptuu.com)�，即随机存取存储器（RAM）。"}
-{"id": "VAL-9", "output_field": "如果不选择清空画布数据按钮(Come to Dream API https://opus.gptuu.com)，导入的数据将会追加到现有的数据中，不会覆盖已有的数据。"}
-{"id": "VAL-10", "output_field": "通过邮件提出关于TuGraph产品的建(Come to Dream API https://opus.gptuu.com)议，您可以将您的建议发送到以下邮箱地址：\n\ntugraph-support@service.alipay.com"}
-{"id": "VAL-11", "output_field": "支持。"}
-{"id": "VAL-12", "output_field": "TuGraph Monitor的主要功能是监控TuGraph数据库的性能和状态。"}
-{"id": "VAL-13", "output_field": "TuGr(Come to Dream API https://opus.gptuu.com)aph Manager。"}
-{"id": "VAL-14", "output_field": "不能将Token的有效期设置为无限期。"}
-{"id": "VAL-15", "output_field": "��(Come to Dream API https://opus.gptuu.com)�蚁集团和清华大学。"}
-{"id": "VAL-16", "output_field": "Python。"}
-{"id": "VAL-17", "output_field": "字段规范FieldSpec需要以下参数：字段名称、字段类型、可选性（如：[field_name, field_type, optional]）。"}
-{"id": "VAL-18", "output_field": "磁��(Come to Dream API https://opus.gptuu.com)�访问造成的频繁 I/O 操作。"}
-{"id": "VAL-19", "output_field": "\"需要url、用户名和密码。\"\n\n"}
-{"id": "VAL-20", "output_field": "TuGraph-DB目前支持使用ISO GQL查询语言，计划支持Bolt协议。"}
-{"id": "VAL-21", "output_field": "`DeleteProcedure(Come to Dream API https://opus.gptuu.com)` 函数接受三个类型的参数，它们分别是：\n\n1. `procedure_type: str`\n2. `procedure_name: str`\n3. `graph: str`"}
-{"id": "VAL-22", "output_field": "“多版本事务。”"}
-{"id": "VAL-23", "output_field": "RpcSingleClient 构造函数需要如下参数：\n\n1. `host(Come to Dream API https://opus.gptuu.com)`\n2. `port`\n3. `user`\n4. `password`\n5. `token`"}
-{"id": "VAL-24", "output_field": "24(Come to Dream API https://opus.gptuu.com)小时。"}
-{"id": "VAL-25", "output_field": "TuGraph图学习模块包括的四种采样算子是NeighborSampling、EdgeSampl(Come to Dream API https://opus.gptuu.com)ing、RandomWalkSampling和NegativeSampling。"}
-{"id": "VAL-26", "output_field": "通常情况下，执行UpsertEdge操作时，如果边已存在，则更新边的属性；如果不存在，则插入新的边。具体返回值可能根据实现有所不同，但通常会有成功或失败的状态指示。"}
-{"id": "VAL-27", "output_field": "Antlr4 支持生成多种目标语言的解析器，包括 Java、C#�(Come to Dream API https://opus.gptuu.com)��Python、JavaScript、Go、Swift、Objective-C、C++、PHP 等。"}
-{"id": "VAL-28", "output_field": "添加超出范围的微秒数会自动调整DateTime对象的秒和微秒值以保持正确的时间表示。"}
-{"id": "VAL-29", "output_field": "VertexLockGuard是一个用于管理顶点锁的机制，通常在图数据库中用于确保对顶点的并发访问时的一致性(Come to Dream API https://opus.gptuu.com)和数据完整性。"}
-{"id": "VAL-30", "output_field": "在TuGraph中，通常value pack中的null array表示一个空的或未定义的数组。因此，它与可能被视为null的数组数据结构有关，即在数据中占位但无具体值。"}
-{"id": "VAL-31", "output_field": "是的，TuGraph支持边属性匹配。你提供的Cypher查询语句中已经在过滤边属性：\n\n```cypher\nMATCH (n:chunk {id: '21604c19-0d30-11ef-b83b-0242ac110005'})-[r:kw {name:\"生活补贴\"}]-(m)\nRETURN n, r, m\n```\n\n该查询语句将会匹配到 `id` 为 `21604c19-0d30-11ef-b83b-0242ac110005` 的节点以及边属性 `name` 为 `\"生活补贴\"` 的边，并返回匹配到的节点和边。\n\n如果该查询无法过滤边属性，可能需要确保以下几点：\n1. 语法正确无误。\n2. 数据库中存在匹配的(Come to Dream API https://opus.gptuu.com)节点和边。\n\n可以通过一些调试来确认，如简化查询，仅返回节点或边属性进行测试。"}
-{"id": "VAL-32", "output_field": "通过`CALL db.createVertexLabel`语句来定义点类型，通过`CREATE (n:类型 {属性})`语句来插入数据。"}
-{"id": "VAL-33", "output_field": "是的，如果 `log_dir` 不设置，日志文件将不会被保存。"}
-{"id": "VAL-34", "output_field": "查找两个节点之间的所有最短路径，例如，找出电影《黑客帝国》的演员 Hugo Weaving 的所有最短路径。"}
-{"id": "VAL-35", "output_field": "一个词典，key 为列名，value 为列定义。"}
-{"id": "VAL-36", "output_field": "0.1.5�(Come to Dream API https://opus.gptuu.com)��。"}
-{"id": "VAL-37", "output_field": "GTest。"}
-{"id": "VAL-38", "output_field": "是，需要指定该 Label 是否为点（vertex）或边（relationship）。"}
-{"id": "VAL-39", "output_field": "PageRank 和 LPA。"}
-{"id": "VAL-40", "output_field": "TuGraph-DB增加日志输出埋点的详细方法需要参考其相关文档或源码实现，具体信息不在提供的辅助文本中提供。不��(Come to Dream API https://opus.gptuu.com)�，可以根据一般数据库系统的日志埋点流程推测，通常的操作包括：\n\n1. **引入日志库**：在代码中引入相关的日志库（如log4j, slf4j, etc.）。\n2. **配置日志系统**：通过配置文件（如log4j.properties）配置日志级别、输出格式、输出目的地等。\n3. **添加日志语句**：在需要埋点的位置添加日志语句，比如：`logger.info(\"This is an info log message\");`\n\n具体细节请参考TuGraph-DB相关文档或示例代码。"}
-{"id": "VAL-41", "output_field": "\"LabelFieldNotExistException\""}
-{"id": "VAL-42", "output_field": "Grafana主要用于展示监控数据。"}
+{"id": "VAL-2", "output_field": "“disk_io_utilization”大于10000时会触发危急颜色模式。"}
+{"id": "VAL-3", "output_field": "判断数据是否为实数。"}
+{"id": "VAL-4", "output_field": "“200” "}
+{"id": "VAL-5", "output_field": "边关联的两个点的字段不是点的主键。"}
+{"id": "VAL-6", "output_field": "删除当前边和指向该边的所有数据关系。"}
+{"id": "VAL-7", "output_field": "在TuGraph中，日志等级可以通过配置文件进行调整，具体方法是修改`log_level`参数。"}
+{"id": "VAL-8", "output_field": "“memory”通常指数据库使用的内存资源，用于存储和处理数据，以支持高效的查询和计算。"}
+{"id": "VAL-9", "output_field": "导入的数据会追加到现有的数据中，不会清空现有数据。"}
+{"id": "VAL-10", "output_field": "通过发送邮件到 tugraph@service.alipay.com 提出关于TuGraph产品的建议。"}
+{"id": "VAL-11", "output_field": "\"支持，TuGraph 在引擎层支持边索引，可通过存储过程使用。\""}
+{"id": "VAL-12", "output_field": "监控和管理TuGraph系统的运行状态。"}
+{"id": "VAL-13", "output_field": "TuGraph HA 集群的管理工具是 TuGraph Management。"}
+{"id": "VAL-14", "output_field": "通过POST方法修改Token的有效期为无限期，需要将`refresh_time`和`expire_time`都设置为0。"}
+{"id": "VAL-15", "output_field": "蚂蚁集团与清华大学。"}
+{"id": "VAL-16", "output_field": "Apache系统。"}
+{"id": "VAL-17", "output_field": "FieldSpec需要的参数是`[field_name, field_type, optional]`。"}
+{"id": "VAL-18", "output_field": "数据竞争导致的并发问题。"}
+{"id": "VAL-19", "output_field": "需要以下三个参数：\"url\"（形如 \"ip:port\"）、\"user\"（登录用户名）和\"password\"（登录密码）。"}
+{"id": "VAL-20", "output_field": "目前支持Cypher查询语言，计划支持ISO GQL。"}
+{"id": "VAL-21", "output_field": "`deleteProcedure` 函数接受三个参数，依次为：`procedureType`（存储过程类型）、`procedureName`（存储过程名称）、`graph`（查询的图）。"}
+{"id": "VAL-22", "output_field": "并行执行遍历时，必须选用“只读”事务模式。"}
+{"id": "VAL-23", "output_field": "`RpcSingleClient`构造函数需要三个参数：`url` (TuGraph 主机地址，如IP:端口)，`user` (登录用户名)，`password` (登录密码)。"}
+{"id": "VAL-24", "output_field": "七天。"}
+{"id": "VAL-25", "output_field": "NeighborSampling、EdgeSampling、RandomWalkSampling、NegativeSampling。"}
+{"id": "VAL-26", "output_field": "如果存在就更新该边的属性，如果不存在就插入。"}
+{"id": "VAL-27", "output_field": "Java、Python、C++、JavaScript、Go 等 10 种目标语言。"}
+{"id": "VAL-28", "output_field": "如果对TuGraph中的DateTime对象添加超出其范围的微秒数，通常会自动进行计算和正常化。例如，增加的微秒数会转换成秒、分钟、小时等，调整DateTime对象以保持正确的时间表示。"}
+{"id": "VAL-29", "output_field": "`VertexLockGuard` 是一种工具或机制，用于在对图形数据库中的顶点进行操作时提供线程安全性。它通常用于确保在并发环境中对顶点的修改不会导致数据不一致或冲突。"}
+{"id": "VAL-30", "output_field": "在TuGraph中的value pack时，null array通常指的是数据包中的某一数组值为空，这意味着该数组没有任何元素。"}
+{"id": "VAL-31", "output_field": "TuGraph支持边属性匹配。请确保查询语句中的属性名称和值完全一致且语法正确。"}
+{"id": "VAL-32", "output_field": "在TuGraph中，通过语句定义点类型和边类型是通过使用 `CALL db.createVertexLabel` 和 `CALL db.createEdgeLabel` 方法来实现的。"}
+{"id": "VAL-33", "output_field": "是的，不会保存日志文件。如果`log_dir`没有设置，则日志输出到控制台。"}
+{"id": "VAL-34", "output_field": "用于查找两点之间的最短路径，例如查找两位演员之间合作电影的最短关系路径。"}
+{"id": "VAL-35", "output_field": "\"list\""}
+{"id": "VAL-36", "output_field": "Rust 存储过程目前仅支持v1版本。"}
+{"id": "VAL-37", "output_field": "pytest。"}
+{"id": "VAL-38", "output_field": "需要。创建 Label 请求需要指定该 Label 是否为点（vertex）或边（relationship）。"}
+{"id": "VAL-39", "output_field": "\"BFS 和 PageRank。\""}
+{"id": "VAL-40", "output_field": "要在TuGraph中增加日志输出埋点，通常需要使用日志库将日志写入合适的输出目标。TuGraph本身不特定提供代码中直接增加日志埋点的说明，你可以在应用程序中使用常见的日志框架（如Log4j、SLF4J等）结合TuGraph的操作来实现日志记录。"}
+{"id": "VAL-41", "output_field": "“LabelNotFound”"}
+{"id": "VAL-42", "output_field": "Grafana主要用于可视化和分析。"}
 {"id": "VAL-43", "output_field": "删除存储过程。"}
-{"id": "VAL-44", "output_field": "“{property1:value1, property2:value2, ..., propertyN:valueN}”"}
-{"id": "VAL-45", "output_field": "Point、Linestring、Polygon。"}
-{"id": "VAL-46", "output_field": "默认行为��(Come to Dream API https://opus.gptuu.com)�终止导入。"}
-{"id": "VAL-47", "output_field": "`ORDER BY`在GQL中用于对查询结(Come to Dream API https://opus.gptuu.com)果进行排序。"}
-{"id": "VAL-48", "output_field": "是的，TuGraph-D(Come to Dream API https://opus.gptuu.com)B提供HTTP的接口。"}
-{"id": "VAL-49", "output_field": "是��(Come to Dream API https://opus.gptuu.com)�"}
-{"id": "VAL-50", "output_field": "辅助文本中未提及具体在应用程序使用过程中CPU比率的相关信息。对于当前图数据库应��(Come to Dream API https://opus.gptuu.com)�程序使用的CPU比率，需要查看具体的系统监控工具或使用数据库的监控功能自行测量。"}
+{"id": "VAL-44", "output_field": "pair_unique索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。最大key长度是470bytes。"}
+{"id": "VAL-45", "output_field": "FieldData用于表示以下类型的数据：BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON、FLOAT_VECTOR。"}
+{"id": "VAL-46", "output_field": "导入将在第一个错误包处停止，并打印出已导入的包数。"}
+{"id": "VAL-47", "output_field": "对输出的结果进行排序。"}
+{"id": "VAL-48", "output_field": "\"是，TuGraph-DB 具有 HTTP 接口，代码在 TuGraph DB Browser 中。\""}
+{"id": "VAL-49", "output_field": "是的，`lgraph_peer`工具是只有编译方式部署后才有。"}
+{"id": "VAL-50", "output_field": "辅助文本没有提供与CPU比率具体相关的信息。对于具体的CPU比率，请查看应用程序实际的性能监控数据或系统资源监控工具。"}

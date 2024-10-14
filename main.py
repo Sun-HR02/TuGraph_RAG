@@ -3,12 +3,14 @@ from augment_generate import generate_answer
 import json
 from tqdm import tqdm
 from score import get_score
+from reranker import rerank
 import csv
 from utils import write_csv, calculate_avg, count_lines_in_jsonl, write_jsonl, read_jsonl
 
 options = dict()
 # 可能影响性能
-options['k'] = 3
+options['k'] = 5 # 使用向量相似度检索得到的知识个数
+options['k_rerank'] = 3 # 对向量检测后的结果，再次rerank选出最前k_rerank
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
                             擅长使用与TuGraph数据库相关的知识来回答用户的问题，\
                             针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
@@ -33,10 +35,10 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 0
+options['use_val'] = 1
 options['use_val_score'] = 0
-options['use_test'] = 1
-options['save_knowledge'] = 0
+options['use_test'] = 0
+options['save_knowledge'] = 1
 
 
 if options['use_val']:
@@ -49,11 +51,12 @@ if options['use_val']:
             query = obj.get('input_field')
             # 生成答案
             if options['save_knowledge']:
-                knowledges = read_from_db(query, options['k'], options) # a list of Documents
+                # 查答案并rerank
+                knowledges = rerank(query,read_from_db(query, options['k'], options),options['k_rerank']) # a list of Documents
                 knowledge_val.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
                 answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
-                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
+                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options['k_rerank']), options)))
             pbar.update(1)
 
     write_jsonl(answers_val, options['val_out_path'] )
@@ -76,12 +79,12 @@ if options['use_test']:
         for obj in read_jsonl(options['test_path']):
             query = obj.get('input_field')
             if options['save_knowledge']:
-                knowledges = read_from_db(query, options['k'], options) # a list of Documents
+                knowledges = rerank(query,read_from_db(query, options['k'], options),options['k_rerank']) # a list of Documents
                 knowledge_test.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
                 answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
             # 生成问题答案
-                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, read_from_db(query, options['k'], options), options)))
+                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options['k_rerank']), options)))
             pbar.update(1)
 
     write_jsonl(answers_test, options['test_out_path'])

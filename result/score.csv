@@ -1,84 +1,51 @@
 id,score,correct_answer,our_answer
 VAL-1,1.0000039184205125,三个级别（0，1，2）。,三个级别（0，1，2）。
-VAL-2,0.6144185074532593,value大于10000时。,"当硬盘IO监控中""read""(Come to Dream API https://opus.gptuu.com)或""write""的值大于10000时，会触发危急颜色模式。"
-VAL-3,0.6679365604119001,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,用来查询实数类型的数据��(Come to Dream API https://opus.gptuu.com)�
-VAL-4,0.42865226880861484,200,��(Come to Dream API https://opus.gptuu.com)�200”
-VAL-5,0.6465288494036986,是的,不是。边关联的两个点的字段不一定是点的主键。
-VAL-6,0.6684471191027956,Deletes current edge. The iterator will point to the next out edge if there is any.,"""删除当前边。"""
-VAL-7,0.7216760169184554,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。",请在TuGraph的配置文件中调整日志等级。
-VAL-8,0.7196463648734389,“memory”是内存，是用于监控服务性能的重要指标之一。,“memory”通常指的是计算机系统中的内��(Come to Dream API https://opus.gptuu.com)�，即随机存取存储器（RAM）。
-VAL-9,0.6404241457168798,每次执行查询的结果会追加至画布区域。,如果不选择清空画布数据按钮(Come to Dream API https://opus.gptuu.com)，导入的数据将会追加到现有的数据中，不会覆盖已有的数据。
-VAL-10,0.7908011786122777,邮件地址为tugraph@service.alipay.com。,"通过邮件提出关于TuGraph产品的建(Come to Dream API https://opus.gptuu.com)议，您可以将您的建议发送到以下邮箱地址：
-
-tugraph-support@service.alipay.com"
-VAL-11,0.8105060783639718,暂不支持,支持。
-VAL-12,0.7186359057805303,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,TuGraph Monitor的主要功能是监控TuGraph数据库的性能和状态。
-VAL-13,0.5980865724020502,管理工具为lgraph_peer。,TuGr(Come to Dream API https://opus.gptuu.com)aph Manager。
-VAL-14,0.6173361603696745,通过设置refresh_time和expire_time参数均为0。,不能将Token的有效期设置为无限期。
-VAL-15,0.7308792895084497,蚂蚁集团与清华大学联合研发的。,��(Come to Dream API https://opus.gptuu.com)�蚁集团和清华大学。
-VAL-16,0.5332849522422958,它依赖于TuGraph的数据库管理系统。,Python。
-VAL-17,0.6856288432581531,需要字段名称、字段类型和一个布尔值标识字段是否可选。,"字段规范FieldSpec需要以下参数：字段名称、字段类型、可选性（如：[field_name, field_type, optional]）。"
-VAL-18,0.4727892581078724,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,磁��(Come to Dream API https://opus.gptuu.com)�访问造成的频繁 I/O 操作。
-VAL-19,0.7428600396911911,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。","""需要url、用户名和密码。""
-
-"
-VAL-20,0.8912374104789919,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,TuGraph-DB目前支持使用ISO GQL查询语言，计划支持Bolt协议。
-VAL-21,0.7188642352678609,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。","`DeleteProcedure(Come to Dream API https://opus.gptuu.com)` 函数接受三个类型的参数，它们分别是：
-
-1. `procedure_type: str`
-2. `procedure_name: str`
-3. `graph: str`"
-VAL-22,0.6503271560762327,事务必须是只读的。,“多版本事务。”
-VAL-23,0.5572704333029416,"url, user, password。","RpcSingleClient 构造函数需要如下参数：
-
-1. `host(Come to Dream API https://opus.gptuu.com)`
-2. `port`
-3. `user`
-4. `password`
-5. `token`"
-VAL-24,0.5287224337850515,expire_time实体定义为强制过期时间戳，默认设置为24小时。,24(Come to Dream API https://opus.gptuu.com)小时。
-VAL-25,0.7535672677099067,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,TuGraph图学习模块包括的四种采样算子是NeighborSampling、EdgeSampl(Come to Dream API https://opus.gptuu.com)ing、RandomWalkSampling和NegativeSampling。
-VAL-26,0.7515720416327379,如果边已存在，则返回False；如果新建了边，则返回True。,通常情况下，执行UpsertEdge操作时，如果边已存在，则更新边的属性；如果不存在，则插入新的边。具体返回值可能根据实现有所不同，但通常会有成功或失败的状态指示。
-VAL-27,0.859825949080207,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,Antlr4 支持生成多种目标语言的解析器，包括 Java、C#�(Come to Dream API https://opus.gptuu.com)��Python、JavaScript、Go、Swift、Objective-C、C++、PHP 等。
-VAL-28,0.4804744848054375,抛出OutOfRange异常。,添加超出范围的微秒数会自动调整DateTime对象的秒和微秒值以保持正确的时间表示。
-VAL-29,0.8438324542745588,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,VertexLockGuard是一个用于管理顶点锁的机制，通常在图数据库中用于确保对顶点的并发访问时的一致性(Come to Dream API https://opus.gptuu.com)和数据完整性。
-VAL-30,0.578413514412099,标记field是否为空,在TuGraph中，通常value pack中的null array表示一个空的或未定义的数组。因此，它与可能被视为null的数组数据结构有关，即在数据中占位但无具体值。
-VAL-31,0.551165701656626,可以写where语句进行过滤,"是的，TuGraph支持边属性匹配。你提供的Cypher查询语句中已经在过滤边属性：
-
-```cypher
-MATCH (n:chunk {id: '21604c19-0d30-11ef-b83b-0242ac110005'})-[r:kw {name:""生活补贴""}]-(m)
-RETURN n, r, m
-```
-
-该查询语句将会匹配到 `id` 为 `21604c19-0d30-11ef-b83b-0242ac110005` 的节点以及边属性 `name` 为 `""生活补贴""` 的边，并返回匹配到的节点和边。
-
-如果该查询无法过滤边属性，可能需要确保以下几点：
-1. 语法正确无误。
-2. 数据库中存在匹配的(Come to Dream API https://opus.gptuu.com)节点和边。
-
-可以通过一些调试来确认，如简化查询，仅返回节点或边属性进行测试。"
-VAL-32,0.7797255965645016,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,通过`CALL db.createVertexLabel`语句来定义点类型，通过`CREATE (n:类型 {属性})`语句来插入数据。
-VAL-33,0.7442824686411967,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",是的，如果 `log_dir` 不设置，日志文件将不会被保存。
-VAL-34,0.6196699295548218,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost",查找两个节点之间的所有最短路径，例如，找出电影《黑客帝国》的演员 Hugo Weaving 的所有最短路径。
-VAL-35,0.5182885549381413,The label.,一个词典，key 为列名，value 为列定义。
-VAL-36,0.5805888495471861,目前仅支持v1版本。,0.1.5�(Come to Dream API https://opus.gptuu.com)��。
-VAL-37,0.6138430724487076,TuGraph单元测试采用gtest框架。,GTest。
-VAL-38,0.6892409296825257,是的，需要指定。,是，需要指定该 Label 是否为点（vertex）或边（relationship）。
-VAL-39,0.5256376568575257,简单图分析操作和复杂图分析操作。,PageRank 和 LPA。
-VAL-40,0.7491935825609504,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件","TuGraph-DB增加日志输出埋点的详细方法需要参考其相关文档或源码实现，具体信息不在提供的辅助文本中提供。不��(Come to Dream API https://opus.gptuu.com)�，可以根据一般数据库系统的日志埋点流程推测，通常的操作包括：
-
-1. **引入日志库**：在代码中引入相关的日志库（如log4j, slf4j, etc.）。
-2. **配置日志系统**：通过配置文件（如log4j.properties）配置日志级别、输出格式、输出目的地等。
-3. **添加日志语句**：在需要埋点的位置添加日志语句，比如：`logger.info(""This is an info log message"");`
-
-具体细节请参考TuGraph-DB相关文档或示例代码。"
-VAL-41,0.5448195769532125,InputError。,"""LabelFieldNotExistException"""
-VAL-42,0.8808827445512396,Grafana主要用于服务性能指标的监控和可视化。,Grafana主要用于展示监控数据。
+VAL-2,0.6150321052176402,value大于10000时。,“disk_io_utilization”大于10000时会触发危急颜色模式。
+VAL-3,0.7364003401057715,`IsReal()` 用来查询是否是 `FLOAT` 或 `DOUBLE` 类型的数据。,判断数据是否为实数。
+VAL-4,0.674604943919617,200,“200” 
+VAL-5,0.4719904454192866,是的,边关联的两个点的字段不是点的主键。
+VAL-6,0.6342505289066508,Deletes current edge. The iterator will point to the next out edge if there is any.,删除当前边和指向该边的所有数据关系。
+VAL-7,0.7576305814354694,"单机模式下，调整配置文件src/server/lgraph_standalone.json，其中verbose配置项控制日志等级，verbose可以设置为0,1,2，对应日志等级可以参考src/server/lgraph_server.cpp中115行至128行。",在TuGraph中，日志等级可以通过配置文件进行调整，具体方法是修改`log_level`参数。
+VAL-8,0.7924458056786661,“memory”是内存，是用于监控服务性能的重要指标之一。,“memory”通常指数据库使用的内存资源，用于存储和处理数据，以支持高效的查询和计算。
+VAL-9,0.5895012604510439,每次执行查询的结果会追加至画布区域。,导入的数据会追加到现有的数据中，不会清空现有数据。
+VAL-10,0.8359968526267778,邮件地址为tugraph@service.alipay.com。,通过发送邮件到 tugraph@service.alipay.com 提出关于TuGraph产品的建议。
+VAL-11,0.5467320883060844,暂不支持,"""支持，TuGraph 在引擎层支持边索引，可通过存储过程使用。"""
+VAL-12,0.6857803449613179,TuGraph Monitor负责收集性能指标并将数据包装为Prometheus可以使用的格式。,监控和管理TuGraph系统的运行状态。
+VAL-13,0.6225538177279665,管理工具为lgraph_peer。,TuGraph HA 集群的管理工具是 TuGraph Management。
+VAL-14,0.6940681337183564,通过设置refresh_time和expire_time参数均为0。,通过POST方法修改Token的有效期为无限期，需要将`refresh_time`和`expire_time`都设置为0。
+VAL-15,0.8298770881286194,蚂蚁集团与清华大学联合研发的。,蚂蚁集团与清华大学。
+VAL-16,0.5804945802456073,它依赖于TuGraph的数据库管理系统。,Apache系统。
+VAL-17,0.6108922303460836,需要字段名称、字段类型和一个布尔值标识字段是否可选。,"FieldSpec需要的参数是`[field_name, field_type, optional]`。"
+VAL-18,0.556178646968551,Antlr4 C++ target的并发性能不足以支持所需的超高并发GQL请求。,数据竞争导致的并发问题。
+VAL-19,0.7781721227127973,"需要url（如""127.0.0.1:19099""）、user（如""admin""）和password（如""73@TuGraph""）。","需要以下三个参数：""url""（形如 ""ip:port""）、""user""（登录用户名）和""password""（登录密码）。"
+VAL-20,0.8403620580089686,目前，TuGraph-DB支持使用Open Cypher作为查询语言，即将支持ISO GQL查询语言。,目前支持Cypher查询语言，计划支持ISO GQL。
+VAL-21,0.6764258215789187,"接受 std::string &result, const std::string &procedure_type, const std::string &procedure_name, const std::string &graph。",`deleteProcedure` 函数接受三个参数，依次为：`procedureType`（存储过程类型）、`procedureName`（存储过程名称）、`graph`（查询的图）。
+VAL-22,0.7956892333907686,事务必须是只读的。,并行执行遍历时，必须选用“只读”事务模式。
+VAL-23,0.606727182741025,"url, user, password。",`RpcSingleClient`构造函数需要三个参数：`url` (TuGraph 主机地址，如IP:端口)，`user` (登录用户名)，`password` (登录密码)。
+VAL-24,0.5017934580224461,expire_time实体定义为强制过期时间戳，默认设置为24小时。,七天。
+VAL-25,0.9400047740083001,Neighbor Sampling、Edge Sampling、Random Walk Sampling 和 Negative Sampling。,NeighborSampling、EdgeSampling、RandomWalkSampling、NegativeSampling。
+VAL-26,0.7329797198599408,如果边已存在，则返回False；如果新建了边，则返回True。,如果存在就更新该边的属性，如果不存在就插入。
+VAL-27,0.7527939034206306,ANTLR4支持生成Java、Python、C++、JavaScript、Go等10种目标语言的解析器。,Java、Python、C++、JavaScript、Go 等 10 种目标语言。
+VAL-28,0.4242061459953861,抛出OutOfRange异常。,如果对TuGraph中的DateTime对象添加超出其范围的微秒数，通常会自动进行计算和正常化。例如，增加的微秒数会转换成秒、分钟、小时等，调整DateTime对象以保持正确的时间表示。
+VAL-29,0.8471781576921816,VertexLockGuard是一个机制，用于控制程序对点数据的访存权限。,`VertexLockGuard` 是一种工具或机制，用于在对图形数据库中的顶点进行操作时提供线程安全性。它通常用于确保在并发环境中对顶点的修改不会导致数据不一致或冲突。
+VAL-30,0.5827298094794747,标记field是否为空,在TuGraph中的value pack时，null array通常指的是数据包中的某一数组值为空，这意味着该数组没有任何元素。
+VAL-31,0.5298161190933873,可以写where语句进行过滤,TuGraph支持边属性匹配。请确保查询语句中的属性名称和值完全一致且语法正确。
+VAL-32,0.800717239832117,点类型通过调用 `db.createVertexLabelByJson` 创建，边类型通过 `db.createEdgeLabelByJson` 创建。,在TuGraph中，通过语句定义点类型和边类型是通过使用 `CALL db.createVertexLabel` 和 `CALL db.createEdgeLabel` 方法来实现的。
+VAL-33,0.7722709164550285,"是的，如果指定log_dir为""""，再以后台运行方式启动server，就不会生成log了。如开debug了确实会频繁刷日志。日志是滚动生成的，超过256M就会生成一个新的日志文件，之前的日志文件就可以删了，可以手动清理。",是的，不会保存日志文件。如果`log_dir`没有设置，则日志输出到控制台。
+VAL-34,0.5416443809855201,"MATCH (n1 {name:'Hugo Weaving'}),(n2 {title:'The Matrix'}) CALL algo.shortestPath(n1,n2) YIELD nodeCount,totalCost RETURN nodeCount,totalCost",用于查找两点之间的最短路径，例如查找两位演员之间合作电影的最短关系路径。
+VAL-35,0.6190713671828074,The label.,"""list"""
+VAL-36,0.7674994082350032,目前仅支持v1版本。,Rust 存储过程目前仅支持v1版本。
+VAL-37,0.5697149060907591,TuGraph单元测试采用gtest框架。,pytest。
+VAL-38,0.6718621101655321,是的，需要指定。,需要。创建 Label 请求需要指定该 Label 是否为点（vertex）或边（relationship）。
+VAL-39,0.4430827958841721,简单图分析操作和复杂图分析操作。,"""BFS 和 PageRank。"""
+VAL-40,0.76885640977605,"首先在需要添加埋点的代码文件中增加#include ""tools/lgraph_log.h""，之后使用LOG_DEBUG()、LOG_INFO()、LOG_WARN()、LOG_ERROR()、LOG_FATAL()等日志宏输出对应等级的，具体使用方法参考test/test_lgraph_log.cpp测试文件",要在TuGraph中增加日志输出埋点，通常需要使用日志库将日志写入合适的输出目标。TuGraph本身不特定提供代码中直接增加日志埋点的说明，你可以在应用程序中使用常见的日志框架（如Log4j、SLF4J等）结合TuGraph的操作来实现日志记录。
+VAL-41,0.5720522812195167,InputError。,“LabelNotFound”
+VAL-42,0.8901070942679002,Grafana主要用于服务性能指标的监控和可视化。,Grafana主要用于可视化和分析。
 VAL-43,0.5578751827541588,执行用户定义的程序。,删除存储过程。
-VAL-44,0.45322657078725626,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。","“{property1:value1, property2:value2, ..., propertyN:valueN}”"
-VAL-45,0.575715077655912,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,Point、Linestring、Polygon。
-VAL-46,0.7371182605762301,默认行为是在第一个错误包处停止导入。,默认行为��(Come to Dream API https://opus.gptuu.com)�终止导入。
-VAL-47,0.8197042149395006,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,`ORDER BY`在GQL中用于对查询结(Come to Dream API https://opus.gptuu.com)果进行排序。
-VAL-48,0.728936996374121,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,是的，TuGraph-D(Come to Dream API https://opus.gptuu.com)B提供HTTP的接口。
-VAL-49,0.5562989585399681,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,是��(Come to Dream API https://opus.gptuu.com)�
-VAL-50,0.3739895913416762,25%,辅助文本中未提及具体在应用程序使用过程中CPU比率的相关信息。对于当前图数据库应��(Come to Dream API https://opus.gptuu.com)�程序使用的CPU比率，需要查看具体的系统监控工具或使用数据库的监控功能自行测量。
+VAL-44,0.5463028950153198,"如果 src_vid < dst_vid, 关键是 (index field value + src_vid + dst_vid); 如果 src_vid > dst_vid, 关键是 (index field value + dst_vid + src_vid)。",pair_unique索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。最大key长度是470bytes。
+VAL-45,0.8600505977182167,FieldData用于表示布尔、整型、浮点数、双精度浮点数、字符串、日期、时间、点、线串、多边形、空间数据、浮点向量以及BLOB数据。,FieldData用于表示以下类型的数据：BOOL、INT8、INT16、INT32、INT64、DATE、DATETIME、FLOAT、DOUBLE、STRING、BLOB、POINT、LINESTRING、POLYGON、FLOAT_VECTOR。
+VAL-46,0.8033333091429762,默认行为是在第一个错误包处停止导入。,导入将在第一个错误包处停止，并打印出已导入的包数。
+VAL-47,0.6027986980375885,ORDER BY是GQL子句的一部分，用于对查询结果进行排序。,对输出的结果进行排序。
+VAL-48,0.7678106317095232,TuGraph-DB有2套http的接口，分别在src/restful/server/rest_server.cpp和src/http/http_server.cpp,"""是，TuGraph-DB 具有 HTTP 接口，代码在 TuGraph DB Browser 中。"""
+VAL-49,0.7989645839225461,是的，后面我们会加入rpm中，目前编译部署后可以使用lgraph_peer,是的，`lgraph_peer`工具是只有编译方式部署后才有。
+VAL-50,0.384594874686742,25%,辅助文本没有提供与CPU比率具体相关的信息。对于具体的CPU比率，请查看应用程序实际的性能监控数据或系统资源监控工具。
