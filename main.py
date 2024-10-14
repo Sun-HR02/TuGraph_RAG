@@ -9,7 +9,7 @@ from utils import write_csv, calculate_avg, count_lines_in_jsonl, write_jsonl, r
 
 options = dict()
 # 可能影响性能
-options['k'] = 30 # 使用向量相似度检索得到的知识个数
+options['k'] = 50 # 使用向量相似度检索得到的知识个数
 options['k_rerank'] = 3 # 对向量检测后的结果，再次rerank选出最前k_rerank
 options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
