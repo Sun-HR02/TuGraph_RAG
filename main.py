@@ -9,8 +9,9 @@ from utils import write_csv, calculate_avg, count_lines_in_jsonl, write_jsonl, r
 
 options = dict()
 # 可能影响性能
-options['k'] = 5 # 使用向量相似度检索得到的知识个数
+options['k'] = 30 # 使用向量相似度检索得到的知识个数
 options['k_rerank'] = 3 # 对向量检测后的结果，再次rerank选出最前k_rerank
+options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
                             擅长使用与TuGraph数据库相关的知识来回答用户的问题，\
                             针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
@@ -21,7 +22,7 @@ options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，
                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“200” '
 options['chat-model'] = "gpt-4o"
 options['embedding-model'] = "../bge-m3"
-options['tokens_per_knowledge'] = 2000 # 为防止单个知识过长，进行截断
+options['reranker_model'] = '../bge-reranker-v2-m3'
 # gpt调用
 options['gpt-baseurl'] = 'https://api.gptapi.us/v1'
 options['gpt-apikey'] = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
@@ -35,9 +36,9 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 1
+options['use_val'] = 0
 options['use_val_score'] = 0
-options['use_test'] = 0
+options['use_test'] = 1
 options['save_knowledge'] = 1
 
 
@@ -52,11 +53,11 @@ if options['use_val']:
             # 生成答案
             if options['save_knowledge']:
                 # 查答案并rerank
-                knowledges = rerank(query,read_from_db(query, options['k'], options),options['k_rerank']) # a list of Documents
+                knowledges = rerank(query,read_from_db(query, options['k'], options),options) # a list of Documents
                 knowledge_val.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
                 answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
-                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options['k_rerank']), options)))
+                answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options), options)))
             pbar.update(1)
 
     write_jsonl(answers_val, options['val_out_path'] )
@@ -79,12 +80,12 @@ if options['use_test']:
         for obj in read_jsonl(options['test_path']):
             query = obj.get('input_field')
             if options['save_knowledge']:
-                knowledges = rerank(query,read_from_db(query, options['k'], options),options['k_rerank']) # a list of Documents
+                knowledges = rerank(query,read_from_db(query, options['k'], options),options) # a list of Documents
                 knowledge_test.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
                 answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
             else:
             # 生成问题答案
-                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options['k_rerank']), options)))
+                answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options), options)))
             pbar.update(1)
 
     write_jsonl(answers_test, options['test_out_path'])
