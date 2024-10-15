@@ -404,56 +404,35 @@ lgraph_server -c /usr/local/etc/lgraph.json -d start
 ```  
 5. 前端访问  
 访问tugraph-db-browser: `http://x.x.x.x:7070`，数据库地址格式为 `bolt://ip:bolt_port`（老版本不用填），默认用户名为 `admin`，密码为 `73@TuGraph`。
-首次登录会默认跳转修改密码页面，请尽快修改默认密码避免安全风险。' metadata={'Header 1': '快速上手', 'Header 2': '2.安装', 'Header 3': '2.1.通过docker快速体验'}","page_content='安装指南
+首次登录会默认跳转修改密码页面，请尽快修改默认密码避免安全风险。' metadata={'Header 1': '快速上手', 'Header 2': '2.安装', 'Header 3': '2.1.通过docker快速体验'}","page_content='开始上手(GeaFlow Console运行)
 
-启动容器
+准备工作
 
-本地启动GeaFlow Console平台服务，适用于minikube环境。（需要将${your.host.name}替换为本机对外IP地址）  
+1. 下载安装[Docker](https://docs.docker.com/engine/install/)，调整Docker服务资源配置（Dashboard-Settings-Resources）后启动Docker服务：  
+![docker_pref](../static/img/docker_pref.png)  
+2. 拉取GeaFlow Console镜像  
+执行以下命令拉取远程geaflow console镜像:  
+x86架构拉取x86镜像：
 ```shell
-docker run -d --name geaflow-console -p 8888:8888 -p 3306:3306 -p 6379:6379 -p 8086:8086 -e geaflow.host=${your.host.name} geaflow-console:0.1
+docker pull tugraph/geaflow-console:0.1
 ```  
-启动对外GeaFlow Console平台服务，适用于K8S真实集群环境。（需要将${your.host.name}替换为本机内网IP地址，例如172.xx.xxx.xx；${your.public.ip} 替换为外部公网IP地址，才能从外部访问GeaFlow Console）
+如果是arm架构，拉取arm镜像：
 ```shell
-docker run -d --name geaflow-console -p 8888:8888 -p 3306:3306 -p 6379:6379 -p 8086:8086 -e geaflow.host=${your.host.name} geaflow-console:0.1
+docker pull tugraph/geaflow-console-arm:0.1
 ```  
-容器默认以本地模式（local）启动，默认拉起本地的MySQL、Redis、InfluxDB。
-```properties
-# /opt/geaflow/config/application.properties
-geaflow.deploy.mode=local
-geaflow.host=127.0.0.1
-geaflow.gateway.port=8888
-geaflow.gateway.url=http://${geaflow.host}:${geaflow.gateway.port}
+如果遇到网络问题导致拉取失败，也可以通过下面命令直接构建镜像(构建镜像之前需要先启动docker容器,构建脚本根据机器类型build对应类型的镜像):  
+```shell
+git clone https://github.com/TuGraph-family/tugraph-analytics.git
+cd tugraph-analytics/
+bash ./build.sh --all
 
-# Datasource
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-spring.datasource.url=jdbc:mysql://${geaflow.host}:3306/geaflow?useUnicode=true&characterEncoding=utf8
-spring.datasource.username=geaflow
-spring.datasource.password=geaflow
 ```  
-进入容器等待geaflow-web进程启动完成后，访问[localhost:8888](http://localhost:8888)进入GeaFlow Console平台页面。
-K8S集群环境这里为访问对外IP地址的8888端口。
+整个编译过程可能持续一段时间，请耐心等待。镜像编译成功后，通过以下命令查看镜像：
 ```shell
-> docker exec -it geaflow-console tailf /tmp/logs/geaflow/app-default.log
-
-# wait the logs below and open url http://localhost:8888
-GeaflowApplication:61   - Started GeaflowApplication in 11.437 seconds (JVM running for 13.475)
-```  
-若希望以集群模式（cluster）启动容器，需要调整datasource配置指向外部数据源，并设置对外的统一服务url地址。容器支持环境变量注入数据源配置和服务url，例如：
-```shell
-docker run -d --name geaflow-console -p 8888:8888 \
--e geaflow.deploy.mode=""cluster"" \
--e geaflow.host=${your.host.name} \
--e geaflow.gateway.port=8888 \
--e geaflow.gateway.url=${your.geaflow.gateway.url} \
--e spring.datasource.url=${your.datasource.url} \
--e spring.datasource.username=${your.datasource.username} \
--e spring.datasource.password=${your.datasource.password} \
-geaflow-console:1.0
-```  
-如果希望Java进程端口号，只需设置geaflow.gateway.port环境变量，并重新映射端口号即可，如：
-```shell
-docker run -d --name geaflow-console -p 9999:9999 \
--e geaflow.gateway.port=9999 ' metadata={'Header 1': '安装指南', 'Header 2': '启动容器'}"
+docker images
+```
+远程拉取的镜像名称为：**tugraph/geaflow-console:0.1**(x86架构) 或者**tugraph/geaflow-console-arm:0.1**(arm架构)
+。本地镜像名称为：**geaflow-console:0.1**，只需选择一种方式构建镜像即可。' metadata={'Header 1': '开始上手(GeaFlow Console运行)', 'Header 2': '准备工作'}"
 lgraph_server -d start的方式启动，不是会在pwd路径下生成pid文件吗？这个pid文件有参数能控制路径吗？,"page_content='数据库运行
 
 3.服务操作
@@ -1150,67 +1129,69 @@ TuGraph>
 ```powershell
 
 echo ""match(n) return n limit 1;"" | lgraph_cli --ip 127.0.0.1 --port 7687 --graph default --user admin --password 73@TuGraph
-+-----------------------------------------------------------' metadata={'Header 1': 'TuGraph console client', 'Header 2': '`lgraph_cli`使用'}","page_content='功能概览
++-----------------------------------------------------------' metadata={'Header 1': 'TuGraph console client', 'Header 2': '`lgraph_cli`使用'}","page_content='RESTful API Legacy
 
-2.存储层
+6.Deprecated
 
-在图数据模型上，TuGraph支持属性图模型，按照层次可以分为子图、标签（包括点标签和边标签）、属性。从存储层看，TuGraph使用使用直观的多层的树状模型，没有跨子图的标签，也没有跨标签的属性，仅保留图模型的核心逻辑。  
-在子图的存储上，TuGraph对多图做了数据的物理隔离，每个图对应一个LMDB的实例。多图的元数据描述信息，保存在meta的特殊的公共LMDB实例中。点边标签及其属性的存储，通过将图数据自适应地映射到KV键值对，最大程度发挥读性能。同时在KV层实现了多线程写，解决了LMDB写性能较低的劣势。主键索引和二级索引，对应LMDB中B+的表，支持基于比较的索引值增删查改。  
-存储层还保留了一些其他非核心功能的数据，包括权限数据、预编译的插件数据、监控数据等。' metadata={'Header 1': '功能概览', 'Header 2': '2.存储层'}","page_content='TuGraph图模型说明
+6.6.元数据管理
+
+TuGraph 是一个具备多图能力的强模式属性图数据库。在每一张子图中，每种点和边都需要有预定义的数据格式。数据格式由 Label 决定，每种 Label 都有自己的数据格式。用户可以使用 REST API 添加，删除和查询 Label 及其对应的数据格式。  
+Label 操作对应的 URI 格式为  
+```
+http://{host}:{port}/db/{graph_name}/label/{type}/{label_name}
+```  
+其中{type}可以是 node 或者 relationship。  
+#### 6.6.1.创建Label  
+创建 Label 的过程同时也是定义其数据类型的过程。只有创建了 Label 才能在图中插入相应类型的点或者边。  
+- **URI**: `/db/{graph_name}/label`
+- **METHOD**: POST
+- **REQUEST**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| name | Label 名 | 字符串 |
+| fields | 数据列定义 | 列表 |
+| is_vertex | 是否是点 Label | 布尔值 |
+| primary | 点的主键属性 | 字符串 |
+| edge_constraints | 边的约束 | 列表 |  
+`primary` 在 `is_vertex` 为 `true` 的时候设置，这个字段只有点才有, 创建点的时候必须设置。  
+`edge_constraints` 在 `is_vertex` 为 `false` 的时候设置，这个字段只有边有。这个字段限制了该边的起点和终点只能是哪些点的组合，比如：`[[""vertex_label1"",""vertex_label2""],[""vertex_label3"",""vertex_label4""]]`，限制了该边只能是从 `vertex_label1` 到 `vertex_label2` 和 从 `vertex_label3` 到 `vertex_label4`。如果不想有任何限制，不设置该字段即可。  
+其中`fields`为一个数组，其中每个元素定义数据的一列，内容如下：  
+| 域名     | 说明                                     | 类型                                                                                                |
+| -------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| name     | 列名                                     | 字符串                                                                                              |
+| type     | 列数据类型                               | 字符串，有以下类型： int8, int16, int32, int64, float, double, string, date, datetime, binary, bool |
+| optional | 数据是否可以为空（可选，缺省值为 false） | 布尔值                                                                                              |  
+- **RESPONSE**: 如果成功，返回代码 200。  
+**Example request.**  
+```
+• POST http://localhost:7070/db/{graph_name}/label
+• Accept: application/json; charset=UTF-8
+• Content-Type: application/json
+Input:
+{
+""name"":""Actor"",
+""fields"": [
+{""name"":""uid"", ""type"":""int64"", ""optional"":false},
+{""name"":""name"", ""type"":""st' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}","page_content='TuGraph图模型说明
 
 1. 数据模型
 
-1.3. 索引
+1.1. 图模型
 
-TuGraph支持对点或边的属性创建索引，以提升查询效率。其特点如下：
-- 索引包括普通索引和组合索引，普通索引基于一个点或边的一个属性创建，而组合索引基于一个点或边的多个属性创建（不超过16个），可以对同一点或边的多个（组）属性创建索引。
-- 如果为点标签创建了唯一索引，在修改该标签的点时，会先执行数据完整性检查，以确保该索引的唯一性。
-- BLOB类型的属性不能建立索引。  
-TuGraph的点边均有多种索引类型，不同的索引类型的功能和限制不同，具体如下：  
-#### 1.3.1 普通索引
-##### 1.3.1.1 点索引
-###### 1.3.1.1.1 unique索引  
-点的unique索引指的是全局唯一的索引，即若一个属性设置了unique索引，在同一个图中，相同label的点的该属性不会存在相同的值，
-unique索引key的最大长度是480bytes，**超过480bytes的属性不能建立unique索引**。
-primary作为特殊的unique索引，因此最大key的长度也是480bytes。  
-###### 1.3.1.1.2 non_unique索引  
-点的non_unique索引指的是非全局唯一的索引，即若一个属性设置了non_unique索引，
-在同一个图中，相同label的点的该属性可以存在相同的值。
-由于non_unique索引一个key可能映射到多个值，为了加速查找和写入，
-在用户指定的key后面加上了索引key相同的一组vid的最大值。
-每个vid是5bytes长度，因此non_unique索引key最大长度是475bytes。
-但是，不同于unique索引，超过475bytes也可以建立non_unique索引。
-只不过在对这样的属性建立索引时会只截取**前475bytes**作为索引key（属性本身存储的值不受影响）。
-并且，在通过迭代器遍历时，也是先自动截取查询值的前475bytes再进行遍历，
-所以结果可能和预期不一致，需要用户再过滤。  
-##### 1.3.1.2 边索引  
-###### 1.3.1.2.1 unique索引  
-和点类似，边的unique索引指的是全局唯一的索引，即若一个属性设置了unique索引，在同一个图中，相同label的边的该属性不会存在相同的值，
-unique索引key的最大长度是480bytes，**超过480bytes的属性不能建立unique索引**。  
-###### 1.3.1.2.2 pair_unique索引  
-pair_unique索引指的是两点间的唯一索引，即若一个属性设置了unique索引，在同一个图的同一组起点和终点之间，
-相同label的边的该属性不会存在相同的值。为了保证pair_unique索引key在同一组起点和终点之间不重复，
-索引在用户指定的key后面加上了起点和终点的vid，每个vid是5bytes长度。
-因此最大key的长度是470bytes，**超过470bytes的属性不能建立pair_unique索引**。  
-###### 1.3.1.2.3 non_unique索引  
-和点类似，边的non_unique索引指的是非全局唯一的索引，即若一个属性设置了non_unique索引，
-在同一个图中，相同label的边的该属性可以存在相同的值。
-由于non_unique索引一个key可能映射到多个值，为了加速查找和写入，
-在用户指定的key后面加上了索引key相同的一组eid的最大值。
-每个eid是24bytes长度，因此non_unique索引key最大长度是456bytes。
-但是，不同于unique索引，超过456bytes也可以建立non_unique索引。
-只不过在对这样的属性建立索引时会只截取**前456bytes**作为索引key（属性本身存储的值不受影响）。
-并且，在通过迭代器遍历时，也是先自动截取查询值的前456bytes再进行遍历，
-所以结果可能和预期不一致，需要用户再过滤。  
-#### 1.3.2 组合索引  
-目前只支持对点的多个属性建立组合索引，不支持对边的属性建立组合索引。组合索引支持唯一索引和非唯一索引两种类型，建立索引的要求如下：
-1. 建立组合索引的属性个数在2到16个之间（含）
-2. 唯一组合索引的属性长度之和不能超过480-2*(属性个数-1)字节，非唯一组合索引的属性长度之和不能超过475-2*(属性个数-1)字节  
-##### 1.3.2.1 唯一索引  
-和点的普通唯一索引类似，点的组合唯一索引指的是全局唯一的索引，即若一组属性设置了unique索引，
-在同一个图中，相同label的点的该组属性不会存在相同的值。
-由于底层存储设计，组合索引key需要保存属性的长度，因此，
-组合唯一索引k' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.3. 索引'}"
+TuGraph是一个具备多图能力的强类型、有向属性图数据库。  
+- 图项目：每个数据库服务可以承载多个图项目（多图），每个图项目可以有自己的访问控制配置，数据库管理员可以创建或删除指定图项目。
+- 点：指实体，一般用于表达现实中的实体对象，如一部电影、一个演员。
+- 主键：用户自定义的点数据主键，默认唯一索引，在对应的点类型中唯一。
+- VID：点在存储层自动分配图项目中的唯一ID，用户不可修改。
+- 上限：每个图项目存储最多2^(40)个点数据。
+- 边：用于表达点与点之间的关系，如演员出演电影。
+- 有向边：边为有向边。若要模拟无向边，用户可以创建两个方向相反的边。
+- 多条边：两个点数据之间可以有多条边数据。当前TuGraph支持重复边，如要确保边边唯一，需要通过业务策略实现。
+- 上限：两个点数据之间存储最多2^(32)条边数据。
+- 属性图：点和边可以具有与其关联的属性，每个属性可以有不同的类型。
+- 强类型：每个点和边有且仅有一个标签，创建标签后，修改属性数量及类型有代价。
+- 指定边的起/终点类型：可限制边的起点和终点点类型，支持同类型边的起点和终点的点类型不同，如个人转账给公司、公司转账给公司；当指定边的起/终点类型后，可增加多组起/终点类型，不可删除已限制的起/终点类型。
+- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}"
 RpcSingleClient 构造函数需要哪些参数？,"page_content='RPC API
 
 3.登录
@@ -1941,66 +1922,30 @@ return true;
 `ProcessInTxn`函数的返回值是一个布尔值。当它返回`true`的时候，表示该请求顺利完成，反之表示这个存储过程在执行过程中发现了错误。  
 C++存储过程编写完毕后需要编译成动态链接库。TuGraph 提供了`compile.sh`脚本来帮助用户自动编译存储过程。`compile.sh`脚本只有一个参数，是该存储过程的名称，在上面的例子中就是`custom_pagerank`。编译调用命令行如下：  
 ```bash
-g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/lo' metadata={'Header 1': 'Procedure API', 'Header 2': '5.Procedure v2接口', 'Header 3': '5.1.编写存储过程'}","page_content='RESTful API Legacy
+g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/lo' metadata={'Header 1': 'Procedure API', 'Header 2': '5.Procedure v2接口', 'Header 3': '5.1.编写存储过程'}","page_content='Java客户端
 
-6.Deprecated
+2.使用示例
 
-6.2.角色管理
+2.8.加载存储过程
 
-TuGraph 使用基于角色的权限管理。  
-同一用户可以拥有多个角色。新用户默认拥有与其同名的角色。删除用户时，同名角色也会被删除。如果新建用户时同名角色已经存在，则创建失败。  
-同一角色可以对多个图有不同的权限。用户对某张图的权限由其所有角色对该图的最高权限决定。  
-TuGraph 使用四级权限，不用的用户对不同的子图可以有不同的权限，四种权限及其说明如下：  
-| 权限  | 说明                                                                             |
-| ----- | -------------------------------------------------------------------------------- |
-| NONE  | 无权限                                                                           |
-| READ  | 只读                                                                             |
-| WRITE | 可读写子图中的点和边                                                           |
-| FULL  | 完全权限，包括更改元数据（label, index），管理存储过程，以及删除子图中的所有数据 |  
-管理员对所有子图都有完全权限，新建的用户对所有子图都没有权限。将用户加入管理员角色中可以将用户提升为管理员。  
-#### 6.2.1.添加角色  
-添加一个新的角色，并设置其描述。只有管理员有权限进行此操作。  
-角色名只能由字母，数字以及下划线构成，密码则可以包含任意字符。角色名长度不能超过 64 字节。  
-角色描述可以是任意字符串，长度不超过 512 字节。  
-- **URI**: `/role`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| role | 角色名 | 字符串 |
-| description | 角色描述 | 字符串 |  
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
+```java
+boolean result = client.loadProcedure(""./test/procedure/khop.so"", ""CPP"", ""khop"", ""SO"", ""test loadprocedure"", true, ""v1"", ""default"");
+log.info(""loadProcedure : "" + result);
 ```
-• POST http://localhost:7070/role
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json; charset=UTF-8
-• Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaXNzIjoiZm1hLmFpIiwidXNlcl9pZCI6ImFkbWluIn0.SHaqrjKLaI4byjbEYVAH4D88dOTD_zYQ_uAvdizTMek
-Input:
-{
-""role"": ""new_role"",
-""description"": ""This is a new role."",
-}
-```  
-**Example response.**  
 ```
-• 200: OK
-```  
-#### 6.2.2.修改角色描述  
-修改角色的描述。只有管理员有权限进行此操作。角色描述可以是任意字符串，长度不超过 512 字节。  
-- **URI**: `/role/{role_name}/description`
-- **METHOD**: PUT
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| description | 新描述 | 字符串 |  
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
+@param sourceFile: the source_file contain procedure code
+@param procedureType: the procedure type, currently supported CPP and PY
+@param procedureName: procedure name
+@param codeType: code type, currently supported PY, SO, CPP, ZIP
+@param procedureDescription: procedure description
+@param readOnly: procedure is read only or not
+@param version: The version of procedure
+@param graph: the graph to query.
+@return: the result of procedure execution
+public boolean loadProcedure(String sourceFile, String procedureType, String procedureName, String codeType,
+String procedureDescription, boolean readOnly, String version, String graph) throws Exception
 ```
-• POST http://localhost:7070/role/role1/description
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json; charset=UTF-8
-• Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaXNzIjoiZm1hLm' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.2.角色管理'}"
+本接口支持在单机模式和HA模式下使用。其中，由于加载存储过程是写请求，HA模式下的client只能向leader发送加载存储过程请求。' metadata={'Header 1': 'Java客户端', 'Header 2': '2.使用示例', 'Header 3': '2.8.加载存储过程'}"
 GetVertexIndexIterator函数在liblgraph_python_api.Transaction中用于获取什么类型的迭代器？,"page_content='Python Olap API
 
 5. lgraph_db API
@@ -2206,6 +2151,20 @@ num_workers=0,
 )
 ```' metadata={'Header 1': '使用 TuGraph 图学习模块进行点分类', 'Header 2': '6. 模型训练及保存', 'Header 3': '6.2.构建采样器'}","page_content='业务开发指南
 
+边类型操作
+
+边类型添加索引
+
+>该操作会同步构建索引数据，数据量大的时候，有时间消耗。  
+如下例子，对于边类型`edge1`，给字段`field1`添加了一个非唯一索引。
+```
+CALL db.addEdgeIndex('edge1', 'field1', false, false)
+```
+如下例子，对于边类型`edge1`，给字段`field2`添加了一个唯一索引。
+```
+CALL db.addEdgeIndex('edge1', 'field2', true, false)
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '边类型操作', 'Header 3': '边类型添加索引'}","page_content='业务开发指南
+
 点类型操作
 
 点类型添加索引
@@ -2218,61 +2177,7 @@ CALL db.addIndex('node1', 'field1', false)
 如下例子，对于点类型`node1`，给`field2`字段添加了一个唯一索引。
 ```
 CALL db.addIndex('node1', 'field2', true)
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '点类型操作', 'Header 3': '点类型添加索引'}","page_content='TuGraph图模型说明
-
-1. 数据模型
-
-1.3. 索引
-
-TuGraph支持对点或边的属性创建索引，以提升查询效率。其特点如下：
-- 索引包括普通索引和组合索引，普通索引基于一个点或边的一个属性创建，而组合索引基于一个点或边的多个属性创建（不超过16个），可以对同一点或边的多个（组）属性创建索引。
-- 如果为点标签创建了唯一索引，在修改该标签的点时，会先执行数据完整性检查，以确保该索引的唯一性。
-- BLOB类型的属性不能建立索引。  
-TuGraph的点边均有多种索引类型，不同的索引类型的功能和限制不同，具体如下：  
-#### 1.3.1 普通索引
-##### 1.3.1.1 点索引
-###### 1.3.1.1.1 unique索引  
-点的unique索引指的是全局唯一的索引，即若一个属性设置了unique索引，在同一个图中，相同label的点的该属性不会存在相同的值，
-unique索引key的最大长度是480bytes，**超过480bytes的属性不能建立unique索引**。
-primary作为特殊的unique索引，因此最大key的长度也是480bytes。  
-###### 1.3.1.1.2 non_unique索引  
-点的non_unique索引指的是非全局唯一的索引，即若一个属性设置了non_unique索引，
-在同一个图中，相同label的点的该属性可以存在相同的值。
-由于non_unique索引一个key可能映射到多个值，为了加速查找和写入，
-在用户指定的key后面加上了索引key相同的一组vid的最大值。
-每个vid是5bytes长度，因此non_unique索引key最大长度是475bytes。
-但是，不同于unique索引，超过475bytes也可以建立non_unique索引。
-只不过在对这样的属性建立索引时会只截取**前475bytes**作为索引key（属性本身存储的值不受影响）。
-并且，在通过迭代器遍历时，也是先自动截取查询值的前475bytes再进行遍历，
-所以结果可能和预期不一致，需要用户再过滤。  
-##### 1.3.1.2 边索引  
-###### 1.3.1.2.1 unique索引  
-和点类似，边的unique索引指的是全局唯一的索引，即若一个属性设置了unique索引，在同一个图中，相同label的边的该属性不会存在相同的值，
-unique索引key的最大长度是480bytes，**超过480bytes的属性不能建立unique索引**。  
-###### 1.3.1.2.2 pair_unique索引  
-pair_unique索引指的是两点间的唯一索引，即若一个属性设置了unique索引，在同一个图的同一组起点和终点之间，
-相同label的边的该属性不会存在相同的值。为了保证pair_unique索引key在同一组起点和终点之间不重复，
-索引在用户指定的key后面加上了起点和终点的vid，每个vid是5bytes长度。
-因此最大key的长度是470bytes，**超过470bytes的属性不能建立pair_unique索引**。  
-###### 1.3.1.2.3 non_unique索引  
-和点类似，边的non_unique索引指的是非全局唯一的索引，即若一个属性设置了non_unique索引，
-在同一个图中，相同label的边的该属性可以存在相同的值。
-由于non_unique索引一个key可能映射到多个值，为了加速查找和写入，
-在用户指定的key后面加上了索引key相同的一组eid的最大值。
-每个eid是24bytes长度，因此non_unique索引key最大长度是456bytes。
-但是，不同于unique索引，超过456bytes也可以建立non_unique索引。
-只不过在对这样的属性建立索引时会只截取**前456bytes**作为索引key（属性本身存储的值不受影响）。
-并且，在通过迭代器遍历时，也是先自动截取查询值的前456bytes再进行遍历，
-所以结果可能和预期不一致，需要用户再过滤。  
-#### 1.3.2 组合索引  
-目前只支持对点的多个属性建立组合索引，不支持对边的属性建立组合索引。组合索引支持唯一索引和非唯一索引两种类型，建立索引的要求如下：
-1. 建立组合索引的属性个数在2到16个之间（含）
-2. 唯一组合索引的属性长度之和不能超过480-2*(属性个数-1)字节，非唯一组合索引的属性长度之和不能超过475-2*(属性个数-1)字节  
-##### 1.3.2.1 唯一索引  
-和点的普通唯一索引类似，点的组合唯一索引指的是全局唯一的索引，即若一组属性设置了unique索引，
-在同一个图中，相同label的点的该组属性不会存在相同的值。
-由于底层存储设计，组合索引key需要保存属性的长度，因此，
-组合唯一索引k' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.3. 索引'}"
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '点类型操作', 'Header 3': '点类型添加索引'}"
 在调用函数DeleteGraph时，如果操作未被授权会抛出什么异常？,"page_content='RPC API
 
 5.存储过程
@@ -2449,96 +2354,44 @@ TuGraph 核心支持 CSV 和 JSON 合适的导入导出，提供空库导入和�
 
 尽管TuGraph本身支持数据的插入，但批量导入能够大幅提升的效率。导入的功能可以分为空库导入（离线导入）和增量导入，前者指子图是空的时候进行导入，额外的假设能够大幅提升导入的性能，在 TuGraph 中，空库导入和增量导入的吞吐率差了10 倍。在数据导出中，需要考虑导出数据的一致性，即是基于一个快照数据导出的。  
 TuGraph 可以通过 命令行工具`lgraph_export` 来对已经存放在TuGraph的图数据进行数据导出，导出格式支持CSV和JSON。' metadata={'Header 1': '功能概览', 'Header 2': '4.核心功能', 'Header 3': '4.3.数据导入导出'}"
-"启动TuGraph的时候报这个错误：0x00007f7e5f272900 FATAL include/fma-common/binary_buffer.h:289] CHECK(gpos_ + size <= ppos_)      failedreading beyond the array: required size=4, actual size=2","page_content='集成测试
+"启动TuGraph的时候报这个错误：0x00007f7e5f272900 FATAL include/fma-common/binary_buffer.h:289] CHECK(gpos_ + size <= ppos_)      failedreading beyond the array: required size=4, actual size=2","page_content='TuGraph Management
 
-2.TuGraph集成测试框架
+使用
 
-2.2.组件用法
+TuGraph Management使用Maven进行管理，请运行如下命令启动TuGraph Management  
+`mvn spring-boot:run`  
+TuGraph Management 使用了sofastack框架，并使用brpc与TuGraph进行通信，sofastack默认端口为`6071`，brpc默认端口为`6091`，如需修改服务端口，请修改`./src/main/resources/application.properties`文件中的对应配置项。' metadata={'Header 1': 'TuGraph Management', 'Header 2': '使用'}","page_content='Docker部署
 
-#### 2.2.1.server  
-##### 2.2.1.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-SERVEROPT = {""cmd"":""./lgraph_server -c lgraph_standalone.json --directory ./testdb --license _FMA_IGNORE_LICENSE_CHECK_SALTED_ --port 7072 --rpc_port 9092"",
-""cleanup_dir"":[""./testdb""]}
+2.现有Docker Image
+
+2.4. M1芯片支持
+
+在 M1 芯片的机器上运行 amd64 容器可能造成未知错误。TuGraph提供 arm64 的镜像供 M1 机器使用。
+包含compile和runtime两种镜像。  
+在`tugraph-runtime-centos7:3.6.0`与`tugraph-compile-centos7:1.2.7`及之后，`tugraph-runtime-centos7`与`tugraph-compile-centos7`提供linux/amd64和linux/arm64/v8两种架构的镜像，可以在 M1 机器上通过docker pull获取arm64架构镜像。' metadata={'Header 1': 'Docker部署', 'Header 2': '2.现有Docker Image', 'Header 3': '2.4. M1芯片支持'}","page_content='运维监控
+
+2.部署方案
+
+2.2.第二步
+
+启动TuGraph Monitor工具，启动命令如下：  
+```shell
+./lgraph_monitor --server_host 127.0.0.1:9091 -u admin -p your_password \
+--monitor_host 127.0.0.1:9999  --sampling_interval_ms 1000
 ```  
-##### 2.2.1.2.启动命令
-通过fixtures组件引入工具，并通过启动参数来控制不同的处理逻辑，函数开始执行前会启动server，函数执行完成后会停止server，并清理cleanup_dir指定的目录  
-```python
-@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
-def test_server(self, server):
-pass
-```  
-#### 2.2.2.client  
-##### 2.2.2.1.启动参数
-采用python字典传入
-+ host是TuGraph Server的ip和端口
-+ user是TuGraph Server的用户名
-+ password是TuGraph Server 中user对应的密码  
-```python
-CLIENTOPT = {""host"":""127.0.0.1:9092"", ""user"":""admin"", ""password"":""73@TuGraph""}
-```  
-##### 2.2.2.2.启动命令
-通过fixtures组件引入工具，并通过启动参数来控制不同的处理逻辑，函数开始执行前会启动客户端，函数执行结束后会结束客户端  
-```python
-@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
-@pytest.mark.parametrize(""client"", [CLIENTOPT], indirect=True)
-def test_client(self, server, client):
-ret = client.callCypher(""CALL db.createEdgeLabel('followed', '[]', 'address', string, false, 'date', int32, false)"", ""default"")
-assert ret[0]
-ret = client.callCypher(""CALL db.createEdgeLabel('followed', '[]', 'address', string, false, 'date', int32, false)"", ""default"")
-assert ret[0] == False
-```  
-#### 2.2.3.importor  
-##### 2.2.3.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-IMPORTOPT = {""cmd"":""./lgraph_import --config_file ./data/yago/yago.conf --dir ./testdb --user admin --password 73@TuGraph --graph default --overwrite 1"",
-""cleanup_dir"":[""./testdb"", ""./.import_tmp""]}
-```  
-##### 2.2.3.2.启动命令  
-通过fixtures组件引入工具，并通过启动参数来控制导入不同的数据，函数开始执行前会导入数据到指定的目录，函数执行完成后会清理cleanup_dir指定的目录  
-```python
-@pytest.mark.parametrize(""importor"", [IMPORTOPT], indirect=True)
-def test_importor(self, importor):
-pass
-```  
-#### 2.2.4.exportor  
-##### 2.2.4.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-EXPO' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.2.组件用法'}","page_content='数据库运行
-
-3.服务操作
-
-3.3.重启服务
-
-用户也可以通过`lgraph_server -d restart`来重启 TuGraph 服务：  
-```bash
-$ ./lgraph_server -d restart
-Stopping lgraph...
-Process stopped.
-Starting lgraph...
-The service process is started at pid 20899.
-```' metadata={'Header 1': '数据库运行', 'Header 2': '3.服务操作', 'Header 3': '3.3.重启服务'}","page_content='TuGraph Java Client
-
-版本选择
-
-| Client Version | TuGraph Version |
-|----------------|-----------------|
-| 1.1.1          | 3.3.3           |
-| 1.2.1, 1.2.2   | 3.4.x, 3.5.0    |
-| 1.3.0          | 3.6.0           |
-| 1.4.0, 1.4.1   | 4.0.0, 4.0.1    |  
-**注意**:  
-- 3.3.0~3.3.2 版本的 TuGraph Server 是在 java-client 重构前的遗留版本，本仓库不支持这些版本。
-- 1.1.0 和 1.2.0 因 pom 文件中的 ${revision} 变量引入的无法使用的问题而不可用[1]。' metadata={'Header 1': 'TuGraph Java Client', 'Header 2': '版本选择'}"
+参数含义如下  
+```shell
+Available command line options:
+--server_host       Host on which the tugraph rpc server runs.
+Default=127.0.0.1:9091.
+-u, --user          DB username.
+-p, --password      DB password.
+--monitor_host      Host on which the monitor restful server runs.
+Default=127.0.0.1:9999.
+--sampling_interval_ms
+sampling interval in millisecond. Default=1.5e2.
+-h, --help          Print this help message. Default=0.
+```' metadata={'Header 1': '运维监控', 'Header 2': '2.部署方案', 'Header 3': '2.2.第二步'}"
 如果在FrontierTraversal中开启了TRAVERSAL_PARALLEL标志，事务必须是怎样的？,"page_content='Traversal API
 
 2. 接口说明
@@ -2883,13 +2736,28 @@ TuGraph Browser 的默认端口号是什么？,"page_content='可视化操作手
 
 1.连接数据库
 
-当用户完成图数据库的安装后，可以通过浏览器进行访问，TuGraph Browser 工具。用户只需要在浏览器地址栏输入：TuGraph 所在服务器的 IP:Port。默认的端口使用的是 7090。' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '1.连接数据库'}","page_content='TuGraph Management
+当用户完成图数据库的安装后，可以通过浏览器进行访问，TuGraph Browser 工具。用户只需要在浏览器地址栏输入：TuGraph 所在服务器的 IP:Port。默认的端口使用的是 7090。' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '1.连接数据库'}","page_content='Docker部署
 
-使用
+2.现有Docker Image
 
-TuGraph Management使用Maven进行管理，请运行如下命令启动TuGraph Management  
-`mvn spring-boot:run`  
-TuGraph Management 使用了sofastack框架，并使用brpc与TuGraph进行通信，sofastack默认端口为`6071`，brpc默认端口为`6091`，如需修改服务端口，请修改`./src/main/resources/application.properties`文件中的对应配置项。' metadata={'Header 1': 'TuGraph Management', 'Header 2': '使用'}"
+2.5. 运行服务
+
+1. 拉取镜像
+```shell
+docker pull tugraph/tugraph-runtime-centos7:${VERSION}
+```  
+2. 启动docker  
+```shell
+docker run -d -p 7070:7070  -p 7687:7687 -p 9090:9090 -v /root/tugraph/data:/var/lib/lgraph/data  -v /root/tugraph/log:/var/log/lgraph_log \
+--name tugraph_demo ${REPOSITORY}:${VERSION}
+
+# ${REPOSITORY}是镜像地址，${VERSION}是版本号。
+# 7070是默认的http端口，访问tugraph-db-browser使用。
+# 7687是bolt端口，bolt client访问使用。
+# 9090是默认的rpc端口，rpc client访问使用。
+# /var/lib/lgraph/data是容器内的默认数据目录，/var/log/lgraph_log是容器内的默认日志目录
+# 命令将数据目录和日志目录挂载到了宿主机的/root/tugraph/上进行持久化，您可以根据实际情况修改。
+```' metadata={'Header 1': 'Docker部署', 'Header 2': '2.现有Docker Image', 'Header 3': '2.5. 运行服务'}"
 在配置中，用于计算图表中显示的值的方法是什么？,"page_content='Cypher API
 
 5.附录2. 内置procedures列表
@@ -3257,55 +3125,15 @@ TuGraph 运行需要保证库文件 liblgraph.so 的文件位置在环境变量 
 2.运行模式
 
 TuGraph 可以作为前台普通进程启动，也可以作为后台守护进程启动。
-当作为普通进程运行时，TuGraph 可以直接将日志打印到终端，这在调试服务器配置时非常方便。但是，由于前台进程在终端退出后被终止，因此用户须确保在 TuGraph 服务器处于运行状态时，终端保持打开状态。另一方面，在守护进程模式下，即使启动它的终端退出，TuGraph 服务器也可以继续运行。因此，在长时间运行的服务器下推荐以守护进程模式启动 TuGraph 服务器。' metadata={'Header 1': '数据库运行', 'Header 2': '2.运行模式'}","page_content='数据库运行
+当作为普通进程运行时，TuGraph 可以直接将日志打印到终端，这在调试服务器配置时非常方便。但是，由于前台进程在终端退出后被终止，因此用户须确保在 TuGraph 服务器处于运行状态时，终端保持打开状态。另一方面，在守护进程模式下，即使启动它的终端退出，TuGraph 服务器也可以继续运行。因此，在长时间运行的服务器下推荐以守护进程模式启动 TuGraph 服务器。' metadata={'Header 1': '数据库运行', 'Header 2': '2.运行模式'}","page_content='文档地图
 
-2.运行模式
+主要仓库
 
-2.1.运行普通进程
-
-`lgraph_server -d run`命令可以将 TuGraph 作为普通进程运行。普通进程依赖命令行终端，因此终端结束时，TuGraph 进程也会自动终止。普通进程模式配合`--log_dir """"`可以将进程日志直接输出到终端，因此更方便调试。注：当不使用`-d run`命令时，将默认运行普通进程。  
-lgraph_server的默认路径为：/usr/local/bin/lgraph_server 。  
-lgraph.json的默认路径为：/usr/local/etc/lgraph.json 。  
-启动命令：  
-```shell
-$ ./lgraph_server -d run -c lgraph.json --log_dir """"
-```
-或者：
-```shell
-$ ./lgraph_server -c lgraph.json --log_dir """"
-```  
-普通模式的运行输出示例：  
-```shell
-**********************************************************************
-*                  TuGraph Graph Database v4.3.2                     *
-*                                                                    *
-*    Copyright(C) 2018-2023 Ant Group. All rights reserved.          *
-*                                                                    *
-**********************************************************************
-Server is configured with the following parameters:
-Backup log enable:                   0
-DB directory:                        /var/lib/lgraph/data
-HA enable:                           0
-HTTP port:                           7070
-HTTP web dir:                        /usr/local/share/lgraph/browser-resource
-RPC enable:                          1
-RPC port:                            9090
-SSL enable:                          0
-Whether the token is unlimited:      0
-audit log enable:                    0
-bind host:                           0.0.0.0
-bolt port:                           7687
-disable auth:                        0
-durable:                             0
-log dir:                             """"
-log verbose:                         1
-number of bolt io threads:           1
-optimistic transaction:              0
-reset admin password if you forget:  0
-subprocess idle limit:               600
-thread limit:                        0
-[20240730 15:34:27.848783 0x00007f81bb3889c0 INFO  src/server/lgraph_server.h:78] [StateMachine] Builtin services are disabled according to ServerOptions.has_builtin_services
-[20240730 15:34:27.849116 0x00007f81bb3889c0 INFO ' metadata={'Header 1': '数据库运行', 'Header 2': '2.运行模式', 'Header 3': '2.1.运行普通进程'}"
+> TuGraph-DB 仓库: [https://github.com/TuGraph-family/tugraph-db](https://github.com/TuGraph-family/tugraph-db)  
+> 可视化界面: [https://github.com/TuGraph-family/tugraph-db-browser](https://github.com/TuGraph-family/tugraph-db-browser)  
+> 基于twitter数据的简单测试方法: [https://github.com/TuGraph-family/gdbms-microbenchmark](https://github.com/TuGraph-family/gdbms-microbenchmark)  
+> 基于标准LDBC-SNB的测试方法: [https://github.com/TuGraph-family/tugraph-snb-interactive](https://github.com/TuGraph-family/tugraph-snb-interactive)  
+> TuGraph-Analytics 仓库: [https://github.com/TuGraph-family/tugraph-analytics](https://github.com/TuGraph-family/tugraph-analytics)' metadata={'Header 1': '文档地图', 'Header 2': '主要仓库'}"
 RpcClient 构造函数需要什么参数用于用户登录？,"page_content='RPC API
 
 3.登录
@@ -3507,14 +3335,50 @@ docker run -d -p 7070:7070  -p 7687:7687 -p 9090:9090 -v /root/tugraph/data:/var
 | port                         | 整型                    | REST 服务器监听时使用的端口。默认端口为 7070。                                                                                                                                                      |
 | enable_rpc                   | 布尔值                   | 是否使用 RPC 服务。默认值为 false。                                                                                                                                                           |
 | rpc_port                     | 整型                    | RPC 及 HA 服务所用端口。默认端口为 9090。                                                                                                                                                       |
-| bolt_port                    | 整型                    | Bolt 客户端端口。默认端口为 7687。                                ' metadata={'Header 1': '数据库运行', 'Header 2': '4.服务配置', 'Header 3': '4.1.配置参数'}","page_content='安装指南
+| bolt_port                    | 整型                    | Bolt 客户端端口。默认端口为 7687。                                ' metadata={'Header 1': '数据库运行', 'Header 2': '4.服务配置', 'Header 3': '4.1.配置参数'}","page_content='快速上手
 
-一键安装
+2.安装
 
-数据存储配置
+2.1.通过docker快速体验
 
-配置GeaFlow作业、图、表等数据的持久化存储，推荐使用HDFS。本地模式默认为容器内磁盘。
-![install_storage_config](../../static/img/install_storage_config.png)' metadata={'Header 1': '安装指南', 'Header 2': '一键安装', 'Header 3': '数据存储配置'}"
+1. 本地安装 docker 环境  
+参考 docker 官方文档：https://docs.docker.com/get-started/  
+2. 拉取镜像
+```shell
+docker pull tugraph/tugraph-runtime-centos7
+```  
+3. 启动docker  
+启动 TuGraph 服务可以通过两种方式来实现。第一种方式将镜像拉取与服务启动整合在一起，用户只需执行运行容器的操作，即可同时启动 TuGraph 服务。第二种方式则是在创建 TuGraph 容器后，手动进入容器内部以触发服务启动。尽管这种方法初期步骤稍显繁琐，但在如忘记密码的情况下，它提供了更灵活的密码重置选项。  
+**方式一**  
+```shell
+docker run -d -p 7070:7070  -p 7687:7687 -p 9090:9090 -v /root/tugraph/data:/var/lib/lgraph/data  -v /root/tugraph/log:/var/log/lgraph_log \
+--name tugraph_demo ${REPOSITORY}:${VERSION}
+
+# ${REPOSITORY}是镜像地址，${VERSION}是版本号。
+# 7070是默认的http端口，访问tugraph-db-browser使用。
+# 7687是bolt端口，bolt client访问使用。
+# 9090是默认的rpc端口，rpc client访问使用。
+# /var/lib/lgraph/data是容器内的默认数据目录，/var/log/lgraph_log是容器内的默认日志目录
+# 命令将数据目录和日志目录挂载到了宿主机的/root/tugraph/上进行持久化，您可以根据实际情况修改。
+```  
+**方式二**  
+```shell
+docker run -dt -p 7070:7070  -p 7687:7687 -p 9090:9090 -v /root/tugraph/data:/var/lib/lgraph/data  -v /root/tugraph/log:/var/log/lgraph_log \
+--name tugraph_demo ${REPOSITORY}:${VERSION} /bin/bash
+
+docker exec -it tugraph_demo bash
+lgraph_server -c /usr/local/etc/lgraph.json -d start
+
+# ${REPOSITORY}是镜像地址，${VERSION}是版本号。
+# 7070是默认的http端口，访问tugraph-db-browser使用。
+# 7687是bolt端口，bolt client访问使用。
+# 9090是默认的rpc端口，rpc client访问使用。
+# /var/lib/lgraph/data是容器内的默认数据目录，/var/log/lgraph_log是容器内的默认日志目录
+# 命令将数据目录和日志目录挂载到了宿主机的/root/tugraph/上进行持久化，您可以根据实际情况修改。
+```  
+5. 前端访问  
+访问tugraph-db-browser: `http://x.x.x.x:7070`，数据库地址格式为 `bolt://ip:bolt_port`（老版本不用填），默认用户名为 `admin`，密码为 `73@TuGraph`。
+首次登录会默认跳转修改密码页面，请尽快修改默认密码避免安全风险。' metadata={'Header 1': '快速上手', 'Header 2': '2.安装', 'Header 3': '2.1.通过docker快速体验'}"
 TuGraph 的 Traversal API 当中对于遍历的起始点设置有哪三种方式？,"page_content='动态图
 
 接口
@@ -3773,50 +3637,51 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='RESTful API Legacy
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='OLAP API
 
-6.Deprecated
+3. Embed 编译与运行
 
-6.6.元数据管理
+C++:
 
-TuGraph 是一个具备多图能力的强模式属性图数据库。在每一张子图中，每种点和边都需要有预定义的数据格式。数据格式由 Label 决定，每种 Label 都有自己的数据格式。用户可以使用 REST API 添加，删除和查询 Label 及其对应的数据格式。  
-Label 操作对应的 URI 格式为  
+```C++
+#include <iostream>
+#include ""lgraph/lgraph.h""
+#include ""lgraph/olap_base.h""
+using namespace std;
+
+extern ""C"" bool Process(lgraph_api::GraphDB &db, const std::string &request, std::string &response);
+
+int main(int argc, char **argv) {
+// db_path表示预加载图数据存放的路径
+std::string db_path = ""../fb_db/"";
+if (argc > 1)
+db_path = argv[1];
+lgraph_api::Galaxy g(db_path);
+g.SetCurrentUser(""admin"", ""73@TuGraph"");
+// 指定图数据的名称
+lgraph_api::GraphDB db = g.OpenGraph(""fb_db"");
+std::string resp;
+// 以json形式输入算法参数
+bool r = Process(db, ""{\""root_id\"":\""0\"", \""label\"":\""node\"",\""field\"":\""id\""}"", resp);
+cout << r << endl;
+cout << resp << endl;
+return 0;
+}
 ```
-http://{host}:{port}/db/{graph_name}/label/{type}/{label_name}
-```  
-其中{type}可以是 node 或者 relationship。  
-#### 6.6.1.创建Label  
-创建 Label 的过程同时也是定义其数据类型的过程。只有创建了 Label 才能在图中插入相应类型的点或者边。  
-- **URI**: `/db/{graph_name}/label`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| name | Label 名 | 字符串 |
-| fields | 数据列定义 | 列表 |
-| is_vertex | 是否是点 Label | 布尔值 |
-| primary | 点的主键属性 | 字符串 |
-| edge_constraints | 边的约束 | 列表 |  
-`primary` 在 `is_vertex` 为 `true` 的时候设置，这个字段只有点才有, 创建点的时候必须设置。  
-`edge_constraints` 在 `is_vertex` 为 `false` 的时候设置，这个字段只有边有。这个字段限制了该边的起点和终点只能是哪些点的组合，比如：`[[""vertex_label1"",""vertex_label2""],[""vertex_label3"",""vertex_label4""]]`，限制了该边只能是从 `vertex_label1` 到 `vertex_label2` 和 从 `vertex_label3` 到 `vertex_label4`。如果不想有任何限制，不设置该字段即可。  
-其中`fields`为一个数组，其中每个元素定义数据的一列，内容如下：  
-| 域名     | 说明                                     | 类型                                                                                                |
-| -------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| name     | 列名                                     | 字符串                                                                                              |
-| type     | 列数据类型                               | 字符串，有以下类型： int8, int16, int32, int64, float, double, string, date, datetime, binary, bool |
-| optional | 数据是否可以为空（可选，缺省值为 false） | 布尔值                                                                                              |  
-- **RESPONSE**: 如果成功，返回代码 200。  
-**Example request.**  
-```
-• POST http://localhost:7070/db/{graph_name}/label
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json
-Input:
+保存后在tugraph-db/procedures 目录下执行`bash make_embed.sh bfs`即可在tugraph-db/procedures/algo_cpp 目录下得到bfs_procedure文件。  
+在tugraph-db/procedures 文件夹下执行`./algo_cpp/bfs_procedure` 即可得到返回结果：  
+```json
 {
-""name"":""Actor"",
-""fields"": [
-{""name"":""uid"", ""type"":""int64"", ""optional"":false},
-{""name"":""name"", ""type"":""st' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.6.元数据管理'}"
+""core_cost"":0.025603055953979492,
+""found_vertices"":3829,
+""num_edges"":88234,
+""num_vertices"":4039,
+""output_cost"":9.059906005859375e-06,
+""prepare_cost"":0.056738853454589844,
+""total_cost"":0.0823509693145752
+}
+```  
+参数解释同上。' metadata={'Header 1': 'OLAP API', 'Header 2': '3. Embed 编译与运行', 'Header 3': 'C++:'}"
 TuGraph-DB图数据库是由哪个团队开发的？,"page_content='什么是TuGraph
 
 1. 简介
@@ -4244,7 +4109,51 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='集成测试
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='可视化操作手册
+
+2.操作指南
+
+2.4.图项目
+
+`图项目`提供可视化的图项目管理和图数据研发功能，它为用户提供了一系列便捷的图数据可视化操作，包括图项目的创建、修改、删除等管理操作，以及图数据的查询、点边统计等操作。此外，它也支持图模型的管理，使用户可以更加方便地进行图数据的管理和维护。  
+#### 2.4.1.图项目管理  
+在`图项目`界面，可以看到当前图数据库中的图项目。  
+![图项目-首页](../../../images/browser/graphmanagement-homepage.png)  
+##### 2.4.1.1.新建图项目  
+在`图项目`界面，点击`新建图项目`按钮创建一个新的图项目。  
+![图项目-新建图项目按钮](../../../images/browser/graphmanagement-creategraph.png)  
+新建图项目需要通过`选择模板`和`填写配置`两个页面完成图项目的创建。  
+- __选择模板__：产品提供空模板和demo模板两类模板。
+- 空模板：全新的图项目，用户需要自己创建图模型和导入图数据，一般用于正式项目开发。
+- demo模板：产品内置的demo数据，图项目创建成功后，系统会自动创建demo图模型并导入demo图数据，一般用于试用和学习。  
+![图项目-选择模板](../../../images/browser/graphmanagement-selecttemplate.png)  
+- __填写配置__：用户需要填写图项目基本信息，并点击`创建`按钮创建图项目。
+- 图名称：新建图项目的名称，同时作为该图项目的唯一主键。支持中文、字母、数字以及下划线，不支持空格以及其他特殊符号。
+- 图描述：新建图项目的描述，可用于详细说明该项目的背景和目标。
+- 高级配置-最大存储空间：设置图项目最大可占用的存储空间，实际并不会提前占用物理存储空间，实际数据量达到最大存储空间阈值后不可再写入数据。  
+![图项目-填写配置](../../../images/browser/graphmanagement-configure.png)  
+创建成功后，可在`图项目`页面的图项目选项卡中查看。  
+##### 2.4.1.2.编辑图项目  
+在`图项目`界面，点击图项目选项卡中的`编辑`按钮（笔形图标），编辑对应图项目的基础信息。  
+![图项目-编辑图项目按钮](../../../images/browser/graphmanagement-editgraph-button.png)  
+编辑图项目功能可以修改`图描述`和`最大存储空间`。  
+![图项目-编辑图项目](../../../images/browser/graphmanagement-editgraph.png)  
+##### 2.4.1.3.删除图项目  
+在`图项目`界面，点击图项目选项卡中的`删除`按钮（垃圾桶图标），删除对应的图项目。  
+![图项目-删除图项目按钮](../../../images/browser/graphmanagement-deletegraph-button.png)  
+_需要注意：图项目删除后无法恢复_。  
+##### 2.4.1.4.点边统计  
+在`图项目`界面，点击图项目选项卡中的`点边统计`按钮（刷新图标），统计对应图项目当前时间节点的点边数量。  
+![图项目-点边统计按钮](../../../images/browser/graphmanagement-statistics-button.png)  
+统计结果将展示在图项目选项卡上，已经统计过点边数据的图项目再次统计需要点击`刷新`按钮。  
+![图项目-点边统计](../../../images/browser/graphmanagement-statistics.png)  
+![图项目-刷新点边统计按钮](../../../images/browser/graphmanagement-statistics-refresh-button.png)  
+##### 2.4.1.5.存储过程  
+在`图项目`界面，点击图项目选项卡中的`存储过程`按钮（卡片最右侧图标），跳转到操作存储过程的图页面。  
+![图项目-存储过程按钮](../../../images/browser/graphmanagement-procedure-button.png)  
+在`存储过程`页面，可以新建存储过程，新建时需要填写""存储过程名称""、""存储过程类型""、""存储过程描述""，然后选择""版本""和""执行时是否修改数据库""  
+![图项目-存储过程](../../../images/browser/graphmanagement-procedure.png)  
+更多存储过程的相关操作可见 [存储过程]' metadata={'Header 1': '可视化操作手册', 'Header 2': '2.操作指南', 'Header 3': '2.4.图项目'}","page_content='集成测试
 
 2.TuGraph集成测试框架
 
@@ -4308,133 +4217,7 @@ pass
 + cmd是启动命令
 + cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
 ```python
-EXPO' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.2.组件用法'}","page_content='运维监控
-
-2.部署方案
-
-2.4.第四步
-
-+ 下载符合您机器架构以及系统版本的Grafana安装包，下载地址: [https://grafana.com/grafana/download](https://grafana.com/grafana/download)  
-+ 安装Grafana，细节请参考: [ https://grafana.com/docs/grafana/v7.5/installation/]( https://grafana.com/docs/grafana/v7.5/installation/)  
-+ 启动Grafana，细节请参考: [ https://grafana.com/docs/grafana/v7.5/installation/]( https://grafana.com/docs/grafana/v7.5/installation/)  
-+ 配置Grafana，首先在数据源设置中配置Prometheus的IP地址，配置完成后可以通过测试连接功能，验证是否成功连接数据源。然后，导入如下模版，并在页面中根据实际情况，修改正确的接口IP和端口。最后可以根据实际情况设置刷新时间和监控时间范围  
-```json
-{
-""annotations"": {
-""list"": [
-{
-""builtIn"": 1,
-""datasource"": {
-""type"": ""grafana""
-},
-""enable"": true,
-""hide"": true,
-""iconColor"": ""rgba(0, 211, 255, 1)"",
-""name"": ""Annotations & Alerts"",
-""target"": {
-""limit"": 100,
-""matchAny"": false,
-""tags"": [],
-""type"": ""dashboard""
-},
-""type"": ""dashboard""
-}
-]
-},
-""editable"": true,
-""fiscalYearStartMonth"": 0,
-""graphTooltip"": 0,
-""id"": 2,
-""links"": [],
-""liveNow"": false,
-""panels"": [
-{
-""datasource"": {
-""type"": ""prometheus""
-},
-""fieldConfig"": {
-""defaults"": {
-""color"": {
-""mode"": ""palette-classic""
-},
-""custom"": {
-""hideFrom"": {
-""legend"": false,
-""tooltip"": false,
-""viz"": false
-}
-},
-""mappings"": [],
-""unit"": ""kbytes""
-},
-""overrides"": [
-{
-""matcher"": {
-""id"": ""byName"",
-""options"": ""D {instance=\""localhost:7010\"", job=\""TuGraph\"", resouces_type=\""memory\"", type=\""available\""}""
-},
-""properties"": [
-{
-""id"": ""displayName"",
-""value"": ""others""
-}
-]
-},
-{
-""matcher"": {
-""id"": ""byName"",
-""options"": ""D {__name__=\""resources_report\"", instance=\""localhost:7010\"", job=\""TuGraph\"", resouces_type=\""memory\"", type=\""available\""}""
-},
-""properties"": [
-{
-""id"": ""color"",
-""value"": {
-""fixedColor"": ""light-green"",
-""mode"": ""fixed""
-}
-},
-{
-""id"": ""displayName"",
-""value"": ""others""
-}
-]
-},
-{
-""matcher"": {
-""id"": ""byName"",
-""options"": ""others""
-},
-""properties"": [
-{
-""id"": ""color"",
-""value"": {
-""fixedColor"": ""light-blue"",
-""mode"": ""fixed""
-}
-}
-]
-},
-{
-""matcher"": {
-""id"": ""byName"",
-""options"": ""graph_used""
-},
-""properties"": [
-{
-""id"": ""color"",
-""value"": {
-""fixedColor"": ""light-orange"",
-""mode"": ""fixed""
-}
-}
-]
-}
-]
-},
-""gridPos"": {
-""h"": 16,
-""w"": 6,
-""x"": ' metadata={'Header 1': '运维监控', 'Header 2': '2.部署方案', 'Header 3': '2.4.第四步'}"
+EXPO' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.2.组件用法'}"
 TuGraphClient是什么？,"page_content='TuGraph Java Client
 
 特性
@@ -4726,7 +4509,49 @@ CALL db.alterLabelAddFields(
 ```
 CALL db.alterLabelAddFields('vertex', 'node1', ['field1', string, null ,true], ['field2', int64, 0, false])
 ```' metadata={'Header 1': '业务开发指南', 'Header 2': '点类型操作', 'Header 3': '点类型添加字段'}"
-带权图的边权重是什么类型的数值？,"page_content='OlapOnDB API
+带权图的边权重是什么类型的数值？,"page_content='OlapOnDisk API
+
+2. 算法举例
+
+2.2 配置类MyConfig
+
+MyConfig配置类函数用于提供算法逻辑计算时所需的配置信息，继承于ConfigBase<EdgeData>,其中EdgeDate可根据加载图类型不同选择Empty（无权图）、int（带权图权重为整数）或者double（带权图权重为double）类型。  
+MyConfig配置类一般根据算法不同，需要额外配置信息如下：  
+1.算法所需参数
+2.算法名称
+3.配置类内Print函数
+其余公用成员继承与ConfigBase，可参考src/olap/olap_config.h查阅。  
+```C++
+class MyConfig : public ConfigBase<Empty> {
+public:
+
+// 算法所需参数初始化
+size_t root = 0;
+std::string name = std::string(""bfs"");
+void AddParameter(fma_common::Configuration & config) {
+ConfigBase<Empty>::AddParameter(config);
+config.Add(root, ""root"", true)
+.Comment(""the root of bfs"");
+}
+void Print() {
+ConfigBase<Empty>::Print();
+std::cout << ""  name: "" << name << std::endl;
+if (root != size_t(-1)) {
+std::cout << ""  root: "" << root << std::endl;
+} else {
+std::cout << ""  root: UNSET"" << std::endl;
+}
+}
+// 配置文件接受命令行参数，该用例会顺次读取命令行调用算法时的参数，优先使用用户指定数值，若用户并未指定则选择默认参数。
+MyConfig(int &argc, char** &argv): ConfigBase<Empty>(argc, argv) {
+fma_common::Configuration config;
+AddParameter(config);
+config.ExitAfterHelp(true);
+config.ParseAndFinalize(argc, argv);
+Print();
+}
+};
+```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.2 配置类MyConfig'}","page_content='OlapOnDB API
 
 4. 其他常用函数功能描述
 
@@ -4751,15 +4576,7 @@ printf(""src = %lu,dst = %lu\n"",vid,dst);
 
 带权重的网页排序
 
-带权重的网页排序算法程序实现了Weighted Pagerank算法。与PageRank算法不同的是，Rank值的传递跟边的权重有关，点的Rank值将按照边权重加权传递到相邻点。算法内容请参考[https://en.wikipedia.org/wiki/PageRank](https://en.wikipedia.org/wiki/PageRank)。' metadata={'Header 1': '内置算法', 'Header 2': '扩展算法包', 'Header 3': '带权重的网页排序'}","page_content='OlapOnDisk API
-
-3. 其他常用函数功能描述
-
-3.3 图解析函数
-
-- `std::tuple<size_t, bool> parse_line_unweighted(const char *p, const char *end, EdgeUnit<EdgeData> &e)`：对图数据文件进行解析，加载图为无权图。  
-- `std::tuple<size_t, bool> parse_line_weighted(const char* p, const char* end, EdgeUnit<EdgeData>& e)`：对图数据文件进行解析，加载图为有权图，权重数据类型可以通过修改<EdgeData>指定。  
-该函数可通过MyConfig类定义时的构造函数parse_line进行指定。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '3. 其他常用函数功能描述', 'Header 3': '3.3 图解析函数'}"
+带权重的网页排序算法程序实现了Weighted Pagerank算法。与PageRank算法不同的是，Rank值的传递跟边的权重有关，点的Rank值将按照边权重加权传递到相邻点。算法内容请参考[https://en.wikipedia.org/wiki/PageRank](https://en.wikipedia.org/wiki/PageRank)。' metadata={'Header 1': '内置算法', 'Header 2': '扩展算法包', 'Header 3': '带权重的网页排序'}"
 RPC 是一种如何工作的通信协议？,"page_content='RPC API
 
 1.简介
@@ -4812,35 +4629,131 @@ TuGraph是一个具备多图能力的强类型、有向属性图数据库。
 - 属性图：点和边可以具有与其关联的属性，每个属性可以有不同的类型。
 - 强类型：每个点和边有且仅有一个标签，创建标签后，修改属性数量及类型有代价。
 - 指定边的起/终点类型：可限制边的起点和终点点类型，支持同类型边的起点和终点的点类型不同，如个人转账给公司、公司转账给公司；当指定边的起/终点类型后，可增加多组起/终点类型，不可删除已限制的起/终点类型。
-- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}","page_content='功能概览
+- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}","page_content='TuGraph-DataX
+
+3. 导入TuGraph
+
+3.2.MySQL数据通过DataX导入TuGraph
+
+我们在 `test` database 下建立如下电影 `movies` 表  
+```sql
+CREATE TABLE `movies` (
+`mid`  varchar(200) NOT NULL,
+`name` varchar(100) NOT NULL,
+`year` int(11) NOT NULL,
+`rate` float(5,2) unsigned NOT NULL,
+PRIMARY KEY (`mid`)
+);
+```  
+往表中插入几条数据  
+```sql
+insert into
+test.movies (mid, name, year, rate)
+values
+('tt0188766', 'King of Comedy', 1999, 7.3),
+('tt0286112', 'Shaolin Soccer', 2001, 7.3),
+('tt4701660', 'The Mermaid',   2016,  6.3);
+```  
+建立一个 DataX 的 job 配置文件  
+`job_mysql_to_tugraph.json`  
+**配置字段方式**  
+```json
+{
+""job"": {
+""setting"": {
+""speed"": {
+""channel"": 1
+}
+},
+""content"": [
+{
+""reader"": {
+""name"": ""mysqlreader"",
+""parameter"": {
+""username"": ""root"",
+""password"": ""root"",
+""column"": [""mid"", ""name"", ""year"", ""rate""],
+""splitPk"": ""mid"",
+""connection"": [
+{
+""table"": [""movies""],
+""jdbcUrl"": [""jdbc:mysql://127.0.0.1:3306/test?useSSL=false""]
+}
+]
+}
+},
+""writer"": {
+""name"": ""tugraphwriter"",
+""parameter"": {
+""url"": ""bolt://127.0.0.1:27687"",
+""username"": ""admin"",
+""password"": ""73@TuGraph"",
+""graphName"": ""default"",
+""labelType"": ""VERTEX"",
+""labelName"": ""movie"",
+""batchNum"": 1000,
+""properties"": [""mid"", ""name"", ""year"", ""rate""]
+}
+}
+}
+]
+}
+}
+```  
+**写简单 sql 方式**  
+```json
+{
+""job"": {
+""setting"": {
+""speed"": {
+""channel"": 1
+}
+},
+""content"": [
+{
+""reader"": {
+""name"": ""mysqlreader"",
+""parameter"": {
+""username"": ""root"",
+""password"": ""root"",
+""connection"": [
+{
+""querySql"": [
+""select mid, name, year, rate from test.movies where year > 2000;""
+],
+""jdbcUrl"": [""jdbc:mysql://127.0.0.1:3306/test?useSSL=false""]
+}
+]
+}
+},
+""writer"": {
+""name"": ""tugraphwriter"",
+""parameter"": {
+""url"": ""bolt://127.0.0.1:27687"",
+""username"": ""admin"",
+""password"": ""73@TuGraph"",
+""graphName"": ""default"",
+""labelType"": ""VERTEX"",
+""labelName"": ""movie"",
+""batchNum"": 1000,
+""properties"": [""mid"", ""name"", ""year"", ""rate""]
+}
+}
+}
+]
+}
+}
+```  
+`./lgraph_server -c lgraph_standalone.json -d 'run'` 启动 TuGraph 后执行如下命令：  
+```shell
+python3 datax/bin/datax.py  job_mysql_to_tugraph.json
+```' metadata={'Header 1': 'TuGraph-DataX', 'Header 2': '3. 导入TuGraph', 'Header 3': '3.2.MySQL数据通过DataX导入TuGraph'}","page_content='功能概览
 
 2.存储层
 
 在图数据模型上，TuGraph支持属性图模型，按照层次可以分为子图、标签（包括点标签和边标签）、属性。从存储层看，TuGraph使用使用直观的多层的树状模型，没有跨子图的标签，也没有跨标签的属性，仅保留图模型的核心逻辑。  
 在子图的存储上，TuGraph对多图做了数据的物理隔离，每个图对应一个LMDB的实例。多图的元数据描述信息，保存在meta的特殊的公共LMDB实例中。点边标签及其属性的存储，通过将图数据自适应地映射到KV键值对，最大程度发挥读性能。同时在KV层实现了多线程写，解决了LMDB写性能较低的劣势。主键索引和二级索引，对应LMDB中B+的表，支持基于比较的索引值增删查改。  
-存储层还保留了一些其他非核心功能的数据，包括权限数据、预编译的插件数据、监控数据等。' metadata={'Header 1': '功能概览', 'Header 2': '2.存储层'}","page_content='TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
-
-2 使用示例
-
-**2.3 通过OGM进行增操作**
-
-OGM支持对TuGraph的实体执行CRUD 操作，同时支持发送任意TuGraph支持的Cypher语句，包括通过CALL调用存储过程。  
-**CREATE**  
-在完成图对象的构建后，即可通过类的实例化创建节点，当两个节点互相存储在对方的集合（该集合在构建时被标注为边）中，就形成了一条边，最后使用session.save方法将数据存入数据库。  
-注意：TuGraph数据库为强schema类型数据库，在创建实体前需要该数据的label已经存在，且新建过程中需要提供唯一的主键。  
-```
-Movie jokes = new Movie（""Jokes""，1990）； // 新建Movie节点jokes session.save(jokes); // 将jokes存储在TuGraph中
-
-Movie speed = new Movie(""Speed"", 2019);
-
-Actor alice = new Actor(""Alice Neeves"");
-
-alice.actsIn(speed);
-
-session.save(speed);
-
-/1 将speed节点与alice节点通过ACTS_IN进行连接 11 存储speed节点以及speed关联的边和alice节点
-```' metadata={'Header 1': 'TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态', 'Header 2': '2 使用示例', 'Header 3': '**2.3 通过OGM进行增操作**'}"
+存储层还保留了一些其他非核心功能的数据，包括权限数据、预编译的插件数据、监控数据等。' metadata={'Header 1': '功能概览', 'Header 2': '2.存储层'}"
 RpcException是什么类型的异常？,"page_content='RPC API
 
 2.请求
@@ -4998,25 +4911,18 @@ UNWIND $props AS map
 CREATE (n)
 SET n = map
 ```
-cannot create vertex without label.' metadata={'Header 1': 'Cypher API', 'Header 2': '2.Clauses', 'Header 3': '2.7.CREATE'}","page_content='ISO GQL
+cannot create vertex without label.' metadata={'Header 1': 'Cypher API', 'Header 2': '2.Clauses', 'Header 3': '2.7.CREATE'}","page_content='场景：三体
 
-2.Clauses
+6.查询展示
 
-2.4.NEXT
+6.4.设置/更改属性
 
-`NEXT`子句用于连接多个子句。  
-#### 连接MATCH  
-```
-MATCH (n:Person) WHERE n.birthyear = 1970
-RETURN n
-NEXT
-MATCH (m:Person) WHERE m.birthyear < 1968
-RETURN n.name, n.birthyear, m.name LIMIT 2
-```  
-返回结果
-```JSON
-[{""m.name"":""Rachel Kempson"",""n.birthyear"":1970,""n.name"":""Christopher Nolan""},{""m.name"":""Michael Redgrave"",""n.birthyear"":1970,""n.name"":""Christopher Nolan""}]
-```' metadata={'Header 1': 'ISO GQL', 'Header 2': '2.Clauses', 'Header 3': '2.4.NEXT'}"
+随着剧情推进，我们逐步了解了""叶文洁""身上的多个标签，那么我们也可以将这些标签更新至“叶文洁”节点上：  
+```cypher
+MATCH (p:person {name: ""叶文洁""})
+SET p.introduce = ""清华大学教授、ETO精神领袖、首位和三体人交流的人""
+RETURN p
+```' metadata={'Header 1': '场景：三体', 'Header 2': '6.查询展示', 'Header 3': '6.4.设置/更改属性'}"
 TuGraph DB关于Antlr4改进了哪些性能方面的内容？,"page_content='Antlr4 社区重大贡献：TuGraph 优化 C++ Target 并发性能提升 10 倍！
 
 关于 Antlr4
@@ -5062,24 +4968,26 @@ TuGraph 是蚂蚁集团自主研发的大规模图计算系统，提供图数据
 - 千万点/秒的高吞吐率
 - 高可用性支持
 - 高性能批量导入
-- 在线/离线备份' metadata={'Header 1': '快速上手', 'Header 2': '1.简介'}","page_content='TuGraph-db
+- 在线/离线备份' metadata={'Header 1': '快速上手', 'Header 2': '1.简介'}","page_content='TuGraph图模型说明
 
-1. 简介
+1. 数据模型
 
-TuGraph 是支持大数据容量、低延迟查找和快速图分析功能的高效图数据库。
-TuGraph的支持邮箱：tugraph@service.alipay.com  
-主要功能：  
-- 标签属性图模型
-- 完善的 ACID 事务处理
-- 内置 34 图分析算法
-- 支持全文/主键/二级索引
-- OpenCypher 图查询语言
-- 基于 C++/Python 的存储过程  
-性能和可扩展性：  
-- LDBC SNB世界记录保持者 (2022/9/1)
-- 支持存储多达数十TB的数据
-- 每秒访问数百万个顶点
-- 快速批量导入' metadata={'Header 1': 'TuGraph-db', 'Header 2': '1. 简介'}"
+1.1. 图模型
+
+TuGraph是一个具备多图能力的强类型、有向属性图数据库。  
+- 图项目：每个数据库服务可以承载多个图项目（多图），每个图项目可以有自己的访问控制配置，数据库管理员可以创建或删除指定图项目。
+- 点：指实体，一般用于表达现实中的实体对象，如一部电影、一个演员。
+- 主键：用户自定义的点数据主键，默认唯一索引，在对应的点类型中唯一。
+- VID：点在存储层自动分配图项目中的唯一ID，用户不可修改。
+- 上限：每个图项目存储最多2^(40)个点数据。
+- 边：用于表达点与点之间的关系，如演员出演电影。
+- 有向边：边为有向边。若要模拟无向边，用户可以创建两个方向相反的边。
+- 多条边：两个点数据之间可以有多条边数据。当前TuGraph支持重复边，如要确保边边唯一，需要通过业务策略实现。
+- 上限：两个点数据之间存储最多2^(32)条边数据。
+- 属性图：点和边可以具有与其关联的属性，每个属性可以有不同的类型。
+- 强类型：每个点和边有且仅有一个标签，创建标签后，修改属性数量及类型有代价。
+- 指定边的起/终点类型：可限制边的起点和终点点类型，支持同类型边的起点和终点的点类型不同，如个人转账给公司、公司转账给公司；当指定边的起/终点类型后，可增加多组起/终点类型，不可删除已限制的起/终点类型。
+- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}"
 函数DeleteVertexIndex成功执行时返回什么值？,"page_content='Python Olap API
 
 5. lgraph_db API
@@ -5235,19 +5143,16 @@ Tugraph Analytics 完成环路检测计算任务后，会自动返回检测结�
 
 仅需 5 步，即可呈现 🎊
 
-3. 添加组件
+4. 演示
 
-我们需要添加两个组件，在工具栏中添加 **清空画布**；然后在默认布局的侧边容器中添加**环路检测 Demo**  
-<img width=""463"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/b01271b5-162c-4216-9a9c-bf7a5570c999"">
-<img width=""474"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/238685ec-d9cf-4fcf-8357-56f4f8a8928d"">  
-> 此时项目画布应该如下所示
-> <img width=""1149"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/e660fa5b-aa31-4e7e-b295-cb071cc476c1"">  
-点击工具栏中的`🧹清除`选项来清空画布节点  
-<img width=""241"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/61316029-71ba-410f-94bf-47c6c65aec34"">  
-默认情况下，添加完`环路检测Demo`组件后，会自动建立连接。  
-<img width=""328"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/5246536b-ddb0-4c3c-91fb-e941101e272a"">  
-Tugraph Analytics 端建立连接后同样会输出以下内容：  
-<img width=""616"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/46be1e88-9c93-430e-92cc-db8024691095"">' metadata={'Header 1': '🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！', 'Header 2': '仅需 5 步，即可呈现 🎊', 'Header 3': '3. 添加组件'}"
+环路检测 Demo 提供了两种方式来进行交互：  
+* 方式一 在输入框中输入点边信息
+* 方式二 使用内置数据进行演示  
+> 两种方式本质都是调用 Tugraph Analytics 进行实时计算，不过方式二省略了手动输入过程。  
+这里我们使用内置数据进行快速演示，点击【选项】，选择`添加点`，画布中出现了 7 个点信息；接着选择`添加边`。我们可以在上方对话框中看到添加记录。  
+<img width=""332"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/7ca76607-41a1-4afe-9427-cf7599de6889"">  
+同样的，Tugraph Analytics 终端也会实时输出操作信息，并自动启动计算任务。  
+<img width=""611"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/d8d0d73a-4c07-4ecd-bcac-4633a742933a"">' metadata={'Header 1': '🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！', 'Header 2': '仅需 5 步，即可呈现 🎊', 'Header 3': '4. 演示'}"
 当调用CallProcedure函数时，如果设置json_format参数为false，返回的结果格式是什么？,"page_content='C++客户端
 
 2.使用示例
@@ -5797,36 +5702,13 @@ Python的TuGraph Rpc Client是使用pybind11包装的CPP Client SDK，下表列�
 | Python Client SDK                                                                                                                                                                                                     | CPP Client SDK                                                                                                                                                                                                                                                                              |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | client(self: liblgraph_client_python.client, url: str, user: str, password: str)                                                                                                                                      | RpcClient(const std::string& url, const std::string& user, const std::string& password)                                                                                                                                                                                                     |
-| client(self: liblgraph_client_python.client, urls: list, user: str, password: str)                                                                                                                                    | RpcClient(std::vector<std::string>& urls, std::string user, std::string password)                                                                                                                           ' metadata={'Header 1': 'Python客户端', 'Header 2': '3.RPC Client'}","page_content='RPC API
+| client(self: liblgraph_client_python.client, urls: list, user: str, password: str)                                                                                                                                    | RpcClient(std::vector<std::string>& urls, std::string user, std::string password)                                                                                                                           ' metadata={'Header 1': 'Python客户端', 'Header 2': '3.RPC Client'}","page_content='功能概览
 
-2.请求
+4.核心功能
 
-2.2.请求类型
+4.6 高可用
 
-TuGraph支持10种RPC请求，其中每种请求的功能如下表所示：  
-| 请求              | 功能         |
-|-----------------|------------|
-| GraphApiRequest | 点边索引操作请求   |
-| CypherRequest   | cypher请求   |
-| PluginRequest   | 存储过程请求     |
-| HARequest       | 高可用模式请求    |
-| ImportRequest   | 数据导入请求     |
-| GraphRequest    | 子图操作请求     |
-| AclRequest      | 权限管理请求     |
-| ConfigRequest   | 配置管理请求     |
-| RestoreRequest  | 备份请求       |
-| SchemaRequest   | schema管理请求 |  
-用户发送请求时，需要传入以下参数：
-- client_version: 可选参数，HA模式下可通过对比`client_version`和`server_version`防止响应过时的请求
-- token: 必要参数，客户端登陆之后获得token，每次请求传入token以校验用户身份
-- is_write_op: 可选参数，标志请求是否是写请求
-- user: 可选参数，HA模式下主从之间同步请求时设置user，不需验证token  
-服务处理完RPC请求之后发回响应，响应消息中除了包含每个请求的单独响应信息之外，还包含以下参数：
-- error_code: 必要参数，标志请求处理状态
-- redirect: 可选参数，HA模式下向follower发送写请求时处理失败，设置redirect为请求转发地址，即leader地址
-- error: 可选参数，请求错误信息
-- server_version: 可选参数，HA模式的请求响应中设置`server_version`以避免client读取数据时发生反向时间旅行问题  
-:warning:  **除CypherRequest、PluginRequest、HARequest和AclRequest外，其余RPC接口将逐步废弃，其功能统一至CypherRequest接口。**' metadata={'Header 1': 'RPC API', 'Header 2': '2.请求', 'Header 3': '2.2.请求类型'}"
+高可用是指通过通过集群配置，做到实时多副本数据热备，在部分副本不用时，集群仍然能正常提供服务，TuGraph采用 RAFT 协议的多机热备机制，能够将 RPO 降低到接近 0 的程度。TuGraph 选择在计算层进行数据同步，同步的对象是写操作，通过 RPC 接口快速同步。TuGraph 的高可用集群采用主从模式，只有主节点处理写请求，主从节点均能处理读请求。主节点的写请求处理需要同步到多于二分之一的总节点上，多数节点写成功，该写请求才算完成。' metadata={'Header 1': '功能概览', 'Header 2': '4.核心功能', 'Header 3': '4.6 高可用'}"
 在文本中，The Matrix参与了哪几种类型的关系？,"page_content='Cypher API
 
 2.Clauses
@@ -6239,61 +6121,118 @@ TuGraph-OGM 将 JAVA 对象映射为图的对象，类映射为点，类的属�
 
 TuGraph-OGM(Object Graph Mapping), 源自 `Neo4j-OGM` 项目，TuGraph-OGM
 支持将JAVA对象（POJO）映射到TuGraph中，JAVA中的类映射为图中的节点、类中的集合映射为边、类的属性映射为图对象的属性，并提供了对应的函数操作图数据库，因此JAVA开发人员可以在熟悉的生态中轻松地使用TuGraph数据库。同时TuGraph-OGM兼容Neo4j-OGM，Neo4j生态用户可以无缝迁移到TuGraph数据库上。' metadata={'Header 1': 'TuGraph-OGM', 'Header 2': '简介'}"
-OPTIONAL MATCH在GQL中有什么作用？,"page_content='为什么使用图进行关联运算比表Join更具吸引力？
+OPTIONAL MATCH在GQL中有什么作用？,"page_content='ISO GQL
 
-流图计算引擎TuGraph-Analytics
+2.Clauses
 
-GeaFlow(品牌名TuGraph-Analytics)是蚂蚁集团开源的分布式流式图计算引擎。在蚂蚁内部，目前已广泛应用于数仓加速、金融风控、知识图谱以及社交网络等大量场景。  
-TuGraph-Analytics已经于2023年6月正式对外开源，开放其以图为数据模型的流批一体计算核心能力。相比传统的流式计算引擎，如Flink、Storm这些以表为模型的实时处理系统，GeaFlow以自研图存储为底座，流批一体计算引擎为矛，融合GQL/SQL DSL语言为旗帜，在复杂多度的关系运算上具备极大的优势。  
-![insert_throuput](../../static/img/query_throuput_cn.jpg)
-<center>图4</center>  
-图4展示了GeaFlow使用Match算子在图上进行多跳关联查询，相比Flink的Join算子带来的实时吞吐提升。在复杂多跳场景下，现有的流式计算引擎已经基本不能胜任实时处理。而图模型的存在，则突破这一限制，扩展了实时流计算的应用场景。' metadata={'Header 1': '为什么使用图进行关联运算比表Join更具吸引力？', 'Header 2': '流图计算引擎TuGraph-Analytics'}","page_content='为什么使用图进行关联运算比表Join更具吸引力？
+2.2.OPTIONAL MATCH
 
-关系模型并不适合处理关系
-
-痛点三：复杂关系查询难以描述
-
-使用表建模的分析系统只支持SQL join一种方式进行关系分析，这在复杂场景中能力十分局限。 比如查询一个人4度以内所有好友，或者查询最短路径等，这些复杂关联关系通过SQL表的join方式很难描述。  
-GeaFlow提供融合GQL和SQL样式的查询语言，这是一种图表一体的数据分析语言，继承自标准SQL+ISO/GQL，可以方便进行图表分析。  
-![code_style](../../static/img/code_style.jpg)
-<center>图3</center>  
-**在融合DSL中，图计算的结果与表查询等价，都可以像表数据一样做关系运算处理。**这意味着图3中GQL和SQL两种描述都可以达到类似的效果，极大灵活了用户的查询表达能力。  
-GeaFlow DSL引擎层还将支持SQL中的Join自动转化为GQL执行，用户可以自由混用SQL和GQL样式查询，同时做图匹配、图算法和表查询。' metadata={'Header 1': '为什么使用图进行关联运算比表Join更具吸引力？', 'Header 2': '关系模型并不适合处理关系', 'Header 3': '痛点三：复杂关系查询难以描述'}","page_content='Match
-
-Example
-
-* Basic Mathch
-```sql
--- Match all node
-MATCH (a)
-
--- Match all person node
-MATCH (a:person)
-
--- Match node where id = 1
-MATCH (a:person where id = 1)
-
--- One hop match
-MATCH (a:person where id = 1)-[e:knows where e.weight > 0.4]->(b:person)
-
--- Tow hop match
-MATCH (a:person)-(b:person) <- (c)
-
--- Match in-vertex for node a
-MATCH (a:person)<-[e:knows]-(b)
+`OPTIONAL MATCH`匹配图模式，如果未命中，则返回`null`。  
+#### 查询命中  
 ```
-* Match With Filter  
-```sql
-MATCH (a:person)<-[e:knows]-(b) Where a.id = b.id
+OPTIONAL MATCH (n:Person{name:'Michael Redgrave'})
+RETURN n.birthyear
+```  
+返回结果
+```JSON
+[{""n.birthyear"":1908}]
+```  
+#### 查询未命中  
+```
+OPTIONAL MATCH (n:Person{name:'Redgrave Michael'})
+RETURN n.birthyear
+```  
+返回结果  
+```JSON
+[{""n.birthyear"":null}]
+```' metadata={'Header 1': 'ISO GQL', 'Header 2': '2.Clauses', 'Header 3': '2.2.OPTIONAL MATCH'}","page_content='ISO GQL
 
+2.Clauses
+
+2.1.MATCH
+
+`MATCH`子句式是GQL最基础的子句，几乎所有查询都是通过 `MATCH`展开。  
+`MATCH`子句用于指定在图中搜索的匹配模式，用来匹配满足一定条件的点或者路径。  
+#### 点查询  
+##### 查询所有点  
 ```
-* Match Join
-Match two path pattern and join them with the common label.
-e.g.  
-```sql
-MATCH (a) -> (b), (a) -> (c)
+MATCH (n)
+RETURN n
+```  
+##### 查询特定标签的点  
 ```
-The output is **p1 = (a, b) join p2 = (a, c) on p1.a = p2.a**.' metadata={'Header 1': 'Match', 'Header 2': 'Example'}"
+MATCH (n:Person)
+RETURN n
+```  
+##### 通过属性匹配点  
+```
+MATCH (n:Person{name:'Michael Redgrave'})
+RETURN n.birthyear
+```  
+返回结果
+```JSON
+[{""n.birthyear"":1908}]
+```  
+##### 通过过滤条件匹配点  
+```
+MATCH (n:Person WHERE n.birthyear > 1910)
+RETURN n.name LIMIT 2
+```  
+返回结果
+```JSON
+[{""n.name"":""Christopher Nolan""},{""n.name"":""Corin Redgrave""}]
+```  
+#### 边查询  
+##### 出边匹配  
+```
+MATCH (n:Person WHERE n.birthyear = 1970)-[e]->(m)
+RETURN n.name, label(e), m.name
+```  
+返回结果
+```JSON
+[{""label(e)"":""BORN_IN"",""m.name"":""London"",""n.name"":""Christopher Nolan""},{""label(e)"":""DIRECTED"",""m.name"":null,""n.name"":""Christopher Nolan""}]
+```  
+##### 入边匹配  
+```
+MATCH (n:Person WHERE n.birthyear = 1939)<-[e]-(m)
+RETURN n.name, label(e), m.name
+```  
+返回结果
+```JSON
+[{""label(e)"":""HAS_CHILD"",""m.name"":""Rachel Kempson"",""n.name"":""Corin Redgrave""},{""label(e)"":""HAS_CHILD"",""m.name"":""Michael Redgrave"",""n.name"":""Corin Redgrave""}]
+```  
+##### 带过滤条件的边匹配  
+```
+MATCH (n:Person)-[e:BORN_IN WHERE e.weight > 20]->(m)
+RETURN n.name, e.weight, m.name
+```  
+返回结果
+```JSON
+[{""e.weight"":20.549999237060547,""m.name"":""New York"",""n.name"":""John Williams""},{""e.weight"":20.6200008392334,""m.name"":""New York"",""n.name"":""Lindsay Lohan""}]
+```  
+#### 路径匹配  
+##### 不定跳查询  
+```
+MATCH (n:Person)-[e]->{2,3}(m:Person)
+RETURN m.name LIMIT 2
+```  
+返回结果
+```JSON
+[{""m.name"":""Liam Neeson""},{""m.name"":""Natasha Richardson""}]
+```' metadata={'Header 1': 'ISO GQL', 'Header 2': '2.Clauses', 'Header 3': '2.1.MATCH'}","page_content='ISO GQL
+
+2.Clauses
+
+| 类别                | 子句           |
+| ------------------- | -------------- |
+| Reading clauses     | MATCH          |
+|                     | OPTIONAL MATCH |
+| Projecting clauses  | RETURN         |
+|                     | NEXT           |
+| Reading sub-clauses | WHERE          |
+|                     | ORDER BY       |
+|                     | SKIP           |
+|                     | LIMIT          |' metadata={'Header 1': 'ISO GQL', 'Header 2': '2.Clauses'}"
 loadProcedure方法中，如何通过参数控制存储过程是否为只读？,"page_content='C++客户端
 
 2.使用示例
@@ -6793,12 +6732,17 @@ TuGraph嵌入模式的API允许用户执行哪些操作？,"page_content='Proced
 5.存储过程
 
 为满足用户较为复杂的查询/更新逻辑，TuGraph支持 C 语言和 Python 语言编写的存储过程。
-用户可以使用RPC请求对存储过程进行增删改查操作。' metadata={'Header 1': 'RPC API', 'Header 2': '5.存储过程'}","page_content='Procedure API
+用户可以使用RPC请求对存储过程进行增删改查操作。' metadata={'Header 1': 'RPC API', 'Header 2': '5.存储过程'}","page_content='OlapBase API
 
-3.存储过程语言支持
+3. 原子操作
 
-在 TuGraph 中，用户可以动态的加载，更新和删除存储过程。TuGraph 支持 C++ 语言、 Python 语言和 Rust 语言编写存储过程。在性能上 C++ 语言支持的最完整，性能最优。  
-注意存储过程是在服务端编译执行的逻辑，和客户端的语言支持无关。' metadata={'Header 1': 'Procedure API', 'Header 2': '3.存储过程语言支持'}"
+TuGraph使用了多线程技术进行批处理操作，在这种情况下可能会出现访存冲突现象。为了保证并行计算时修改操作的正确性，TuGraph实现了原子操作。代码部分见lgraph文件夹下的lgraph_atomic.cpp文件。
+TuGraph还自定义了4个常用的原子操作。当我们需要在多线程模式下修改点的数据时，我们都应该使用原子操作来确保并行环境下修改操作的正确性。除了这4个原子操作外，用户也可以使用“cas”来构建自己的原子操作函数。  
+- `bool cas(T * ptr, T oldv, T newv)`：如果ptr指向的值等于oldv，则将ptr指向的值赋为newv并返回true，否则返回false
+- `bool write_min(T *a, T b)`：如果b比a指向的值更小，那么将a指向的值赋为b并返回true，否则返回false。
+- `bool write_max(T *a, T b)`：如果b比a指向的值更大，那么将a指向的值赋为b并返回true，否则返回false。
+- `void write_add(T *a, T b)`：将b的值加到a指向的值上。
+- `void write_sub(T *a, T b)`：将a指向的值减去b的值。' metadata={'Header 1': 'OlapBase API', 'Header 2': '3. 原子操作'}"
 Date 类的默认构造函数设置的日期是什么？,"page_content='GeaFlow支持以下日期函数：
 * [from_unixtime](#from_unixtime)
 * [from_unixtime_millis](#from_unixtime_millis)
@@ -7098,20 +7042,24 @@ printf(""total outdegree of node1,2,3 is %lu\n"",total_outdegree);
 推荐使用driver里面的参数化特性，第二个参数直接传入一个 `list`结构体，避免自己构造语句。
 ```
 CALL db.upsertVertex('node1', [{id:1, name:'name1'},{id:2, name:'name2'}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert点数据'}","page_content='业务开发指南
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert点数据'}","page_content='OlapOnDisk API
 
-导入数据
+3. 其他常用函数功能描述
 
-批量upsert边数据
+3.1 图加载
 
-如果两点之间不存在某条类型的边就插入，如果存在就更新该边的属性，也就是两点之间同类型的边只能有一条。  
-第四个参数是一个`list`类型，每个数组里面的元素是个`map`类型，每个`map`里面是：边的起点类型主键字段和对应的值、边的终点类型主键字段和对应的值、边类型自身的属性字段和值。每个map里面至少有两个元素。  
-第二个参数和第三个参数是为第四个参数服务的。分别说明了起点和终点的类型是什么，以及第四个参数中那个字段代表起点主键字段值，那个字段代表终点主键字段值。  
-注：第二个参数和第三个参数中配置的起点和终点的主键字段并不是起点和终点schema中的主键字段名，只是起一个占位和区别的作用，方便识别第四个参数中哪个字段代表起点和终点的主键字段。  
-推荐使用driver里面的参数化特性，避免自己构造语句。
-```
-CALL db.upsertEdge('edge1',{type:'node1',key:'node1_id'}, {type:'node2',key:'node2_id'}, [{node1_id:1,node2_id:2,score:10},{node1_id:3,node2_id:4,score:20}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据'}"
+TuGraph-Standalone对于图数据文件的加载来源主要分为三大类：文本文件、二进制文件和ODPS。二进制文件为将边数据的二进制表示按顺序排列的文件，能够节省大量存储空间。其加载函数分为三种，分别是：  
+- `void Load(ConfigBase<EdgeData> config,EdgeDirectionPolicy edge_direction_policy = DUAL_DIRECTION)`：图数据文件的加载方式，包含两个参数，其含义分别表示：
+- `config`：需要加载的配置参数。该参数内保存了该图的一般信息（如数据来源，算法名称，数据输入、输出路径，点个数等）以及根据不同数据来源、不同算法所配置的不同信息参数。
+- `edge_direction_policy`：指定图为有向或无向，包含三种模式，分别为DUAL_DIRECTION、MAKE_SYMMETRIC以及INPUT_SYMMETRIC。其中DUAL_DIRECTION为默认的图加载方式。
+DUAL_DIRECTION : 输入文件为非对称图，加载图为非对称图。
+MAKE_SYMMETRIC : 输入文件为非对称图，加载图为对称图。
+INPUT_SYMMETRIC : 输入文件为对称图，加载图为对称图。
+对应的详细介绍见lgraph文件夹下的olap_config.h文件的`enum EdgeDirectionPolicy`。  
+- `void LoadVertexArrayTxt<V>(V * array, std::string path, std::function<size_t(const char *, const char *, VertexUnit<V> &)> parse_line)`：将文件中的点-数据对按照点id的顺序加载到数组中。各参数表示意义分别为：
+- `array`：待读入数据的数组
+- `path`：读取文件的路径，文件中每行表示一对点-数据对
+- `parse_line`：用户自定义函数，告诉系统如何将一行文本数据解析为一个点-数据对。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '3. 其他常用函数功能描述', 'Header 3': '3.1 图加载'}"
 是否支持无向边,"page_content='TuGraph图模型说明
 
 1. 数据模型
@@ -7181,7 +7129,15 @@ FieldData类中提供哪些构造函数来初始化不同类型的数据？,"pag
 | `db.getLabelSchema`     | 列出label schema      | `db.getLabelSchema(label_type::STRING,label_name::STRING) :: (name::STRING,type::STRING,optional::BOOLEAN)` |
 | `db.deleteLabel`        | 删除Vertex            | `db.deleteLabel(label_type::STRING,label_name::STRING) :: (::VOID)`         |  
 更完整详细的函数使用以及插入数据的语句，可以参考 [Cypher API](../8.query/1.cypher.md)' metadata={'Header 1': '地理空间数据类型使用示例', 'Header 2': '2. 预备知识', 'Header 3': '2.4 常用函数'}"
-TuGraph-DB是如何帮助解决旅行时选择路线的烦恼的？,"page_content='TuGraph-db
+TuGraph-DB是如何帮助解决旅行时选择路线的烦恼的？,"page_content='Round The World Demo
+
+示例
+
+查询示例
+
+在左下角的城市列表中选择不超过8个城市，点击查询可返回推荐的航班规划，在满足前后航班间隔在2-6小时的要求下，返回费用最低和飞行时间最短的10条路径规划。  
+![data](../../../../images/round-the-world/search_example.jpg)  
+详细使用说明见 [Round The World Demo](https://github.com/TuGraph-family/tugraph-db-demo/tree/main/round_the_world) 文档。' metadata={'Header 1': 'Round The World Demo', 'Header 2': '示例', 'Header 3': '查询示例'}","page_content='TuGraph-db
 
 1. 简介
 
@@ -7218,13 +7174,7 @@ TuGraph-DB于2022年9月1日开源，TuGraph-DB在社区的反馈声中，进行
 | 4.0.1 | 支持时序边排序，新增5个开源图算法                | 2023.9.28  |
 | 4.1.0 | 支持Bolt协议，支持快速在线全量导入，支持地理空间数据类型   | 2023.12.25 |  
 除此之外，TuGraph-DB搭建了较为完善的质量体系，涵盖自动化的单元测试、集成测试、性能测试等。  
-更详细的描述可以在源码目录在的 ""[root]/release/CHANGELOG.md"" 文件查看。' metadata={'Header 1': '技术规划', 'Header 2': '2. 已完成功能'}","page_content='TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
-
-关于TuGraph
-
-高性能图数据库 TuGraph（https://github.com/TuGraph-family/tugraph-db） 由蚂蚁集团和清华大学共同研发，经国际图数据库基准性能权威测试，是 LDBC-SNB 世界纪录保持者，在功能完整性、吞吐率、响应时间等技术指标均达到全球领先水平，为用户管理和分析复杂关联数据提供了高效易用可靠的平台。  
-历经蚂蚁万亿级业务的实际场景锤炼，TuGraph 已应用于蚂蚁内部150多个场景，助力支付宝2021年资产损失率小于亿分之0.98。关联数据爆炸性增长对图计算高效处理提出迫切需求，TuGraph 已被成熟应用于金融风控、设备管理等内外部应用，适用于金融、工业、互联网、社交、电信、政务等领域的关系数据管理和分析挖掘。  
-2022年9月，TuGraph 单机版开源，提供了完备的图数据库基础功能和成熟的产品设计，拥有完整的事务支持和丰富的系统特性，单机可部署，使用成本低，支持TB级别的数据规模。' metadata={'Header 1': 'TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态', 'Header 2': '关于TuGraph'}"
+更详细的描述可以在源码目录在的 ""[root]/release/CHANGELOG.md"" 文件查看。' metadata={'Header 1': '技术规划', 'Header 2': '2. 已完成功能'}"
 exists()函数用于检查什么？,"page_content='Cypher API
 
 3.Functions
@@ -7244,6 +7194,112 @@ RETURN n.name, n.born
 | exists(name) |
 | ------------ |
 | true         |' metadata={'Header 1': 'Cypher API', 'Header 2': '3.Functions', 'Header 3': '3.2.Predicate functions'}","page_content='Cypher API
+
+2.Clauses
+
+2.4.WHERE
+
+- Basic usage
+- ✓ Boolean operations  
+```
+MATCH (n)
+WHERE n.name = 'Laurence Fishburne' XOR (n.born > 1965 AND n.name = 'Carrie-Anne Moss')
+RETURN n.name, n.born
+```  
+- ✓ Filter on node label  
+```
+MATCH (n)
+WHERE n:person
+RETURN n.name, n.born
+```  
+- ✓ Filter on node property  
+```
+MATCH (n)
+WHERE n.born > 2000
+RETURN n.name, n.born
+```  
+- ✓ Filter on relationship property  
+```
+MATCH (n)-[k:acted_in]->(f)
+WHERE k.role = ""Trinity""
+RETURN f.title
+```  
+- ❏ Filter on dynamically-computed property  
+```
+WITH 'AGE' AS propname
+MATCH (n)
+WHERE n[toLower(propname)]< 30
+RETURN n.name, n.age
+```  
+- ✓ Property existence checking  
+```
+MATCH (n)
+WHERE exists(n.born)
+RETURN n.name, n.born
+```  
+- String matching
+- ✓ Match the beginning of a string  
+```
+MATCH (n)
+WHERE n.name STARTS WITH 'Pet'
+RETURN n.name, n.born
+```  
+- ✓ Match the ending of a string  
+```
+MATCH (n)
+WHERE n.name ENDS WITH 'ter'
+RETURN n.name, n.born
+```  
+- ✓ Match anywhere within a string  
+```
+MATCH (n)
+WHERE n.name CONTAINS 'ete'
+RETURN n.name, n.born
+```  
+- ✓ String matching negation  
+```
+MATCH (n)
+WHERE NOT n.name ENDS WITH 's'
+RETURN n.name, n.born
+```  
+- Using path patterns in `WHERE`
+- ❏ Filter on patterns  
+```
+MATCH (tobias {name: 'Tobias'}), (others)
+WHERE others.name IN ['Andres', 'Peter'] AND (tobias)<-[]-(others)
+RETURN others.name, others.age
+```  
+- ❏ Filter on patterns using NOT  
+```
+MATCH (persons), (peter {name: 'Peter'})
+WHERE NOT (persons)-[]->(peter)
+RETURN persons.name, persons.age
+```  
+- ❏ Filter on patterns with properties  
+```
+MATCH (n)
+WHERE (n)-[:KNOWS]-({name: 'Tobias'})
+RETURN n.name, n.age
+```  
+- ✓ Filter on relationship type  
+```
+MATCH (n)-[r]->()
+WHERE n.name='Laurence Fishburne' AND type(r) STARTS WITH 'ac'
+RETURN type(r), r.role
+```  
+- Lists
+- ✓ IN operator  
+```
+MATCH (a)
+WHERE a.name IN ['Laurence Fishburne', 'Tobias']
+RETURN a.name, a.born
+```  
+- Missing properties and values
+- ✓ Default to false if property is missing  
+```
+MATCH (n)
+WHERE n.belt = 'white'
+RETURN n.n' metadata={'Header 1': 'Cypher API', 'Header 2': '2.Clauses', 'Header 3': '2.4.WHERE'}","page_content='Cypher API
 
 3.Functions
 
@@ -7276,18 +7332,7 @@ RETURN n.name, n.born
 | Aggregating functions  | avg()            |                           |
 |                        | collect()        |                           |
 |                        | count()          |                           |
-|                 ' metadata={'Header 1': 'Cypher API', 'Header 2': '3.Functions', 'Header 3': '3.1.Whole List Of Functions'}","page_content='业务开发指南
-
-导入数据
-
-批量upsert点数据
-
-如果不存在就插入点，如果存在就更新点的属性，根据点的主键字段值判断是否存在。  
-第二个参数是一个`list`类型，每个`list`里面的元素是个`map`类型，每个`map`里面是点的字段和对应的值。  
-推荐使用driver里面的参数化特性，第二个参数直接传入一个 `list`结构体，避免自己构造语句。
-```
-CALL db.upsertVertex('node1', [{id:1, name:'name1'},{id:2, name:'name2'}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert点数据'}"
+|                 ' metadata={'Header 1': 'Cypher API', 'Header 2': '3.Functions', 'Header 3': '3.1.Whole List Of Functions'}"
 安装部署TuGraph硬件的最低和建议CPU配置分别是多少个核心？,"page_content='功能概览
 
 1.2.软硬件环境
@@ -7416,113 +7461,100 @@ RETURN type(r)
 
 6.Deprecated
 
-6.11.其他
+6.7.点操作
 
 URI 格式为  
 ```
-http://{host}:{port}/db/{graph_name}/misc
+http://{host}:{port}/db/{graph_name}/node/{vid}
 ```  
-#### 6.11.1.提取子图  
-给出点 id 集合，返回包含该集合的最小子图。  
-- **URI**: `/db/{graph_name}/misc/sub_graph`
+Nodes 提供节点（Vertex）的 CRUD 操作，接受 GET/POST/PUT/DELETE 请求。  
+#### 6.7.1.列出点数量和label数量  
+- **URI**: `/db/{graph_name}/node`
+- **METHOD**: GET
+- **RESPONSE**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| num_label | 点 label 数量 | 整数 |
+| num_vertex | 点数量 | 整数 |  
+_注意 num_vertex 返回的并不是准确的点数量，只是一个估计值。_  
+#### 6.7.2.创建一个点  
+向数据库中插入一个点。  
+- **URI**: `/db/{graph_name}/node`
 - **METHOD**: POST
 - **REQUEST**:
 | 域名 | 说明 | 类型 |
 | --- | --- | --- |
-| vertex_ids | 点 id 集合 | 列表 |  
-- **RESPONSE**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| nodes | 点数据 | 列表，每元素包含 vid, label, 以及属性 |
-| relationships | 边数据 | 列表，每元素包含 src, dst, euid, label, 以及属性 |  
+| label | Label 名 | 字符串 |
+| property | 点属性 | 字典，其中 key 是列名，value 是相应值。value 必须是与列类型相应的类型，如列为 int32，则 value 只能是整数。 |  
+- **RESPONSE**: 如果成功，返回代码 200。并在 JSON 内容中返回新点 vid。该 ID 可用于后续的点操作中。  
 **Example request.**  
 ```
-• POST http://localhost:7070/db/graph1/misc/sub_graph
+• POST http://localhost:7070/db/{graph_name}/node
 • Accept: application/json; charset=UTF-8
-• Content-Type: application/json; charset=UTF-8
+• Content-Type: application/json
 Input:
 {
-""vertex_ids"": [2, 5, 14, 20]
+""label"" : ""Person"",
+""property"" : {
+""name"" : ""Passerby A"",
+""birthyear"" : 1989
+}
 }
 ```  
 **Example response.**  
 ```
 • 200: OK
+• Content-Type: application/json; charset=UTF-8
 Output:
 {
-""nodes"": [
-{
-""label"": ""Person"",
-""properties"": {
-""birthyear"": 1937,
-""name"": ""Vanessa Redgrave""
-},
-""vid"": 2
-},
-{
-""label"": ""Person"",
-""properties"": {
-""birthyear"": 1963,
-""name"": ""Natasha Richardson""
-},
-""vid"": 5
-},
-{
-""label"": ""City"",
-""properties"": {
-""name"": ""London""
-},
-""vid"": 14
-},
-{
-""label"": ""Film"",
-""properties"": {
-""title"": ""Camelot""
-},
-""vid"": 20
+21
 }
-],
-""relationships"": [
+```  
+#### 6.7.3.批量创建点  
+TuGraph 允许一次性插入多个点，以减少网络开销。  
+- **URI**: `/db/{graph_name}/node`
+- **METHOD**: POST
+- **REQUEST**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| label | Label 名 | 字符串 |
+| fields | 点属性 | 列表 |
+| values | 点数据 | 列表 |  
+其中 fields 是一个字符串列表，列出一系列列名；values 是一个列表，其中每个元素是一个列表，列表中每个元素是列数据。  
+- **RESPONSE**: 如果成功，返回代码 200。并在 JSON 内容中返回新增加的点的 vid 列表，该列表中每一个 vid 按顺序对应请求中的每一个点。  
+**Example request.**  
+```
+• POST http://localhost:7070/db/{graph_name}/node
+• Accept: application/json; charset=UTF-8
+• Content-Type: application/json
+Input:
 {
-""destination"": 5,
-""label"": ""HAS_CHILD"",
-""properties"": {
-""birthyear"": 1937,
-""name"": ""Vanessa Redgrave""
-},
-""source"": 2
-},
-{
-""destination"": 14,
-""label"": ""BORN_IN"",
-""properties"": {
-""birthyear"": 1937,
-""name"": ""Vanessa Redgrave""
-},
-""source"": 2
-},
-{
-""destination"": 20,
-""label"": ""ACTED_IN"",
-""properties"": {
-""birthyear"": 1937,
-""charactername"": ""Guenevere"",
-""name"": ""Vanessa Redgrave""
-},
-""source"": 2
-},
-{
-""destination"": 14,
-""label"": ""BORN_IN"",
-""properties"": {
-""birthyear"": 1963,
-""name"": ""Natasha Richardson""
-},
-""source"": 5
+""label"" : ""Person"",
+""fields"" : [""name"", ""birthyear""],
+""values"" : [[""alex"", 2000],
+[""bob"", 1999]]
 }
+```  
+**Example response.**  
+```
+• 200: OK
+• Content-Type: application/json; charset=UTF-8
+Output:
+{
+[
+22,
+23
 ]
 }
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.11.其他'}"
+```  
+#### 6.7.4.获取点  
+- **URI**: `/db/{graph_name}/node/{vertex_id}`
+- **METHOD**: GET
+- **RESPONSE**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| label | Label 名 | 字符串 |
+| property | 属性 | 字典，格式为 { {列名 1}:{列值 1},...' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.7.点操作'}"
 当尝试更新一个存在的边但标签与指定的不符时，会发生什么？,"page_content='业务开发指南
 
 导入数据
@@ -7536,7 +7568,26 @@ Output:
 推荐使用driver里面的参数化特性，避免自己构造语句。
 ```
 CALL db.upsertEdge('edge1',{type:'node1',key:'node1_id'}, {type:'node2',key:'node2_id'}, [{node1_id:1,node2_id:2,score:10},{node1_id:3,node2_id:4,score:20}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据'}","page_content='RESTful API Legacy
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据'}","page_content='TuGraph图模型说明
+
+1. 数据模型
+
+1.1. 图模型
+
+TuGraph是一个具备多图能力的强类型、有向属性图数据库。  
+- 图项目：每个数据库服务可以承载多个图项目（多图），每个图项目可以有自己的访问控制配置，数据库管理员可以创建或删除指定图项目。
+- 点：指实体，一般用于表达现实中的实体对象，如一部电影、一个演员。
+- 主键：用户自定义的点数据主键，默认唯一索引，在对应的点类型中唯一。
+- VID：点在存储层自动分配图项目中的唯一ID，用户不可修改。
+- 上限：每个图项目存储最多2^(40)个点数据。
+- 边：用于表达点与点之间的关系，如演员出演电影。
+- 有向边：边为有向边。若要模拟无向边，用户可以创建两个方向相反的边。
+- 多条边：两个点数据之间可以有多条边数据。当前TuGraph支持重复边，如要确保边边唯一，需要通过业务策略实现。
+- 上限：两个点数据之间存储最多2^(32)条边数据。
+- 属性图：点和边可以具有与其关联的属性，每个属性可以有不同的类型。
+- 强类型：每个点和边有且仅有一个标签，创建标签后，修改属性数量及类型有代价。
+- 指定边的起/终点类型：可限制边的起点和终点点类型，支持同类型边的起点和终点的点类型不同，如个人转账给公司、公司转账给公司；当指定边的起/终点类型后，可增加多组起/终点类型，不可删除已限制的起/终点类型。
+- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}","page_content='RESTful API Legacy
 
 6.Deprecated
 
@@ -7612,21 +7663,7 @@ Input:
 **Example response.**  
 ```
 • 200: OK
-• Content-Type: application/json; charset=' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.8.边操作'}","page_content='业务开发指南
-
-导入数据
-
-批量upsert边数据-根据边的属性确定唯一
-
-上面描述的upsert逻辑是两点之间同类型的边只能有一条，如果要求两点之间同类型的边可以有多条，并且根据边上的某个属性来确定唯一，需要在原来的基础上多加一个字段，如下：
-```
-CALL db.upsertEdge('edge1',{type:'node1',key:'node1_id'}, {type:'node2',key:'node2_id'}, [{node1_id:1,node2_id:2,score:10},{node1_id:3,node2_id:4,score:20}], 'score')
-```
-在最后多了一个字段`score`, 逻辑变成：如果两点之间不存在一条`edge1`类型的边，并且`score`值等于某个值，就插入；否则就更新改边的属性。
-边上的`score`字段需要提前加上一个特殊的`pair unique`索引，如下：
-```
-CALL db.addEdgeIndex('edge1', 'score', false, true)
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据-根据边的属性确定唯一'}"
+• Content-Type: application/json; charset=' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.8.边操作'}"
 "批量在线导入是通过”CREATE (n), (m)“吗？","page_content='Cypher API
 
 2.Clauses
@@ -7987,140 +8024,126 @@ return true;
 
 **03.技术分享｜知识图谱语义框架SPG及图谱推理**
 
-“当前，我们正处于图谱技术发展的第三阶段，这一阶段的核心是将图谱与大型模型相结合。目标转向了知识的标准化、跨领域数据的联通与复用。随着这个阶段的深入，简单地在推理过程中融入文本概念和信息，或者是加入交易与社交的实体关系，已经不能明显提升推理效果了。关键的做法应当是结合实体信息的多元素特征进行深度协作，从而更精准地关联相关性，揭示那些稀疏的实体间关系，并实现意义解释的密集化。”' metadata={'Header 1': '图数据库智能化建设与探索', 'Header 2': '**03.技术分享｜知识图谱语义框架SPG及图谱推理**'}","page_content='可视化操作手册（旧版）
+“当前，我们正处于图谱技术发展的第三阶段，这一阶段的核心是将图谱与大型模型相结合。目标转向了知识的标准化、跨领域数据的联通与复用。随着这个阶段的深入，简单地在推理过程中融入文本概念和信息，或者是加入交易与社交的实体关系，已经不能明显提升推理效果了。关键的做法应当是结合实体信息的多元素特征进行深度协作，从而更精准地关联相关性，揭示那些稀疏的实体间关系，并实现意义解释的密集化。”' metadata={'Header 1': '图数据库智能化建设与探索', 'Header 2': '**03.技术分享｜知识图谱语义框架SPG及图谱推理**'}","page_content='RESTful API Legacy
 
-操作详情
+6.Deprecated
 
-3.工作台
+6.11.其他
 
-#### 3.1 快速上手  
-- 首次登录，系统会默认创建 default 空图  
-![alt 快速上手](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/2.tugraph-browser-quickstart-01.png)  
-- 用户点击帮助选项，并选择快速上手  
-![alt 帮助](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/3.tugraph-browser-quickstart-02.png)  
-- 然后点击“一键创建模型”——>""一键创建数据""，就可以完成内置的 Movie 数据图谱的构建  
-#### 3.2 创建子图和示例  
-##### 3.2.1 创建子图  
-- 点击新建子图
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/4.tugraph-browser-create-subgraph-01.png)
-- 填写表单信息
-![alt 填写表单](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/5.tugraph-browser-create-subgraph-02.png)
-- 子图名称
-- 子图描述
-- 配置信息
-- 点击确认，提示创建成功
-- 切换子图
-![alt 切换子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/6.tugraph-browser-use-graph-01.png)  
-- 点击新建示例
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/create-scene-01.png)
-- 选择示例并点击创建
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/select-scene.png)  
-#### 3.3 查询  
-![alt 查询](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/7.tugraph-browser-query-01.png)  
-##### 3.3.1 页面组成  
-- cypher 输入框
-- 结果集展示区域  
-##### 3.3.2 结果集展示区域功能详情  
-- 结果集标签展示及功能
-![alt 结果集标签](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/tugraph-browser-result.png)
-- 这里展示了结果集的所有类型统计
-- 点击不同的“label（标签）”，可以进行以下修改操作
-- 修改展示颜色
-- 修改节点大小或边的粗细
-- 修改默认展示属性或系统属性
-- 布局修改
-- 力导布局
-- 网格布局
-- 树形布局
-- 环境布局
-- 边聚合
-- 相同类型，方向的边可以进行合并
-- 创建节点
-- 点击创建节点按钮
-- 选择节点类型
-- 添写节点内容
-- 创建关系
-- 在画布中选择起点和终点
-- 选择可以匹配的类型
-- 填写节点信息
-- 停止布局
-- 当数据量过大，导致浏览器页面卡顿时候，可以点击这个停止布局的按钮，能够提高体验的流畅度
-- 鼠标悬停
-- 开启此功能，可以高亮显示鼠标悬停节点的一度邻居节点
-- 结果集导出
-- 可以将结果集导出为 png，json，csv 三种不同的文件形式
-- 刷新
-- 点击刷新按钮，会重新执行当前页面的初始 cypher 语句，并刷新结果集
-- 最大化
-- 点击最大化，结果集展示区域将全屏展示
-- 结果集展示形式切换
-- 支持图谱、表格、文本三种形式  
-##### 3.3.3 建模  
-- 点边模型
-![alt 建模](https://tugraph-w' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '3.工作台'}","page_content='图相关DDL
-
-Create Graph
-
-**Syntax**
-一个图至少包含一对点边，点表必须包含一个id字段作为主键，边表必须包含srcId和targetId作为主键，边表还可以有一个时间戳字段标识时间。  
+URI 格式为  
 ```
-CREATE GRAPH <graph name>
-(
-<graph vertex>
-[ { , <graph vertex> } ... ]
-, <graph edge>
-[ { , <graph edge> } ... ]
-) WITH （
-storeType = <graph store type>
-[ { , <config key> = <config value> } ... ]
-);
-
-<graph vertex>  ::=
-VERTEX <vertex name>
-(
-<column name> <data type> ID
-[ {, <column name> <data type> } ... ]
-)
-
-<graph edge>  ::=
-Edge <edge name>
-(
-<column name> <data type> SOURCE ID
-, <column name> <data type> DESTINATION ID
-[ , <column name> <data type> TIMESTAMP ]
-[ {, <column name> <data type> } ... ]
-)
-
+http://{host}:{port}/db/{graph_name}/misc
 ```  
-**Example**
-```sql
-CREATE GRAPH dy_modern (
-Vertex person (
-id bigint ID,
-name varchar,
-age int
-),
-Vertex software (
-id bigint ID,
-name varchar,
-lang varchar
-),
-Edge knows (
-srcId bigint SOURCE ID,
-targetId bigint DESTINATION ID,
-weight double
-),
-Edge created (
-srcId bigint SOURCE ID,
-targetId bigint DESTINATION ID,
-weight double
-)
-) WITH (
-storeType = 'rocksdb',
-shardCount = 2
-);
+#### 6.11.1.提取子图  
+给出点 id 集合，返回包含该集合的最小子图。  
+- **URI**: `/db/{graph_name}/misc/sub_graph`
+- **METHOD**: POST
+- **REQUEST**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| vertex_ids | 点 id 集合 | 列表 |  
+- **RESPONSE**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| nodes | 点数据 | 列表，每元素包含 vid, label, 以及属性 |
+| relationships | 边数据 | 列表，每元素包含 src, dst, euid, label, 以及属性 |  
+**Example request.**  
 ```
-这个例子创建了一张包含2个点2个边的图，存储类型为rocksdb, 分片数2个。' metadata={'Header 1': '图相关DDL', 'Header 2': 'Create Graph'}"
+• POST http://localhost:7070/db/graph1/misc/sub_graph
+• Accept: application/json; charset=UTF-8
+• Content-Type: application/json; charset=UTF-8
+Input:
+{
+""vertex_ids"": [2, 5, 14, 20]
+}
+```  
+**Example response.**  
+```
+• 200: OK
+Output:
+{
+""nodes"": [
+{
+""label"": ""Person"",
+""properties"": {
+""birthyear"": 1937,
+""name"": ""Vanessa Redgrave""
+},
+""vid"": 2
+},
+{
+""label"": ""Person"",
+""properties"": {
+""birthyear"": 1963,
+""name"": ""Natasha Richardson""
+},
+""vid"": 5
+},
+{
+""label"": ""City"",
+""properties"": {
+""name"": ""London""
+},
+""vid"": 14
+},
+{
+""label"": ""Film"",
+""properties"": {
+""title"": ""Camelot""
+},
+""vid"": 20
+}
+],
+""relationships"": [
+{
+""destination"": 5,
+""label"": ""HAS_CHILD"",
+""properties"": {
+""birthyear"": 1937,
+""name"": ""Vanessa Redgrave""
+},
+""source"": 2
+},
+{
+""destination"": 14,
+""label"": ""BORN_IN"",
+""properties"": {
+""birthyear"": 1937,
+""name"": ""Vanessa Redgrave""
+},
+""source"": 2
+},
+{
+""destination"": 20,
+""label"": ""ACTED_IN"",
+""properties"": {
+""birthyear"": 1937,
+""charactername"": ""Guenevere"",
+""name"": ""Vanessa Redgrave""
+},
+""source"": 2
+},
+{
+""destination"": 14,
+""label"": ""BORN_IN"",
+""properties"": {
+""birthyear"": 1963,
+""name"": ""Natasha Richardson""
+},
+""source"": 5
+}
+]
+}
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.11.其他'}","page_content='图算法介绍
+
+2\. 流图推理简介
+
+TuGraph计算引擎（TuGraph Analytics\[1\]）是蚂蚁集团开源的大规模分布式实时图计算引擎（流图引擎），实现了流批一体的图计算模型，支持了丰富的图计算算法。TuGraph Analytics的流图计算能力，能处理连续输入的数据流，并支持增量的计算模式，极大得提高了数据的计算效率和实时性。TuGraph Analytics解决了业界大规模数据关联分析的实时计算问题，已广泛应用于数仓加速、金融风控、知识图谱以及社交推荐等场景。  
+随着业务场景中问题复杂度的提升，基于传统的迭代图算法已无法满足业务的实际需求。例如在反洗钱场景中，利用图神经网络算法处理复杂的交易关系，能够捕获到节点的局部图结构信息。通过聚合邻接节点的特征信息，每个交易节点都可以感知到周边图网络结构的信息。类似的图神经网络等AI模型的推理逻辑，是无法基于传统的图迭代计算模式直接高效地表达的。  
+受上述问题启发，我们思考是否可以将TuGraph Analytics的流图计算能力与图神经网络等深度学习模型相结合，开发一套基于流图计算的模型推理系统。最终期望的推理系统具备如下能力：  
+-   对于图算法工程师，在图迭代计算过程中，能够方便地使用机器学习模型的推理能力。  
+-   对于AI算法工程师，可以通过TuGraph Analytics分布式流式计算的能力实现实时的模型推理。  
+众所周知，在深度学习为代表的数据科学领域，Python已经成为数据分析、模型训练和推理框架的主流开发语言，并提供了丰富的开发库和框架生态。而以Hadoop全家桶为代表的大数据计算引擎领域，基于Java语言开发的系统仍占据一席之地，当然TuGraph Analytics也在其中。这种语言差异带来的“互操作性”成本，使得相当一部分大数据和AI生态组件无法轻松地融合，这也是TuGraph Analytics支持图推理需要亟待解决的问题。' metadata={'Header 1': '图算法介绍', 'Header 2': '2\\. 流图推理简介'}"
 TuGraph-DB是否支持存储过程？支持哪些编程语言的存储过程？,"page_content='RPC API
 
 5.存储过程
@@ -8210,7 +8233,21 @@ graphContext.getTemporaryGraph().updateVertexValue(max);
 }
 
 @Override
-public void finish(Integer vertexId, MutableGraph<Integer, Integer' metadata={'Header 1': '图算法介绍', 'Header 2': '5.2 图迭代推理'}","page_content='RESTful API Legacy
+public void finish(Integer vertexId, MutableGraph<Integer, Integer' metadata={'Header 1': '图算法介绍', 'Header 2': '5.2 图迭代推理'}","page_content='业务开发指南
+
+边类型操作
+
+边类型添加索引
+
+>该操作会同步构建索引数据，数据量大的时候，有时间消耗。  
+如下例子，对于边类型`edge1`，给字段`field1`添加了一个非唯一索引。
+```
+CALL db.addEdgeIndex('edge1', 'field1', false, false)
+```
+如下例子，对于边类型`edge1`，给字段`field2`添加了一个唯一索引。
+```
+CALL db.addEdgeIndex('edge1', 'field2', true, false)
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '边类型操作', 'Header 3': '边类型添加索引'}","page_content='RESTful API Legacy
 
 6.Deprecated
 
@@ -8286,15 +8323,7 @@ Input:
 **Example response.**  
 ```
 • 200: OK
-• Content-Type: application/json; charset=' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.8.边操作'}","page_content='业务开发指南
-
-边类型操作
-
-查看边类型schema
-
-```
-CALL db.getEdgeSchema('edge1')
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '边类型操作', 'Header 3': '查看边类型schema'}"
+• Content-Type: application/json; charset=' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '6.Deprecated', 'Header 3': '6.8.边操作'}"
 TuGraph-DB的主要功能是什么？,"page_content='TuGraph-db
 
 1. 简介
@@ -9049,17 +9078,19 @@ WHERE distance<2.5
 RETURN food,distance,mark ORDER by distance
 ```  
 ![image.png](../../../images/spatail/querryFood.png)  
-此查询首先匹配特定的Person节点（以用户名“Tom”为例），然后找到所有Food节点，利用自定义的distance函数，计算Person节点当前位置与每个Food节点之间的直线距离，筛选出距离在2.5之内的美食。最后，按照美食的距离升序排列结果，附带评分参考，为用户提供最优质的推荐。' metadata={'Header 1': '地理空间数据类型使用示例', 'Header 2': '5. 美食探索', 'Header 3': '5.3 构建美食探索查询'}","page_content='State原理介绍
+此查询首先匹配特定的Person节点（以用户名“Tom”为例），然后找到所有Food节点，利用自定义的distance函数，计算Person节点当前位置与每个Food节点之间的直线距离，筛选出距离在2.5之内的美食。最后，按照美食的距离升序排列结果，附带评分参考，为用户提供最优质的推荐。' metadata={'Header 1': '地理空间数据类型使用示例', 'Header 2': '5. 美食探索', 'Header 3': '5.3 构建美食探索查询'}","page_content='Console平台介绍
 
-Geaflow 中的状态管理
+部署架构
 
-架构图
-
-![state_arch](../../static/img/state_arch_new.png)  
-* **State API**：提供了面向KV存储API，如get/put/delete等。以及面向图存储的API，如V/E/VE，以及点/边的add/update/delete等。
-* **State执行层**：通过KeyGroup的设计实现数据的Sharding和扩缩容能力，Accessor提供了面向不同读写策略和数据模型的IO抽象，StateOperator抽象了存储层SPI，如finish（刷盘）、archive（Checkpoint）、compact（压缩）、recover（恢复）等。另外，State提供了多种PushDown优化以加速IO访问效率。通过自定义内存管理和面向属性的二级索引也会提供大量的存储访问优化手段。
-* **Store层**：GeaFlow支持了多种存储系统类型，并通过StoreContext封装了Schema、序列化器，以及数据版本信息。这层涉及到内存数据结构如何真正映射到存储结构上。目前包括Redis、Rocksdb、CStore（GeaFlow自建存储系统）等存储引擎，各种不同的存储引擎通过SPI来提供服务，另外根据存储引擎的特点，他们可支持的数据模型可能不同，例如对Rocksdb所有的数据结构都需要映射到KV，而Redis天生就提供list/map等高阶的数据结构。
-* **持久化层**：GeaFlow State本身不提供持久化的能力，如果机器发生故障，磁盘损坏可能就会导致数据丢失。因此它需要依赖外部的组件来提供持久化存储，这里组件也是可插拔的，支持 HDFS/OSS/S3等分布式文件存储或对象存储。' metadata={'Header 1': 'State原理介绍', 'Header 2': 'Geaflow 中的状态管理', 'Header 3': '架构图'}"
+GeaFlow支持多种异构环境执行，以常见的K8S部署环境为例，GeaFlow物理部署架构如下：  
+![deploy_arch](../../static/img/deploy_arch.png)  
+在GeaFlow作业的全生命周期过程中，涉及的关键数据流程有：  
+* **研发阶段**：Console平台提供了实例下所有的研发资源的管理，用户可以在创建任务前，提前准备所需的研发资源信息，并存储在Catalog。
+* **构建阶段**：任务创建完成后，通过发布动作触发构建流水线，用户的JAR包、任务的ZIP包等会上传到RemoteFileStore。
+* **提交阶段**：作业提交时，Console会根据作业的参数配置、运行时环境信息，以及远程文件地址等创建KubernetesJobClient，既而会拉起Client Pod，Client会拉起Master Pod，Master会拉起Container Pods和Driver Pod。所有的Pod拉起后，Client会把作业的Pipeline发送给Driver执行，Driver最终通过Cycle调度的Events与Containers交互。所有的Pod启动时都会从RemoteFileStore下载版本JAR包、用户JAR包、作业ZIP包等信息。Driver对DSL代码编译时，也需要通过Console提供的Catalog API操作Schema信息。
+* **运行阶段**：作业运行时，各个组件会上报不同的数据和信息。Master会上报作业的心跳汇总信息，Driver会上报作业的Pipeline/Cycle指标以及错误信息，Container会上报作业的Offset、指标定义以及错误信息等。RuntimeMetaStore存储作业的Pipeline/Cycle指标、Offset、心跳汇总、错误等信息。HAMetaStore存储各个运行组件的地址信息。DataStore存储State数据和作业FailOver时所需的元数据信息。MetricStore存储运行时指标信息。
+* **监控阶段**：Console会主要查询RuntimeMetaStore和MetricStore存储的信息用于作业的运行时监控。
+* **清理阶段**：作业重置/删除时，Console会对作业的RuntimeMeta、HAMeta以及部分Data做清理操作。' metadata={'Header 1': 'Console平台介绍', 'Header 2': '部署架构'}"
 我要快速定位到2个顶点间的某条关系边，通过pair unique索引查找关系边的接口有么，需求是根据pair_unique的值更新对应的边数据么,"page_content='业务开发指南
 
 导入数据
@@ -9285,7 +9316,15 @@ getdb.Process(db, olapondb, feature_len, NodeInfo, EdgeInfo)
 如需商业支持，请联系我们：  
 - 电话：400-903-0809
 - 邮件：tugraph@service.alipay.com
-- 官网：https://tugraph.antgroup.com' metadata={'Header 1': '什么是TuGraph', 'Header 2': '4. TuGraph企业版'}","page_content='云部署
+- 官网：https://tugraph.antgroup.com' metadata={'Header 1': '什么是TuGraph', 'Header 2': '4. TuGraph企业版'}","page_content='图分析引擎技术解析
+
+1 TuGraph 图分析引擎概览
+
+TuGraph 的图分析引擎，面向的场景主要是全图/全量数据分析类的任务。借助 TuGraph 的 C++ 图分析引擎 API ，用户可以对不同数据来源的图数据快速导出一个待处理的复杂子图，然后在该子图上运行诸如 BFS、PageRank、LPA、WCC 等迭代式图算法，最后根据运行结果做出相应的对策。 在 TuGraph 中，导出和计算过程均可以通过在内存中并行处理的方式进行加速，从而达到近乎实时的处理分析，和传统方法相比，即避免了数据导出落盘的开销，又能使用紧凑的图数据结构获得计算的理想性能。  
+根据数据来源及实现不同，可分为 Procedure、Embed 和 Standalone 三种运行模式。其中 Procedure 模式和 Embed 模式的数据源是图存储中加载图数据，分别适用于 Client/Server 部署，以及服务端直接调用，后者多用于调试。  
+Standalone 模式的数据源是 TXT、二进制、ODPS 文件等外部数据源，能够独立于图数据存储直接运行分析算法。  
+TuGraph 图计算系统社区版内置 6 个基础算法，商业版内置了共 34 种算法。涵盖了图结构、社区发现、路径查询、重要性分析、模式挖掘和关联性分析的六大类常用方法，可以满足多种业务场景需要，因此用户几乎不需要自己实现具体的图计算过程。  
+<table><tbody><tr><td>算法类型</td><td>中文算法名</td><td>英文算法名</td><td>程序名</td></tr><tr><td rowspan=""5"">路径查询</td><td>广度优先搜索</td><td>Breadth-First Search</td><td>bfs</td></tr><tr><td>单源最短路径</td><td>Single-Source Shortest Path</td><td>sssp</td></tr><tr><td>全对最短路径</td><td>All-Pair Shortest Path</td><td>apsp</td></tr><tr><td>多源最短路径</td><td>Multiple-source Shortest Paths</td><td>mssp</td></tr><tr><td>两点间最短路径</td><td>Single-Pair Shortest Path</td><td>spsp</td></tr><tr><td rowspan=""9"">重要性分析</td><td>网页排序</td><td>Pagerank</td><td>pagerank</td></tr><tr><td>介数中心度</td><td>Betweenness Centrality</td><td>bc</td></tr><tr><td>置信度传播</td><td>Belief Propagation</td><td>bp</td></tr><tr><td>距离中心度</td><td>Closeness Centrality</td><td>clce</td></tr><tr><td>个性化网页排序</td><td>Personalized PageRank</td><td>ppr</td></tr><tr><td>带权重的网页排序</td><td>Weighted Pagerank Algorithm</td><td>wpagerank</td></tr><tr><td>信任指数排名</td><td>Trustrank</td><td>trustrank</td></tr><tr><td>sybil检测算法</td><td>Sybil Rank</td><td>sybilrank</td></tr><tr><td>超链接主题搜索</td><td>Hyperlink-Induced Topic Search</td><td>hits</td></tr><tr><td rowspan=""4"">关联性分析</td><td>平均集聚系数</td><td>Local Clustering Coefficient</td><td>lcc</td></tr><tr><td>共同邻居</td><td>Common Neighborhood</td><td>cn</td></tr><tr><td>度数关联度</td><td>Degree Correlation</td><td>dc</td></tr><tr><td>杰卡德系数</td><td>Jaccard Index</td><td>ji</td></tr><tr><td rowspan=""5"">图结构</td><td>直径估计</td><td>Dimension Estimation</td><td>de</td></tr><tr>' metadata={'Header 1': '图分析引擎技术解析', 'Header 2': '1 TuGraph 图分析引擎概览'}","page_content='云部署
 
 2.实例说明
 
@@ -9294,13 +9333,7 @@ TuGraph部署的为社区开源版本，源码参考Github Repo，目前可以�
 |----------------|-------------------------|-------------------|-----------|
 | ecs.r7a.xlarge | AMD 内存型 r7a，4vCPU 32GiB | ESSD云盘 200GiB PL0 | 固定带宽1Mbps |
 | ecs.r6.xlarge  | 内存型r6，4vCPU 32GiB       | ESSD云盘 200GiB PL0 | 固定带宽1Mbps |  
-预估费用在创建实例时可实时看到（目前为免费）。 如需更多规格、其他服务（如集群高可用性要求、企业级支持服务等），请联系我们 tugraph@service.alipay.com。' metadata={'Header 1': '云部署', 'Header 2': '2.实例说明'}","page_content='用户权限
-
-2.权限层级
-
-- Global 层：即全局权限，对管理、图操作均有权限；
-- Graph 层：即图级别，对每个图的权限；
-- （仅商业化版本支持）Property 层：即属性级别，对某个属性的权限控制' metadata={'Header 1': '用户权限', 'Header 2': '2.权限层级'}"
+预估费用在创建实例时可实时看到（目前为免费）。 如需更多规格、其他服务（如集群高可用性要求、企业级支持服务等），请联系我们 tugraph@service.alipay.com。' metadata={'Header 1': '云部署', 'Header 2': '2.实例说明'}"
 bfs_standalone程序的输出结果是什么？,"page_content='OLAP API
 
 4. Standalone 编译与运行
@@ -9629,7 +9662,85 @@ return true;
 C++存储过程编写完毕后需要编译成动态链接库。TuGraph 提供了`compile.sh`脚本来帮助用户自动编译存储过程。`compile.sh`脚本只有一个参数，是该存储过程的名称，在上面的例子中就是`custom_pagerank`。编译调用命令行如下：  
 ```bash
 g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/lo' metadata={'Header 1': 'Procedure API', 'Header 2': '5.Procedure v2接口', 'Header 3': '5.1.编写存储过程'}"
-在执行`ProcessVertexActive`函数时，如果运行时出现错误，会引发什么异常？,"page_content='OlapBase API
+在执行`ProcessVertexActive`函数时，如果运行时出现错误，会引发什么异常？,"page_content='OlapOnDB API
+
+3. 算法举例
+
+3.2 PageRank算法流程
+
+`pagerank`主流程有两个输入参数，快照类（子图）还有迭代次数，整体流程可以分为以下几步：  
+1. 相关数据结构的初始化
+1. 每个节点pagerank值的初始化
+1. 每个节点pagerank值的计算，活跃点为所有点（意味着所有点都需要计算pagerank值）
+1. 得到每个节点经过`num_iterations`次迭代后的pagerank值  
+```C++
+void PageRankCore(OlapBase<Empty>& graph, int num_iterations, ParallelVector<double>& curr) {
+
+// 相关数据结构的初始化
+auto all_vertices = olapondb.AllocVertexSubset();
+all_vertices.Fill();
+auto curr = olapondb.AllocVertexArray<double>();
+auto next = olapondb.AllocVertexArray<double>();
+size_t num_vertices = olapondb.NumVertices();
+double one_over_n = (double)1 / num_vertices;
+
+// 每个节点pagerank值的初始化，和该节点的出度成反比
+double delta = graph.ProcessVertexActive<double>(
+[&](size_t vi) {
+curr[vi] = one_over_n;
+if (olapondb.OutDegree(vi) > 0) {
+curr[vi] /= olapondb.OutDegree(vi);
+}
+return one_over_n;
+},
+all_vertices);
+
+// 总迭代过程
+double d = (double)0.85;
+for (int ii = 0;ii < num_iterations;ii ++) {
+printf(""delta(%d)=%lf\n"", ii, delta);
+next.Fill((double)0);
+
+/*
+函数用途：计算所有节点的pagerank值
+
+函数流程描述：该函数用于计算所有节点的pagerank值，对all_vertices中所有为1的位对应的节点vi执行Func C，得到本轮迭代中vi的pagerank值，并返回vi节点的pagerank变化值，最终经过函数内部处理汇总所有活跃节点的总变化值并返回，该值被存储在delta变量中
+*/
+delta = graph.ProcessVertexActive<double>(
+// Func C
+[&](size_t vi) {
+double sum = 0;
+
+// 从邻居中获取当前节点的pagerank值
+for (auto & edge : olapondb.InEdges(vi)) {
+size_t src = edge.neighbour;
+sum += curr[src];
+}
+next[vi] = sum;
+
+// pagerank值计算核心公式
+next[vi] = (1 - d) * one_over_n + d * next[vi];
+if (ii == num_iterations - 1) {
+return (double)0;
+} else {
+
+// 相关中间变量统计
+if (olapondb.OutDegree(vi) > 0) {
+next[vi] /= olapondb.OutDegree(vi);
+return fabs(next[vi] - curr[vi]) * olapondb.OutDegree(vi);
+} else {
+return fabs(next[vi] - curr[vi]);
+}
+}
+},
+all_vertices
+);
+
+// 将本轮迭代得到的pagerank值输出作为下一轮迭代的输入
+curr.Swap(next);
+}
+}
+```' metadata={'Header 1': 'OlapOnDB API', 'Header 2': '3. 算法举例', 'Header 3': '3.2 PageRank算法流程'}","page_content='OlapBase API
 
 7. 图类OlapBase
 
@@ -9688,66 +9799,55 @@ return local_outdegree;
 active_in
 );
 printf(""total outdegree of node1,2,3 is %lu\n"",total_outdegree);
-```' metadata={'Header 1': 'OlapBase API', 'Header 2': '7. 图类OlapBase', 'Header 3': '7.4 批处理操作'}","page_content='Procedure API
+```' metadata={'Header 1': 'OlapBase API', 'Header 2': '7. 图类OlapBase', 'Header 3': '7.4 批处理操作'}","page_content='OlapOnDisk API
 
-4.1.编写存储过程
+2. 算法举例
 
-4.1.1.编写C++存储过程
+2.4 bfs算法流程
 
-用户可以通过使用 Procedure API 或者 Traversal API 来编写 C 存储过程。一个简单的 C 存储过程举例如下：  
-```
-#include <iostream>
-#include ""lgraph.h""
-using namespace lgraph_api;
-
-extern ""C"" LGAPI bool Process(GraphDB& db, const std::string& request, std::string& response) {
-auto txn = db.CreateReadTxn();
-size_t n = 0;
-for (auto vit = txn.GetVertexIterator(); vit.IsValid(); vit.Next()) {
-if (vit.GetLabel() == ""student"") {
-auto age = vit.GetField(""age"");
-if (!age.is_null() && age.integer() == 10) n++; ## 统计所有年龄为10的学生数量
-}
-}
-output = std::to_string(n);
-return true;
-}
-```  
-从代码中我们可以看到，存储过程的入口函数是`Process`函数，它的参数有三个，分别为：  
-- `db`: 数据库实例
-- `request`: 输入请求数据，可以是二进制字节数组，或者 JSON 串等其它任意格式。
-- `response`: 输出数据，可以是字符串，也可以直接返回二进制数据。  
-`Process`函数的返回值是一个布尔值。当它返回`true`的时候，表示该请求顺利完成，反之表示这个存储过程在执行过程中发现了错误，此时用户可以通过`response`来返回错误信息以方便调试。  
-C++存储过程编写完毕后需要编译成动态链接库。TuGraph 提供了`compile.sh`脚本来帮助用户自动编译存储过程。`compile.sh`脚本只有一个参数，是该存储过程的名称，在上面的例子中就是`age_10`。编译调用命令行如下：  
-```bash
-g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/local/include/lgraph -rdynamic -O3 -fopenmp -o age_10.so age_10.cpp /usr/local/lib64/liblgraph.so -shared
-```  
-如果编译顺利，会生成 age_10.so，然后用户就可以将它加载到服务器中了。' metadata={'Header 1': 'Procedure API', 'Header 2': '4.1.编写存储过程', 'Header 3': '4.1.1.编写C++存储过程'}","page_content='OlapOnDB API
-
-4. 其他常用函数功能描述
-
-4.10 活跃点的描述
-
-活跃点指的是在批处理函数中需要处理的点，在本例子中只是输出了活跃点的编号，并且汇总活跃点的数量：  
+`bfs`主流程有两个输入参数，快照类（子图）还有迭代次数，整体流程可以分为以下几步：  
+1. 相关定义、数据结构的初始化
+2. 使用批处理函数对每个节点进行循环计算，每一轮找到与当前节点相邻的全部节点，并在该轮次终止时进行交换。
+3. 直到找到全部节点，返回节点个数discovered_vertices。  
 ```C++
-ParallelBitset temp = 000111;//当前活跃点为3，4，5号点
+size_t BFSCore(Graph<Empty>& graph, size_t root_vid, ParallelVector<size_t>& parent){
 
-size_t delta = ForEachActiveVertex<double>(
-//void c
+size_t root = root_vid;
+auto active_in = graph.AllocVertexSubset();   //分配数组，active_in用于存放上一循环阶段已找到的节点
+active_in.Add(root);            //把跟节点加入数组中
+auto active_out = graph.AllocVertexSubset();  //分配数组active_out用于存放当前循环阶段找到的节点
+parent.Fill((size_t)-1);               //将parent数组中的节点赋值为-1，-1表示未被找到
+parent[root] = root;
+size_t num_activations = 1;       //表示当前循环阶段找到的节点个数
+size_t discovered_vertices = 0;    //表示当前循环阶段找到节点的总个数
+
+for (int ii = 0; num_activations != 0; ii++) {       //num_activations表示当前循环阶段找到的节点个数
+printf(""activates(%d) <= %lu\n"", ii, num_activations);
+discovered_vertices += num_activations;         //discovered_vertices表示当前循环阶段找到节点的总个数
+active_out.Clear();
+num_activations = graph.ProcessVertexActive<size_t>(
 [&](size_t vi) {
-printf(""active_vertexId = %lu\n"",vi);
-return 1;
+size_t num_activations = 0;
+for (auto& edge : graph.OutEdges(vi)) {   //每一次循环从根节点出发，查找邻近的相邻节点，对其parent值改变，并num_activations+1操作
+size_t dst = edge.neighbour;
+if (parent[dst] == (size_t)-1) {
+auto lock = graph.GuardVertexLock(dst);
+if (parent[dst] == (size_t)-1) {
+parent[dst] = vi;
+num_activations += 1;
+active_out.Add(dst);       //存放当前循环阶段找到的节点
+}
+}
+}
+return num_activations;
 },
-all_vertices
-);
-```  
-函数的运行结果显而易见，因为多线程的关系，一下输出顺序可能有所变化：  
-```
-active_vertexId = 3
-active_vertexId = 4
-active_vertexId = 5
-```  
-局部返回值均为1，该函数会在保证线程安全的情况下将所有的局部返回值累加得到最终的返回值，并存储在`delta`变量中，该值最终为3' metadata={'Header 1': 'OlapOnDB API', 'Header 2': '4. 其他常用函数功能描述', 'Header 3': '4.10 活跃点的描述'}"
+active_in);
+active_in.Swap(active_out);
+}
+// 返回全部节点数
+return discovered_vertices;
+}
+```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.4 bfs算法流程'}"
 如果在调用存储过程时，指定json_format参数为false，返回结果的格式是什么？,"page_content='Java客户端
 
 2.使用示例
@@ -9999,16 +10099,15 @@ TuGraph的图分析引擎，面向的场景主要是全图/全量数据分析类
 TuGraph图计算系统社区版内置6个算法，商业版内置了25种算法，用户几乎不需要自己实现具体的图计算过程。其详细介绍可参考algorithms.md。  
 根据数据来源及实现不同，可分为Procedure、Embed和Standalone三种运行方式，均继承于OlapBase API，OlapBase API接口文档可参考olapbase-api.md。  
 其中Procedure和Embed的数据来源是图数据库中预加载的db数据，可以分别编译生成tugraph-web加载使用的.so文件和后台终端使用的embed文件，输入的图数据均通过db的加载形式，其接口文档可参考olapondb-api.md。
-Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}","page_content='图算法介绍
+Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}","page_content='功能概览
 
-2\. 流图推理简介
+3.计算层
 
-TuGraph计算引擎（TuGraph Analytics\[1\]）是蚂蚁集团开源的大规模分布式实时图计算引擎（流图引擎），实现了流批一体的图计算模型，支持了丰富的图计算算法。TuGraph Analytics的流图计算能力，能处理连续输入的数据流，并支持增量的计算模式，极大得提高了数据的计算效率和实时性。TuGraph Analytics解决了业界大规模数据关联分析的实时计算问题，已广泛应用于数仓加速、金融风控、知识图谱以及社交推荐等场景。  
-随着业务场景中问题复杂度的提升，基于传统的迭代图算法已无法满足业务的实际需求。例如在反洗钱场景中，利用图神经网络算法处理复杂的交易关系，能够捕获到节点的局部图结构信息。通过聚合邻接节点的特征信息，每个交易节点都可以感知到周边图网络结构的信息。类似的图神经网络等AI模型的推理逻辑，是无法基于传统的图迭代计算模式直接高效地表达的。  
-受上述问题启发，我们思考是否可以将TuGraph Analytics的流图计算能力与图神经网络等深度学习模型相结合，开发一套基于流图计算的模型推理系统。最终期望的推理系统具备如下能力：  
--   对于图算法工程师，在图迭代计算过程中，能够方便地使用机器学习模型的推理能力。  
--   对于AI算法工程师，可以通过TuGraph Analytics分布式流式计算的能力实现实时的模型推理。  
-众所周知，在深度学习为代表的数据科学领域，Python已经成为数据分析、模型训练和推理框架的主流开发语言，并提供了丰富的开发库和框架生态。而以Hadoop全家桶为代表的大数据计算引擎领域，基于Java语言开发的系统仍占据一席之地，当然TuGraph Analytics也在其中。这种语言差异带来的“互操作性”成本，使得相当一部分大数据和AI生态组件无法轻松地融合，这也是TuGraph Analytics支持图推理需要亟待解决的问题。' metadata={'Header 1': '图算法介绍', 'Header 2': '2\\. 流图推理简介'}"
+计算层在功能上分成三个部分，包括TP类的图事务引擎，AP类的图分析引擎和图神经网络引擎。  
+- __图事务引擎__，主要用来处理并发的图操作，包括单点查询、邻居查询、路径遍历。图事务引擎侧重并发操作的ACID事务，确保操作逻辑不会互相干扰，主要性能指标为 QPS，即每秒完成的查询数量。  
+- __图分析引擎__，操作类型通常为全图迭代。部分简单的分析任务（比如SPSP）可以由图事务引擎完成，复杂的分析任务均由图分析引擎完成，单个任务通常需要数秒至数小时。因此单个图分析任务要并发利用所有的硬件资源，性能指标为任务完成的总时长。  
+- __图神经网络引擎__，通常也为全图迭代。图神经网络引擎除了基于图拓扑的操作，也需要集成一个机器学习的框架来处理向量操作，比如 PyTorch、MXNet、TenserFlow。  
+三个引擎的操作逻辑不尽相同，独立配置资源池。事图事务引擎基于RPC操作设置了一个线程池，每接受客户端的一个操作，从线程中取一个线程来处理，并发执行的数量等于RPC线程池的容量，通常配置为服务器的核数。图分析引擎有一个分析线程池，每个图分析任务会并发执行，即用所有的线程来执行一个任务，来加速操作的性能。TuGraph图分析操作串行执行的特性会一定程度限制用户的使用体验，并发的图分析的需求可以通过高可用部署的方式，增加机器资源来处理，或者接入外部的任务调度器，将数据传到实时调度的容器来计算。图神经网络操作在图上的操作会复用图事务引擎或图分析引擎的资源，向量的操作会起单独的资源，在机器学习框架中可以使用GPU等单独的加速硬件。' metadata={'Header 1': '功能概览', 'Header 2': '3.计算层'}"
 在给定的XML配置中，如果表内属性字段名为id时，应该如何处理node_id字段以避免报错？,"page_content='业务开发指南
 
 导入数据
@@ -10750,20 +10849,23 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='TuGraph-Restful-Server
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！
 
-7.接口
+仅需 5 步，即可呈现 🎊
 
-7.7 批量创建schema请求
+3. 添加组件
 
-用户通过此类请求批量创建schema，请求报文在http body 中将创建schema的目标子图和schema信息发送给server，如果拿到返回errorCode为200的响应报文即为正常创建
-#### 7.7.1 URL
-http://${ip}:${rpc_port}/LGraphHttpService/Query/import_schema
-#### 7.7.2 REQUEST
-|  body参数  |    参数说明    |  参数类型  |  是否必填  |
-|:--------:|:----------:|:------:| :-----: |
-| graph |   创建目标子图   |  字符串  |  是  |
-| schema | schema描述信息 |  字符串  |  是  |' metadata={'Header 1': 'TuGraph-Restful-Server', 'Header 2': '7.接口', 'Header 3': '7.7 批量创建schema请求'}"
+我们需要添加两个组件，在工具栏中添加 **清空画布**；然后在默认布局的侧边容器中添加**环路检测 Demo**  
+<img width=""463"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/b01271b5-162c-4216-9a9c-bf7a5570c999"">
+<img width=""474"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/238685ec-d9cf-4fcf-8357-56f4f8a8928d"">  
+> 此时项目画布应该如下所示
+> <img width=""1149"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/e660fa5b-aa31-4e7e-b295-cb071cc476c1"">  
+点击工具栏中的`🧹清除`选项来清空画布节点  
+<img width=""241"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/61316029-71ba-410f-94bf-47c6c65aec34"">  
+默认情况下，添加完`环路检测Demo`组件后，会自动建立连接。  
+<img width=""328"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/5246536b-ddb0-4c3c-91fb-e941101e272a"">  
+Tugraph Analytics 端建立连接后同样会输出以下内容：  
+<img width=""616"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/46be1e88-9c93-430e-92cc-db8024691095"">' metadata={'Header 1': '🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！', 'Header 2': '仅需 5 步，即可呈现 🎊', 'Header 3': '3. 添加组件'}"
 OGM在哪些方面类似于MyBatis？,"page_content='TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
 
 简介
@@ -11028,11 +11130,27 @@ $ lgraph_export -d {database_dir} -e {export_destination_dir} -g {graph_to_use} 
 - `-p {password}` 指定进行该导出操作的用户的用户密码。
 - `-s {field_separator}` 指定导出文件的分隔符，默认为逗号。
 - `-f {output_format}` 指定导出数据的格式，`json`或者`csv`，默认为`csv`。
-- `-h` 除上述指定参数外，也可以使用该参数查看该工具的使用帮助。' metadata={'Header 1': '数据导出', 'Header 2': '2.导出命令'}","page_content='数据导入
+- `-h` 除上述指定参数外，也可以使用该参数查看该工具的使用帮助。' metadata={'Header 1': '数据导出', 'Header 2': '2.导出命令'}","page_content='集成测试
 
-3.配置文件
+2.TuGraph集成测试框架
 
-`lgraph_import`工具通过指定的配置文件进行环境配置。配置文件描述输入文件的路径、它们所代表的点/边以及点/边的格式。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件'}"
+2.1.组件描述
+
+| 组件名称            | 组件功能                       | 实现方式                                  |
+|-----------------|----------------------------|---------------------------------------|
+| server          | TuGraph单机服务                | 开启子进程并在子进程中启动服务                       |
+| client          | TuGraph Rpc Client         | 当前进程中开启TuGraph Python Rpc Client发送请求  |
+| importor        | TuGraph Importor           | 开启子进程并在子进程中处理导入请求                     |
+| exportor        | TuGraph Exportor           | 开启子进程并在子进程中处理导出请求                     |
+| backup_binlog   | TuGraph Backup Binlog      | 开启子进程并在子进程中处理备份binlog的请求              |
+| backup_copy_dir | TuGraph Backup             | 开启子进程并在子进程中处理备份完整db的请求                |
+| build_so        | 编译c++动态连接库的组件              | 开启子进程并在子进程中处理gcc编译逻辑                  |
+| copy_snapshot   | TuGraph Copy Snapshot      | 当前进程中处理备份snapshot的请求                  |
+| copydir         | 文件夹拷贝                      | 当前进程中处理文件夹拷贝请求                        |
+| exec            | 执行c++/java可执行文件            | 开启子进程并在子进程中启动C++可执行文件                 |
+| algo            | 执行算法                       | 开启子进程并在子进程中执行算法                       |
+| bash            | 执行bash命令                   | 开启子进程并在子进程中执行bash命令                   |
+| rest            | TuGraph Python Rest Client | 当前进程中开启TuGraph Python Rest Client发送请求 |' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.1.组件描述'}"
 TuGraph企业版是什么？,"page_content='什么是TuGraph
 
 4. TuGraph企业版
@@ -11152,55 +11270,61 @@ TuGraph的Standalone模式可用于加载图数据文件，其中图数据文件
 在TuGraph中，导出和计算过程均可以通过在内存中并行处理的方式进行加速，从而达到近乎实时的处理分析，和传统方法相比，即避免了数据导出落盘的开销，又能使用紧凑的图数据结构获得计算的理想性能。  
 TuGraph内置了大量的常见图分析算法和丰富的辅助接口，因此用户几乎不需要自己实现具体的图计算过程，只需要在实现自己的存储过程的时候将相应算法库的头文件(.h)包含到自己的程序中，并在编译阶段链接自己的动态库文件即可。  
 该文档主要介绍了Standalone的常用接口，使用到的辅助函数主要包含在OlapOnDB类。同时为帮助用户理解方便，对BFS算法进行举例说明。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '1. 简介'}"
-REST 服务器的默认端口号是多少？,"page_content='Bolt客户端
+REST 服务器的默认端口号是多少？,"page_content='集成测试
+
+2.TuGraph集成测试框架
+
+2.3.测试样例
+
+#### 2.3.1.rest  
+样例代码中在test_get_info函数执行之前先启动server，server启动后启动了rest client，进入test_get_info函数后获取server的一些信息，并通过assert判断是否有获取到cpu的信息。  
+```python
+SERVEROPT = {""cmd"":""./lgraph_server -c lgraph_standalone.json --directory ./testdb --license _FMA_IGNORE_LICENSE_CHECK_SALTED_ --port 7073 --rpc_port 9093"",
+""cleanup_dir"":[""./testdb""]}
+RESTTOPT = {""port"":""7073"", ""user"":""admin"", ""password"":""73@TuGraph""}
+@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
+@pytest.mark.parametrize(""rest"", [RESTTOPT], indirect=True)
+def test_get_info(self, server, rest):
+res = rest.get_server_info()
+log.info(""res : %s"", res)
+assert('cpu' in res)
+```  
+#### 2.3.2.client  
+样例代码中在test_flushdb函数执行之前先执行了数据离线导入逻辑，并启动server后，通过client创建链接，进入test_flushdb函数后，通过查询点的个数判断导入是否成功，导入成功后执行flushDB操作，再次通过assert判断是否能正常清空db  
+```python
+SERVEROPT = {""cmd"":""./lgraph_server -c lgraph_standalone.json --directory ./testdb --license _FMA_IGNORE_LICENSE_CHECK_SALTED_ --port 7072 --rpc_port 9092"",
+""cleanup_dir"":[""./testdb""]}
+
+CLIENTOPT = {""host"":""127.0.0.1:9092"", ""user"":""admin"", ""password"":""73@TuGraph""}
+
+IMPORTOPT = {""cmd"":""./lgraph_import --config_file ./data/yago/yago.conf --dir ./testdb --user admin --password 73@TuGraph --graph default --overwrite 1"",
+""cleanup_dir"":[""./testdb"", ""./.import_tmp""]}
+
+@pytest.mark.parametrize(""importor"", [IMPORTOPT], indirect=True)
+@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
+@pytest.mark.parametrize(""client"", [CLIENTOPT], indirect=True)
+def test_flushdb(self, importor, server, client):
+ret = client.callCypher(""MATCH (n) RETURN n LIMIT 100"", ""default"")
+assert ret[0]
+res = json.loads(ret[1])
+assert len(res) == 21
+ret = client.callCypher(""CALL db.flushDB()"", ""default"")
+assert ret[0]
+res = json.loads(ret[1])
+assert res == None
+```  
+#### 2.3.3.exportor/importor  
+样例代码中在test_export_default函数执行之前先执行了数据离线导入逻辑，导入成功后将当前db的数据导出，然后再次通过离线导入逻辑将exportor导出的数据导入到新的目录中，以新导入的数据启动db，并且创建链接。在test_export_default函数主体中判断导出后再次导入的数据是否与原始数据一致  
+```python
+SERVEROPT = {""cmd"":""./lgraph_server -c lgraph_' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.3.测试样例'}","page_content='Bolt客户端
 
 开启Bolt端口
 
-Bolt端口是默认开启的，默认端口是7687。如果需要修改端口，请在配置文件中自行修改。基于docker方式部署的服务，配置文件在容器内 `/usr/local/etc/lgraph.json`文件中；如果是用rpm包部署的服务，配置文件在服务器的`/usr/local/etc/lgraph.json`。 修改端口后为了使端口生效，需要重启服务，重启服务的具体操作可见[数据库运行](../../5.installation&running/7.tugraph-running.md)。另外，配置文件中的详细配置项，可见[数据库运行](../../5.installation&running/7.tugraph-running.md)中的服务配置章节。' metadata={'Header 1': 'Bolt客户端', 'Header 2': '开启Bolt端口'}","page_content='RESTful API Legacy
+Bolt端口是默认开启的，默认端口是7687。如果需要修改端口，请在配置文件中自行修改。基于docker方式部署的服务，配置文件在容器内 `/usr/local/etc/lgraph.json`文件中；如果是用rpm包部署的服务，配置文件在服务器的`/usr/local/etc/lgraph.json`。 修改端口后为了使端口生效，需要重启服务，重启服务的具体操作可见[数据库运行](../../5.installation&running/7.tugraph-running.md)。另外，配置文件中的详细配置项，可见[数据库运行](../../5.installation&running/7.tugraph-running.md)中的服务配置章节。' metadata={'Header 1': 'Bolt客户端', 'Header 2': '开启Bolt端口'}","page_content='TuGraph-Restful-Server
 
-3.登录
+1.TuGraph-Restful-Server 简介
 
-3.5.登出
-
-用户登出，同时删除token。  
-- **URI**: `/logout`
-- **METHOD**: POST
-- **REQUEST**:
-| 域名 | 说明 | 类型 |
-| --- | --- | --- |
-| Authorization | 令牌 | 字符串 |
-- **RESPONSE**:  如果成功，返回代码 200。  
-**Example request.**  
-```
-• POST http://localhost:7070/logout
-• Accept: application/json; charset=UTF-8
-• Content-Type: application/json; charset=UTF-8
-Input:
-{
-""Authorization"" : ""Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmbWEuYWkiLCJwYXNzd29yZCI6IjczQFR1R3JhcGgiLCJ1c2VyIjoiYWRtaW4ifQ.o_yb5veSJkuy-ieBp4MqTk-tC1grcKotgVbgNJ0TyTU""
-}
-```  
-**Example response.**  
-```
-• 200: OK
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '3.登录', 'Header 3': '3.5.登出'}","page_content='命令行工具
-
-1.单命令模式
-
-1.1.命令行参数:
-
-| 参数     | 类型   | 说明                                                                     |
-| -------- | ------ | ------------------------------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| --help   | \\     | 列出所有参数及说明。                                                     |
-| -example | \\     | 列出命令实例。                                                           |
-| -c       | string | 数据库的配置文件，用于获取 ip 与 port 信息。                             |
-| -h       | string | 数据库服务器 ip 地址，如有配置文件则可舍去此参数。默认值为`127.0.0.1` 。 |
-| -p       | string | 数据库服务器端口，如有配置文件则可舍去此参数。默认值为`7071` 。          |
-| -u       | string | 数据库登录用户名。                                                       |
-| -P       | string | 数据库登录密码。                                                         |
-| -f       | string | 包含单条 Cypher 查询单文本文件的路径。                                   |
-| -s       | string | 单行 cypher 查询命令。以`""`开头结尾。                                    |
-| -t       | int    | 进行 cypher 查询时服务器的超时阈值。默认值为`150`秒。 -format            | string | 查询结果显示模式。支持`plain`与`table`两种格式。`plain`格式会将查询结果单列打印。`table`格式会将查询结果以表格方式显示。默认值为`table`。 |' metadata={'Header 1': '命令行工具', 'Header 2': '1.单命令模式', 'Header 3': '1.1.命令行参数:'}"
+TuGraph Restful Server 使用brpc框架支持的http协议，提供restful接口查询功能，在实现中，restful server 与rpc server 使用同一个端口。目前restful接口提供文件上传，数据导入，导入进度查询，cypher查询，文件删除等功能' metadata={'Header 1': 'TuGraph-Restful-Server', 'Header 2': '1.TuGraph-Restful-Server 简介'}"
 如果需要对一个角色进行禁用，调用何种函数，并且该函数在何种情况下返回true？,"page_content='可视化操作手册
 
 2.操作指南
@@ -11347,18 +11471,30 @@ TuGraph更新之后，原库的数据会丢吗？,"page_content='数据迁移
 1. 兼容迁移：当迁移前后系统环境一致且TuGraph软件兼容时，可以直接使用备份恢复的方式迁移数据；
 2. 升级迁移：当迁移前后系统环境不一致或TuGraph软件不兼容时，需要使用先导出数据再重新导入的方式迁移数据；
 3. 在线迁移：当对高可用集群进行数据迁移且集群网络环境良好时，可以使用增删节点的的方式将原集群平滑切换到新集群。
-接下来本文将详细介绍这三种方案。' metadata={'Header 1': '数据迁移', 'Header 2': '1. 简介'}","page_content='数据迁移
+接下来本文将详细介绍这三种方案。' metadata={'Header 1': '数据迁移', 'Header 2': '1. 简介'}","page_content='蚂蚁关于 TuGraph-DB 图数据库高可用架构介绍
+
+一、高可用架构介绍
+
+4.TuGraph-DB高可用架构—Raft 共识算法
+
+针对上述缺点，我们选用了 Raft 算法来实现高可用架构。Raft 算法的优点包括：  
+-   首先，它保持了一主多备的易用性。它有一个强leader可以对外提供服务。
+-   第二是一致性。一主多备的模式是通过定期复制的方式去进行数据备份。但是Raft算法采用的是日志复制方式，复制的是日志并不是数据，当写请求的日志到来之后，会逐个按顺序发送给每一个节点，当超过半数的节点达成一致之后才会提交，所以它不仅不会丢失数据，甚至也不会存在日志空洞或乱序的情况。
+-   有了一致性的保证后，安全性也就有了保证，当超过半数的节点达成一致之后，才应用日志，这样就能解决网络分区延迟、丢包、冗余和乱序的错误。
+-   基于一致性和安全性，它的可用性也就得到了保证，只要少于半数的节点宕机，即使主机宕机，也可以快速恢复应用，通过一次选举的时间就可以重新选出一个leader对外提供服务。  
+国标对于高可用系统的指标评估，RTO 和 RPO 分别是恢复时间指标和恢复点目标，有 6 个等级，TuGraph-DB 已经达到了最高等级。当少量节点故障时，RPO 是 0，也就是没有数据损失，数据恢复时间点指标是小于 15 秒。即使是在部署的时候，无论是在同城的两中心、三中心，还是多地的多中心，都可以达成 RTO 小于 15 秒的标准。  
+Raft算法优点:  
+• 易用性：状态简单，强Leader  
+• 一致性：日志逐个复制，超过半数节点达成一致才提交，不存在日志空洞  
+• 安全性：超半数节点达成一致才应用日志，能解决网络延迟、分区、丢包、冗余和乱序等错误  
+• 可用性：能容忍少于半数的节点宕机，主机宕机时自动触发选举流程，选出Leader后快速恢复应用用户价值  
+• 支持多地多中心部署，容灾和恢复能力强  
+• RPO=0（少数节点故障），RTO<15S，超越国标恢复能力6级' metadata={'Header 1': '蚂蚁关于 TuGraph-DB 图数据库高可用架构介绍', 'Header 2': '一、高可用架构介绍', 'Header 3': '4.TuGraph-DB高可用架构—Raft 共识算法'}","page_content='数据迁移
 
 2. 兼容迁移
 
 兼容迁移指的是在系统环境不变，且TuGraph软件版本兼容时，原服务的数据和存储过程可以在新服务中使用，所以可以直接迁移。
-用户可以先使用`lgraph_backup`工具备份数据，然后将数据传输到新机器中并重启服务。具体迁移步骤如下：' metadata={'Header 1': '数据迁移', 'Header 2': '2. 兼容迁移'}","page_content='数据迁移
-
-3. 升级迁移
-
-当用户要把原始服务迁移到一个差异化环境中（比如从centos7迁移到ubuntu18.04），或者TuGraph版本变化较大前后不兼容时（如3.4.0和3.6.0），
-用户可以先使用`lgraph_export`工具将数据导出成文件，传输到新机器中，再使用`lgraph_import`工具重新导入并重启集群。
-这样可以保证在新环境上能够使用，但是效率较低，存储过程也需要重新加载。具体的迁移步骤如下：' metadata={'Header 1': '数据迁移', 'Header 2': '3. 升级迁移'}"
+用户可以先使用`lgraph_backup`工具备份数据，然后将数据传输到新机器中并重启服务。具体迁移步骤如下：' metadata={'Header 1': '数据迁移', 'Header 2': '2. 兼容迁移'}"
 "如果节点中未包含属性""belt""，应该返回什么值？","page_content='RESTful API Legacy
 
 6.Deprecated
@@ -11662,80 +11798,51 @@ return 1
 return 0
 
 def run(self, pointer_g: cython. pointer(OlapBase[Empty])):
-self.graph = pointe' metadata={'Header 1': 'Python Olap API', 'Header 2': '4. Olap API', 'Header 3': '图类OlapBase'}","page_content='动态图
+self.graph = pointe' metadata={'Header 1': 'Python Olap API', 'Header 2': '4. Olap API', 'Header 3': '图类OlapBase'}","page_content='自定义Connector
 
-接口
+TableSource
 
-| API | 接口说明 | 入参说明 |
-| --- | --- | --- |
-| void init(IncGraphComputeContext<K, VV, EV, M> incGraphContext) | 图计算初始化接口 | incGraphContext： 增量动态图计算的上下文，K表示vertex id的类型，VV表示vertex value类型，EV表示edge value类型，M表示发送消息的类型。 |
-| void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph) | 首轮迭代对增量图实现处理逻辑 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>temporaryGraph：临时增量图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |
-| void compute(K vertexId, Iterator messageIterator) | 迭代计算接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。 |
-| void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph) | 迭代计算完成接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>mutableGraph：可变图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型 |  
-- 详细接口  
+TableSource 接口用于从连接器中读取数据。  
 ```java
-public interface IncVertexCentricFunction<K, VV, EV, M> extends Function {
+/**
+* Interface for table source.
+*/
+public interface TableSource extends Serializable {
 
-void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph);
+/**
+* The init method for compile time.
+*/
+void init(Configuration tableConf, TableSchema tableSchema);
 
-void compute(K vertexId, Iterator<M> messageIterator);
+/**
+* The init method for runtime.
+*/
+void open(RuntimeContext context);
 
-void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph);
+/**
+* List all the partitions for the source.
+*/
+List<Partition> listPartitions();
 
-interface IncGraphContext<K, VV, EV, M> {
-/** 获取job id */
-long getJobId();
+/**
+* Returns the {@link TableDeserializer} for the source to convert data read from
+* the source to {@link Row}.
+*/
+<IN> TableDeserializer<IN> getDeserializer(Configuration conf);
 
-/** 获取当前迭代 id */
-long getIterationId();
+/**
+* Fetch data for the partition from start offset. if the windowSize is -1, it represents an
+* all-window which will read all the data from the source, else return widow size for data.
+*/
+<T> FetchData<T> fetch(Partition partition, Optional<Offset> startOffset, long windowSize) throws IOException;
 
-/** 获取运行时上下文 */
-RuntimeContext getRuntimeContext();
-
-/** 获取可变图 */
-MutableGraph<K, VV, EV> getMutableGraph();
-
-/** 获取增量图 */
-TemporaryGraph<K, VV, EV> getTemporaryGraph();
-
-/** 获取图存储上的历史图 */
-HistoricalGraph<K, VV, EV> getHistoricalGraph();
-
-/** 给指定vertex发送消息 */
-void sendMessage(K vertexId, M message);
-
-/** 给当前vertex邻居节点发送消息 */
-void sendMessageToNeighbors(M message);
-
+/**
+* The close callback for the job finish the execution.
+*/
+void close();
 }
 
-interface TemporaryGraph<K, VV, EV> {
-/** 从增量图中获取vertex */
-IVertex<K, VV> getVertex();
-
-/** 从增量图中获取edges */
-List<IEdge<K, EV>> getEdges();
-
-/** 更新vertex value */
-void updateVertexValue(VV value);
-
-}
-
-interface HistoricalGraph<K, VV, EV> {
-/** 获取图数据最新版本id */
-Long getLatestVersionId();
-
-/** 获取图数据所有版本 */
-List<Long> getAllVersionIds();
-
-/** 获取图数据所有vertex */
-Map<Long, IVertex<K, VV>> getAllVertex();
-
-/** 获取图数据指定版本的vertex */
-Map<Long, IVertex<K, VV>> getAllVertex(List<Long> versions);
-
-/** 获取图数据指定版本并满足过滤条件的vertex */
-Map<Long, IVertex<K, VV>> getAllVertex(L' metadata={'Header 1': '动态图', 'Header 2': '接口'}"
+```' metadata={'Header 1': '自定义Connector', 'Header 2': 'TableSource'}"
 DUAL_DIRECTION表示什么？,"page_content='OlapOnDisk API
 
 3. 其他常用函数功能描述
@@ -11753,23 +11860,73 @@ INPUT_SYMMETRIC : 输入文件为对称图，加载图为对称图。
 - `void LoadVertexArrayTxt<V>(V * array, std::string path, std::function<size_t(const char *, const char *, VertexUnit<V> &)> parse_line)`：将文件中的点-数据对按照点id的顺序加载到数组中。各参数表示意义分别为：
 - `array`：待读入数据的数组
 - `path`：读取文件的路径，文件中每行表示一对点-数据对
-- `parse_line`：用户自定义函数，告诉系统如何将一行文本数据解析为一个点-数据对。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '3. 其他常用函数功能描述', 'Header 3': '3.1 图加载'}","page_content='内置算法
+- `parse_line`：用户自定义函数，告诉系统如何将一行文本数据解析为一个点-数据对。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '3. 其他常用函数功能描述', 'Header 3': '3.1 图加载'}","page_content='OlapBase API
 
-扩展算法包
+7. 图类OlapBase
 
-两点间最短路径
+7.2 点集和边集及其相关操作
 
-两点间最短路径程序实现了Bidirectional Breadth-First Search算法，在有向无权图上从起点沿着出边做正向宽度优先搜搜，从终点沿着入边做反向宽度优先搜索，通过起点和终点共同遍历到的点来确定从起点到终点的最短路径长度。算法内容请参考[https://en.wikipedia.org/wiki/Bidirectional_search](https://en.wikipedia.org/wiki/Bidirectional_search ""Bidirectional search"")。' metadata={'Header 1': '内置算法', 'Header 2': '扩展算法包', 'Header 3': '两点间最短路径'}","page_content='Match
+- `ParallelVector<VertexData> AllocVertexArray<VertexData>()`：分配一个类型为VertexData的数组，大小为点个数
+- `void fill_vertex_array<V>(V * array, V value)`：将数组array中的所有元素赋值为value
+- `ParallelBitset AllocVertexSubset()`：分配一个ParallelBitset集合，用于表示所有点的状态是否激活
+- `AdjList<EdgeData> OutEdges(size_t vid)`：获取点v的所有出边集合
+- `AdjList<EdgeData> InEdges(size_t vid)`：获取点v的所有入边集合
+- `void Transpose()`：对有向图进行图反转
+- `LoadFromArray(char * edge_array, VertexId input_vertices, EdgeId input_edges,  EdgeDirectionPolicy edge_direction_policy)`：从数组中加载图数据，包含四个参数，其含义分别表示：
+- `edge_array`：将该数组中的数据读入图，一般情况下该数组包含多条边。
+- `input_vertices`：指定数组读入图的点个数。
+- `input_edges`：指定数组读入图的边的条数。
+- `edge_direction_policy`：指定图为有向或无向，包含三种模式，分别为DUAL_DIRECTION、MAKE_SYMMETRIC以及INPUT_SYMMETRIC。对应的详细介绍见include/lgraph/olap_base.h文件的`enum EdgeDirectionPolicy`。' metadata={'Header 1': 'OlapBase API', 'Header 2': '7. 图类OlapBase', 'Header 3': '7.2 点集和边集及其相关操作'}","page_content='OlapOnDisk API
 
-Syntax
+2. 算法举例
 
-Edge Direction
+2.3 主函数
 
-| 边类型 | 语法 | 说明 |
-| -------- | -------- | -------- |
-| 入边 |  <-[edge]- | 匹配图中指向点的边|
-| 出边 | -[edge]-> | 匹配图中从点指出的边 |
-| 双向边 | -[edge]- | 匹配图中点的出边和入边|' metadata={'Header 1': 'Match', 'Header 2': 'Syntax', 'Header 3': 'Edge Direction'}"
+```C++
+int main(int argc, char** argv) {
+double start_time;
+// 统计内存消耗类MemUsage实例化
+MemUsage memUsage;
+memUsage.startMemRecord();
+
+// prepare
+start_time = get_time();
+// 配置类MyConfig实例化
+MyConfig config(argc, argv);
+size_t root_vid = config.root;
+// OlapOnDisk类实例化
+OlapOnDisk<Empty> graph;
+graph.Load(config, DUAL_DIRECTION);
+memUsage.print();
+memUsage.reset();
+// 统计图加载消耗时间
+auto prepare_cost = get_time() - start_time;
+printf(""prepare_cost = %.2lf(s)\n"", prepare_cost);
+
+// core
+start_time = get_time();
+// 创建数组用于统计某节点是否遍历过
+auto parent = graph.AllocVertexArray<size_t>();
+// 宽度优先搜索算法，返回图内root_vid根结点连接的节点个数
+size_t count = BFSCore(graph, root_vid, parent);
+memUsage.print();
+memUsage.reset();
+auto core_cost = get_time() - start_time;
+printf(""core_cost = %.2lf(s)\n"", core_cost);
+
+// output
+start_time = get_time();
+// 打印相关信息至终端
+printf(""found_vertices = %ld\n"", count);
+auto output_cost = get_time() - start_time;
+printf(""output_cost = %.2lf(s)\n"", output_cost);
+
+printf(""total_cost = %.2lf(s)\n"", prepare_cost + core_cost + output_cost);
+printf(""DONE."");
+
+return 0;
+}
+```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.3 主函数'}"
 当指定的顶点ID不存在，并且nearest参数为true时，Goto函数将如何处理？,"page_content='使用 TuGraph 图学习模块进行点分类
 
 6. 模型训练及保存
@@ -11852,6 +12009,13 @@ YIELD value  RETURN value
 
 广度优先搜索实现了Breadth-first Search算法，从根点开始，沿着图的宽度遍历所有可访问点。返回结果为遍历点个数。算法内容请参考 [https://en.wikipedia.org/wiki/Breadth-first_search](https://en.wikipedia.org/wiki/Breadth-first_search ""bfs wiki"")。' metadata={'Header 1': '内置算法', 'Header 2': '基础算法包', 'Header 3': '广度优先搜索'}","page_content='OlapOnDisk API
 
+1. 简介
+
+TuGraph的Standalone模式可用于加载图数据文件，其中图数据文件来源可包含text文本文件、BINARY_FILE二进制文件和ODPS源。在该模式下，TuGraph可实现多数据来源快速加载成图，然后在该图上运行如BFS、WCC、SSSP等迭代式算法，并输出最终结果至终端。  
+在TuGraph中，导出和计算过程均可以通过在内存中并行处理的方式进行加速，从而达到近乎实时的处理分析，和传统方法相比，即避免了数据导出落盘的开销，又能使用紧凑的图数据结构获得计算的理想性能。  
+TuGraph内置了大量的常见图分析算法和丰富的辅助接口，因此用户几乎不需要自己实现具体的图计算过程，只需要在实现自己的存储过程的时候将相应算法库的头文件(.h)包含到自己的程序中，并在编译阶段链接自己的动态库文件即可。  
+该文档主要介绍了Standalone的常用接口，使用到的辅助函数主要包含在OlapOnDB类。同时为帮助用户理解方便，对BFS算法进行举例说明。' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '1. 简介'}","page_content='OlapOnDisk API
+
 2. 算法举例
 
 2.4 bfs算法流程
@@ -11898,51 +12062,7 @@ active_in.Swap(active_out);
 // 返回全部节点数
 return discovered_vertices;
 }
-```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.4 bfs算法流程'}","page_content='OLAP API
-
-3. Embed 编译与运行
-
-C++:
-
-```C++
-#include <iostream>
-#include ""lgraph/lgraph.h""
-#include ""lgraph/olap_base.h""
-using namespace std;
-
-extern ""C"" bool Process(lgraph_api::GraphDB &db, const std::string &request, std::string &response);
-
-int main(int argc, char **argv) {
-// db_path表示预加载图数据存放的路径
-std::string db_path = ""../fb_db/"";
-if (argc > 1)
-db_path = argv[1];
-lgraph_api::Galaxy g(db_path);
-g.SetCurrentUser(""admin"", ""73@TuGraph"");
-// 指定图数据的名称
-lgraph_api::GraphDB db = g.OpenGraph(""fb_db"");
-std::string resp;
-// 以json形式输入算法参数
-bool r = Process(db, ""{\""root_id\"":\""0\"", \""label\"":\""node\"",\""field\"":\""id\""}"", resp);
-cout << r << endl;
-cout << resp << endl;
-return 0;
-}
-```
-保存后在tugraph-db/procedures 目录下执行`bash make_embed.sh bfs`即可在tugraph-db/procedures/algo_cpp 目录下得到bfs_procedure文件。  
-在tugraph-db/procedures 文件夹下执行`./algo_cpp/bfs_procedure` 即可得到返回结果：  
-```json
-{
-""core_cost"":0.025603055953979492,
-""found_vertices"":3829,
-""num_edges"":88234,
-""num_vertices"":4039,
-""output_cost"":9.059906005859375e-06,
-""prepare_cost"":0.056738853454589844,
-""total_cost"":0.0823509693145752
-}
-```  
-参数解释同上。' metadata={'Header 1': 'OLAP API', 'Header 2': '3. Embed 编译与运行', 'Header 3': 'C++:'}"
+```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.4 bfs算法流程'}"
 TuGraph“refresh_time”的默认设置是什么？,"page_content='TuGraph-DataX
 
 4.导出TuGraph
@@ -11995,7 +12115,50 @@ TuGraph是一个具备多图能力的强类型、有向属性图数据库。
 4.5 数据预热
 
 TuGraph 是基于磁盘的图数据库，仅当访问数据时，数据才会加载到内存中。因此在服务器刚开启后的一段时间内，系统性能可能会由于频繁的 IO 操作而变差。此时我们可以通过事先进行数据预热来改善这一问题。' metadata={'Header 1': '功能概览', 'Header 2': '4.核心功能', 'Header 3': '4.5 数据预热'}"
-GetEdgeProp命令中，如果要查找特定的时间戳的边属性，该如何指定timestamp字段？,"page_content='图相关DDL
+GetEdgeProp命令中，如果要查找特定的时间戳的边属性，该如何指定timestamp字段？,"page_content='数据导入
+
+3.配置文件
+
+3.1.配置文件格式
+
+配置文件包含两部分：schema 和 files。`schema`部分定义 label，`files`部分描述要导入的数据文件。  
+#### 3.1.1.关键字  
+- schema (数组形式）
+- label（必选，字符串形式）
+- type（必选，值只能是 VERTEX 或者 EDGE）
+- properties（数组形式，对于点必选，对于边如果没有属性可以不配置）
+- name（必选，字符串形式）
+- type （必选，BOOL，INT8，INT16，INT32，INT64，DATE，DATETIME，FLOAT，DOUBLE，STRING，BLOB）
+- optional（可选，代表该字段可以配置，也可以不配置）
+- index（可选，该字段是否需要建索引）
+- unique（可选，该字段是否建索引，并且是 unique 类型的，即全局唯一）
+- pair_unique（可选，该字段是否建索引，并且是 pari_unique 类型的，即两点间唯一，仅用于边索引）unique与pair_unique只能设置一个，同时设置并运行将会因为输入异常而终止
+- primary (仅点配置，必选，主键字段，需指定一个 property，用来唯一确定一个点)
+- temproal (仅边配置，可选，指定时间戳属性用于存储层排序)
+- temporal_field_order (仅边配置，可选，默认为""ASC""，表示升序，也可配置为""DESC""，表示降序)
+- constraints (仅边配置，可选，数组形式，起点和终点的 label，不配置或者为空代表不限制)
+- detach_property (点边都可配置，可选，默认是`false`。`true` 代表属性数据单独存放，在内存不够，属性数据比较多的场景下可以减少io读放大)
+- files （数组形式）
+- path（必选，字符串，可以是文件路径或者目录的路径，如果是目录会导入此目录下的所有文件，需要保证有相同的 schema）
+- header（可选，数字，头信息占文件起始的几行，没有就是 0）
+- format（必须选，只能是 JSON 或者 CSV）
+- label（必选，字符串）
+- columns（数组形式）
+- SRC_ID (特殊字符串，仅边有，代表这列是起始点数据)
+- DST_ID (特殊字符串，仅边有，代表这列是目的点数据)
+- SKIP  (特殊字符串，代表跳过这列数据)
+- [property]
+- SRC_ID (仅边配置，值是起始点标签)
+- DST_ID (仅边配置，值是目的点标签)  
+#### 3.1.2.索引长度
+因为TuGraph对key的长度有限制，唯一索引不允许建立超过限制长度的索引，而非唯一索引会对超过长度限制的属性进行截断处理，并且在通过迭代器遍历非唯一索引时，拿到的key也是经过截断的，可能和预期不一致。针对不同类型的非唯一索引，截断长度是不同的。
+##### 3.1.2.1.unique索引
+unique索引是全局唯一的，该索引key的最大长度是480bytes。primary作为特殊的unique索引，因此最大key的长度也是480bytes，超过无法建立索引。
+##### 3.1.2.2.pair_unique索引
+pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
+##### 3.1.2.3.非唯一索引
+非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='图相关DDL
 
 Create Graph
 
@@ -12071,21 +12234,7 @@ shardCount = 2
 推荐使用driver里面的参数化特性，避免自己构造语句。
 ```
 CALL db.upsertEdge('edge1',{type:'node1',key:'node1_id'}, {type:'node2',key:'node2_id'}, [{node1_id:1,node2_id:2,score:10},{node1_id:3,node2_id:4,score:20}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据'}","page_content='业务开发指南
-
-导入数据
-
-批量upsert边数据-根据边的属性确定唯一
-
-上面描述的upsert逻辑是两点之间同类型的边只能有一条，如果要求两点之间同类型的边可以有多条，并且根据边上的某个属性来确定唯一，需要在原来的基础上多加一个字段，如下：
-```
-CALL db.upsertEdge('edge1',{type:'node1',key:'node1_id'}, {type:'node2',key:'node2_id'}, [{node1_id:1,node2_id:2,score:10},{node1_id:3,node2_id:4,score:20}], 'score')
-```
-在最后多了一个字段`score`, 逻辑变成：如果两点之间不存在一条`edge1`类型的边，并且`score`值等于某个值，就插入；否则就更新改边的属性。
-边上的`score`字段需要提前加上一个特殊的`pair unique`索引，如下：
-```
-CALL db.addEdgeIndex('edge1', 'score', false, true)
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据-根据边的属性确定唯一'}"
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert边数据'}"
 使用TuGraph Browser时，默认的端口号是多少？,"page_content='可视化操作手册
 
 2.操作指南
@@ -12355,7 +12504,15 @@ OLAP API 的快照可以从外部存储创建，即将边表数据构成件 CSR 
 - Plugin 模式，通过插件的方式，在计算逻辑加载到服务端后调用，也叫存储过程。
 - Embed 模式，和 Plugin 模式的使用接口一致，区别是图数据库服务不需要起来，就可以直接用接口调用数据库中的数据，通常用于调试 Procedure API 和OLAP API 的代码，调试信息和操作步骤比 Plugin 模式更加友好。
 - Standalone 模式，最大程度剥离与图数据库的关系，仅想用图分析引擎做数据分析时，该模式会比较直接。Standalone 模式会直接使用外部存储的数据。  
-图神经网络引擎的使用方式和 ‘复杂图分析操作’ 类似，会同时调用部分 OLAP API 和 GNN API，不在这里展开。' metadata={'Header 1': 'HTAP', 'Header 2': '2.设计'}","page_content='Traversal API
+图神经网络引擎的使用方式和 ‘复杂图分析操作’ 类似，会同时调用部分 OLAP API 和 GNN API，不在这里展开。' metadata={'Header 1': 'HTAP', 'Header 2': '2.设计'}","page_content='功能概览
+
+3.计算层
+
+计算层在功能上分成三个部分，包括TP类的图事务引擎，AP类的图分析引擎和图神经网络引擎。  
+- __图事务引擎__，主要用来处理并发的图操作，包括单点查询、邻居查询、路径遍历。图事务引擎侧重并发操作的ACID事务，确保操作逻辑不会互相干扰，主要性能指标为 QPS，即每秒完成的查询数量。  
+- __图分析引擎__，操作类型通常为全图迭代。部分简单的分析任务（比如SPSP）可以由图事务引擎完成，复杂的分析任务均由图分析引擎完成，单个任务通常需要数秒至数小时。因此单个图分析任务要并发利用所有的硬件资源，性能指标为任务完成的总时长。  
+- __图神经网络引擎__，通常也为全图迭代。图神经网络引擎除了基于图拓扑的操作，也需要集成一个机器学习的框架来处理向量操作，比如 PyTorch、MXNet、TenserFlow。  
+三个引擎的操作逻辑不尽相同，独立配置资源池。事图事务引擎基于RPC操作设置了一个线程池，每接受客户端的一个操作，从线程中取一个线程来处理，并发执行的数量等于RPC线程池的容量，通常配置为服务器的核数。图分析引擎有一个分析线程池，每个图分析任务会并发执行，即用所有的线程来执行一个任务，来加速操作的性能。TuGraph图分析操作串行执行的特性会一定程度限制用户的使用体验，并发的图分析的需求可以通过高可用部署的方式，增加机器资源来处理，或者接入外部的任务调度器，将数据传到实时调度的容器来计算。图神经网络操作在图上的操作会复用图事务引擎或图分析引擎的资源，向量的操作会起单独的资源，在机器学习框架中可以使用GPU等单独的加速硬件。' metadata={'Header 1': '功能概览', 'Header 2': '3.计算层'}","page_content='Traversal API
 
 1. 简介
 
@@ -12364,16 +12521,7 @@ TuGraph 强大的在线分析处理（OLAP）能力是其区别于其它图数�
 导出和计算的过程都可以通过并行处理的方式进行加速，从而实现几乎实时的分析处理，避免了传统解决方案需要将数据导出、转换、再导入（ETL）到专门的分析系统进行离线处理的冗长步骤。  
 TuGraph 内置了大量常用的图分析算法和丰富的辅助接口，因此用户几乎不需要自己来实现具体的图计算过程，只需在实现自己的存储过程时将相应算法库的头文件（.h 文件）包含到自己程序中，并在编译时链接相应的动态库文件（.so）即可。
 一般情况下，用户需要自己实现的只有将需要分析的子图抽取出来的过程。  
-目前 Traversal API 仅支持 C++。' metadata={'Header 1': 'Traversal API', 'Header 2': '1. 简介'}","page_content='OLAP API
-
-1. TuGraph 图分析引擎介绍
-
-TuGraph的图分析引擎，面向的场景主要是全图/全量数据分析类的任务。借助TuGraph的 C++ / Python 图分析引擎 API ，用户可以对不同数据来源的图数据快速导出一个待处理的复杂子图，然后在该子图上运行诸如PageRank、LPA、WCC等迭代式图算法，最后根据运行结果做出相应的对策。  
-在TuGraph中，导出和计算过程均可以通过在内存中并行处理的方式进行加速，从而达到近乎实时的处理分析，和传统方法相比，即避免了数据导出落盘的开销，又能使用紧凑的图数据结构获得计算的理想性能。  
-TuGraph图计算系统社区版内置6个算法，商业版内置了25种算法，用户几乎不需要自己实现具体的图计算过程。其详细介绍可参考algorithms.md。  
-根据数据来源及实现不同，可分为Procedure、Embed和Standalone三种运行方式，均继承于OlapBase API，OlapBase API接口文档可参考olapbase-api.md。  
-其中Procedure和Embed的数据来源是图数据库中预加载的db数据，可以分别编译生成tugraph-web加载使用的.so文件和后台终端使用的embed文件，输入的图数据均通过db的加载形式，其接口文档可参考olapondb-api.md。
-Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}"
+目前 Traversal API 仅支持 C++。' metadata={'Header 1': 'Traversal API', 'Header 2': '1. 简介'}"
 filter_output_default函数的主要作用是什么？,"page_content='OlapOnDisk API
 
 3. 其他常用函数功能描述
@@ -12523,7 +12671,73 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='Bolt客户端
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='数据导入
+
+3.配置文件
+
+3.2.配置文件示例
+
+```json
+{
+""schema"": [
+{
+""label"": ""actor"",
+""type"": ""VERTEX"",
+""properties"": [
+{ ""name"": ""aid"", ""type"": ""STRING"" },
+{ ""name"": ""name"", ""type"": ""STRING"" }
+],
+""primary"": ""aid""
+},
+{
+""label"": ""movie"",
+""type"": ""VERTEX"",
+""properties"": [
+{ ""name"": ""mid"", ""type"": ""STRING"" },
+{ ""name"": ""name"", ""type"": ""STRING"" },
+{ ""name"": ""year"", ""type"": ""INT16"" },
+{ ""name"": ""rate"", ""type"": ""FLOAT"", ""optional"": true }
+],
+""primary"": ""mid"",
+""detach_property"": false
+},
+{
+""label"": ""play_in"",
+""type"": ""EDGE"",
+""properties"": [{ ""name"": ""role"", ""type"": ""STRING"", ""optional"": true }],
+""constraints"": [[""actor"", ""movie""]]
+}
+],
+""files"": [
+{
+""path"": ""actors.csv"",
+""header"": 2,
+""format"": ""CSV"",
+""label"": ""actor"",
+""columns"": [""aid"", ""name""]
+},
+{
+""path"": ""movies.csv"",
+""header"": 2,
+""format"": ""CSV"",
+""label"": ""movie"",
+""columns"": [""mid"", ""name"", ""year"", ""rate""]
+},
+{
+""path"": ""roles.csv"",
+""header"": 2,
+""format"": ""CSV"",
+""label"": ""play_in"",
+""SRC_ID"": ""actor"",
+""DST_ID"": ""movie"",
+""columns"": [""SRC_ID"", ""role"", ""DST_ID""]
+}
+]
+}
+```  
+对于上述配置文件，定义了三个 label：两个点类型`actor`和`movie`，一个边类型`role`。每个 label 都描述了：label 的名字、类型（点还是边）、属性字段有哪些以及每个字段的类型。对于点，另外定义了 primary 字段是哪个；对于边，另外定义了 constraints 字段，用来限制边的起点和终点只能是哪些组合。  
+还描述了三个数据文件，两个点的数据文件`actors.csv`和`movies.csv`，一个边的数据文件`roles.csv`。每个部分都描述了：文件的路径（path）、数据类型（format）、信息头占开头几行（header）、是哪个 label 的数据（label）、文件中每行数据中的每个列对应的字段是哪个。  
+对于上述配置文件，import 工具在执行的过程中会先在 TuGraph 中创建`actor`、`movie`、`role`这三个 label，然后再执行三个文件的数据导入。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.2.配置文件示例'}","page_content='Bolt客户端
 
 使用示例
 
@@ -12575,19 +12789,7 @@ session.run(""CALL db.deleteLabel('edge', 'is_friend')"");
 //删除点模型
 session.run(""CALL db.deleteLabel('vertex', 'person')"");
 ```  
-详细Cypher和存储过程的使用可见[Cypher](../../8.query/1.cypher.md)' metadata={'Header 1': 'Bolt客户端', 'Header 2': '使用示例'}","page_content='图算法介绍
-
-5.4 配置参数
-
-配置相关参数，启动运行作业即可。  
-```
-""geaflow.infer.env.enable"":""true"",
-// 初始化虚拟环境等待时间
-""geaflow.infer.env.init.timeout.sec"":120,
-// 是否接收日志
-""geaflow.infer.env.suppress.log.enable"":""true""
-
-```' metadata={'Header 1': '图算法介绍', 'Header 2': '5.4 配置参数'}"
+详细Cypher和存储过程的使用可见[Cypher](../../8.query/1.cypher.md)' metadata={'Header 1': 'Bolt客户端', 'Header 2': '使用示例'}"
 "在给定的代码中，`@Property(""class"")`注解指定了什么数据库字段名？","page_content='业务开发指南
 
 点类型操作
@@ -12768,14 +12970,37 @@ Output:
 | Cypher Embeded Call    | 不支持                              | 支持                  |
 | 语言                    | C++/Python/Rust                    | C++                  |
 | 调用模式                 | 直接传字符串，一般为JSON               | 通过Cypher语句中的变量  |  
-在TuGraph中，存储过程v1和v2单独管理，支持增删查，但仍不建议重名。' metadata={'Header 1': 'Procedure API', 'Header 2': '2.存储过程的版本支持'}","page_content='多层级接口
+在TuGraph中，存储过程v1和v2单独管理，支持增删查，但仍不建议重名。' metadata={'Header 1': 'Procedure API', 'Header 2': '2.存储过程的版本支持'}","page_content='RESTful API Legacy
 
-1.简介
+2.请求与数据格式
 
-多层级接口是 TuGraph 针对多丰富的使用场景，在易用性和高性中作出的平衡。比如描述式图查询语言 Cypher 能够抹去图数据库实现的细节，基于图模型的抽象来进行表达。Cypher 过于高层的表述，无法高效转化成底层的执行，因此提供了 Procedure API 的过程式语言，来发挥图数据库的最佳性能。  
-接口可以大致分为客户端接口和服务端接口，大部分操作都在服务端完成，客户端只做数据的封装和解析。客户端和服务端通过网络连接，TuGraph 支持更加灵活的短连接 REST 协议，以及更加高效的长链接 RPC 协议，可根据不同的业务场景来选择。  
-服务端接口均处在计算层，和图数据存储间用一层 Core API 在逻辑上隔开。  
-![多层级接口架构](../../../../images/multi-level-Interfaces.png)' metadata={'Header 1': '多层级接口', 'Header 2': '1.简介'}"
+2.4.URI格式
+
+TuGraph REST API 提供以下功能：Service Root, login, info, label, index, node, relationship, cypher, cpp_plugin, 以及 python_plugin。
+各功能使用的 URI 格式如下：  
+| URI     | 说明                 |
+| ------- | -------------------- |
+| /web    | web 可视化界面       |
+| /cypher | cypher 请求          |
+| /acl    | 权限控制             |
+| /user   | 用户管理             |
+| /login  | 用户登录             |
+| /info   | 数据库状态及提示信息 |
+| /task   | 任务管理             |
+| /db     | 子图操作             |  
+其中子图操作又分为：  
+| URI                              | 说明                 |
+| -------------------------------- | -------------------- |
+| /db                              | 子图的创建，删除     |
+| /db/_{graph_name}_/node          | 点操作             |
+| /db/_{graph_name}_/relationship  | 边操作               |
+| /db/_{graph_name}_/label         | Label 相关操作       |
+| /db/_{graph_name}_/index         | 索引相关操作         |
+| /db/_{graph_name}_/cypher        | 子图相关 cypher 操作 |
+| /db/_{graph_name}_/cpp_plugin    | C++存储过程          |
+| /db/_{graph_name}_/python_plugin | Python 存储过程      |
+| /db/_{graph_name}_/import        | 在线导入             |
+| /db/_{graph_name}_/misc          | 其它操作             |' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '2.请求与数据格式', 'Header 3': '2.4.URI格式'}"
 在默认情况下，第一次快照的时间如何设置？,"page_content='集群管理
 
 4. 生成snapshot
@@ -12857,23 +13082,55 @@ $ lgraph_peer --command snapshot --peer {peer_id}
 - 支持图谱、表格、文本三种形式  
 ##### 3.3.3 建模  
 - 点边模型
-![alt 建模](https://tugraph-w' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '3.工作台'}","page_content='Framework原理介绍
+![alt 建模](https://tugraph-w' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '3.工作台'}","page_content='OlapOnDisk API
 
-计算引擎
+2. 算法举例
 
-容错和异常恢复
+2.4 bfs算法流程
 
-#### 集群组件容错
-对于运行时的所有组件进程，比如master/driver/container,都基于context初始化和运行。在新创建进程时，首先构建进程需要的context，每个进程在初始化时将context做持久化。当进程异常重启后，首先恢复context，然后基于context重新初始化进程。  
-#### 作业异常恢复
-![undefined](../../static/img/framework_failover.jpeg)
-* 作业分布式快照
-调度器根据当前自身调度状态，确定对运行中的任务发送新的windowId，触发对新窗口的计算。当每个算子对应窗口计算结束后，如果需要对当前窗口上下文做快照，则将算子内对应状态持久化到存储中。
-最终调度器收到某个窗口的所有任务执行结束的消息后，也会按需要对该调度元信息做一次快照并持久化，才标志这个窗口的处理最终成。当调度和算子恢复到这个窗口上下文时，则可以基于该窗口继续执行。  
-* 快照持久化
-在一个window计算完成做一次快照时，可以选择快照存储的方式。目前可选MEMORY，ROCKSDB, JDBC。  
-* 状态恢复
-快照存储是分布式的，每个组件，调度和算子之间各自存储并持久化。在恢复时，首先调度先从存储中恢复上一次完成执行的windowId，并调度的上下文恢复到对应windowId对应的快照。然后对所有worker发送rollback指令，每个worker恢复到指定窗口上下文。最后由调度开始继续发送执行任务，从恢复状态基础上继续执行。' metadata={'Header 1': 'Framework原理介绍', 'Header 2': '计算引擎', 'Header 3': '容错和异常恢复'}"
+`bfs`主流程有两个输入参数，快照类（子图）还有迭代次数，整体流程可以分为以下几步：  
+1. 相关定义、数据结构的初始化
+2. 使用批处理函数对每个节点进行循环计算，每一轮找到与当前节点相邻的全部节点，并在该轮次终止时进行交换。
+3. 直到找到全部节点，返回节点个数discovered_vertices。  
+```C++
+size_t BFSCore(Graph<Empty>& graph, size_t root_vid, ParallelVector<size_t>& parent){
+
+size_t root = root_vid;
+auto active_in = graph.AllocVertexSubset();   //分配数组，active_in用于存放上一循环阶段已找到的节点
+active_in.Add(root);            //把跟节点加入数组中
+auto active_out = graph.AllocVertexSubset();  //分配数组active_out用于存放当前循环阶段找到的节点
+parent.Fill((size_t)-1);               //将parent数组中的节点赋值为-1，-1表示未被找到
+parent[root] = root;
+size_t num_activations = 1;       //表示当前循环阶段找到的节点个数
+size_t discovered_vertices = 0;    //表示当前循环阶段找到节点的总个数
+
+for (int ii = 0; num_activations != 0; ii++) {       //num_activations表示当前循环阶段找到的节点个数
+printf(""activates(%d) <= %lu\n"", ii, num_activations);
+discovered_vertices += num_activations;         //discovered_vertices表示当前循环阶段找到节点的总个数
+active_out.Clear();
+num_activations = graph.ProcessVertexActive<size_t>(
+[&](size_t vi) {
+size_t num_activations = 0;
+for (auto& edge : graph.OutEdges(vi)) {   //每一次循环从根节点出发，查找邻近的相邻节点，对其parent值改变，并num_activations+1操作
+size_t dst = edge.neighbour;
+if (parent[dst] == (size_t)-1) {
+auto lock = graph.GuardVertexLock(dst);
+if (parent[dst] == (size_t)-1) {
+parent[dst] = vi;
+num_activations += 1;
+active_out.Add(dst);       //存放当前循环阶段找到的节点
+}
+}
+}
+return num_activations;
+},
+active_in);
+active_in.Swap(active_out);
+}
+// 返回全部节点数
+return discovered_vertices;
+}
+```' metadata={'Header 1': 'OlapOnDisk API', 'Header 2': '2. 算法举例', 'Header 3': '2.4 bfs算法流程'}"
 如果您想提交非原创作品给蚂蚁集团，您需要标注哪些信息？,"page_content='TuGraph由LDBC认定全球领先
 
 基本介绍
@@ -12979,7 +13236,17 @@ geaflow.store.redis.port: ${your.redis.port}
 cd tugraph-analysis/geaflow-kubernetes-operator/example
 kubectl apply example_hla.yml
 ```' metadata={'Header 1': '开始上手(Geaflow Kubernetes Operator运行)', 'Header 2': '通过Geaflow Kubernetes Operator提交作业', 'Header 3': '提交作业'}"
-web端导入点数据后，不同的方式查询得到结果不同,"page_content='TuGraph-Restful-Server
+web端导入点数据后，不同的方式查询得到结果不同,"page_content='性能优先
+
+4.数据编码
+
+对于属性图模型而言，除了图拓扑编码外，属性数据也会很大程度影响功能和性能，我们先讨论属性数据如何与拓扑数据共存的编码格式。从目前的调研来看，属性编码有两种方式，我们称之为基于指针索引将属性数据单独存储的离散编码，和将属性数据和拓扑数据打包在一起的紧凑编码。离散编码根据程度的不同，可以每个属性都单独存储，或者每条边的属性打包后各自存储，下面的讨论对两种情况都适用。  
+点查询。属性编码主要针对边，不涉及点查询。  
+单边查询。离散编码通过指针定位边，紧凑编码则需要二分查找定位边的位置，离散编码有略微的优势。  
+边遍历。离散编码在边遍历过程需要不断地进行指针跳转进行随机数据访问，而紧凑编码提前把数据排列在一起，顺序访问的特性使得效率大大提升。 由规律三知对边的遍历操作很普遍，紧凑编码在边遍历的优势明显。  
+单边更新。离散编码对边的更新仅需找到对应的指针位置，插入数据后修改前后指针指向。紧凑编码则需要对紧凑排列的数据进行重编码，对整个边值进行重新写入，开销显著大于离散编码的情形。  
+批量边更新。批量更新可以在内存中预先构建点的所有边属性，一次性编码写入，离散编码和紧凑编码相当。但紧凑编码不需要存储指针变量，更少的存储空间效率也会更高。  
+以上离散编码和紧凑编码在某一类的查询的性能问题，可以通过优化的来缓解。整体上说，由于图负载读写 20:1 的特性，读性能在整体性能中占比更高。以及规律三所揭示的对属性访问的特征，TuGraph 更倾向于采用紧凑编码来保证读性能。其主要弱势为单边更新时重编码的开销，可以用自适应映射的技术来解决。' metadata={'Header 1': '性能优先', 'Header 2': '4.数据编码'}","page_content='TuGraph-Restful-Server
 
 7.接口
 
@@ -13008,16 +13275,7 @@ http://${ip}:${rpc_port}/LGraphHttpService/Query/import_progress
 推荐使用driver里面的参数化特性，第二个参数直接传入一个 `list`结构体，避免自己构造语句。
 ```
 CALL db.upsertVertex('node1', [{id:1, name:'name1'},{id:2, name:'name2'}])
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert点数据'}","page_content='Heterogeneous Graph
-
-3. 异质图查询接口
-
-3.1 点类型查询接口
-
-```python
-olapondb.ntypes()
-```
-返回值为点类型列表，如['node1', 'node2', 'node3']。' metadata={'Header 1': 'Heterogeneous Graph', 'Header 2': '3. 异质图查询接口', 'Header 3': '3.1 点类型查询接口'}"
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '导入数据', 'Header 3': '批量upsert点数据'}"
 对象图映射（OGM）支持什么？,"page_content='TuGraph-OGM
 
 1.简介
@@ -13625,140 +13883,84 @@ Output:
 ],
 ""size"": 3
 }
-```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '4.查询', 'Header 3': '4.1.调用Cypher'}","page_content='可视化操作手册（旧版）
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '4.查询', 'Header 3': '4.1.调用Cypher'}","page_content='Use Graph
 
-操作详情
+Example
 
-3.工作台
+```sql
+-- Set current using graph.
+USE GRAPH modern;
 
-#### 3.1 快速上手  
-- 首次登录，系统会默认创建 default 空图  
-![alt 快速上手](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/2.tugraph-browser-quickstart-01.png)  
-- 用户点击帮助选项，并选择快速上手  
-![alt 帮助](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/3.tugraph-browser-quickstart-02.png)  
-- 然后点击“一键创建模型”——>""一键创建数据""，就可以完成内置的 Movie 数据图谱的构建  
-#### 3.2 创建子图和示例  
-##### 3.2.1 创建子图  
-- 点击新建子图
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/4.tugraph-browser-create-subgraph-01.png)
-- 填写表单信息
-![alt 填写表单](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/5.tugraph-browser-create-subgraph-02.png)
-- 子图名称
-- 子图描述
-- 配置信息
-- 点击确认，提示创建成功
-- 切换子图
-![alt 切换子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/6.tugraph-browser-use-graph-01.png)  
-- 点击新建示例
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/create-scene-01.png)
-- 选择示例并点击创建
-![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/select-scene.png)  
-#### 3.3 查询  
-![alt 查询](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/7.tugraph-browser-query-01.png)  
-##### 3.3.1 页面组成  
-- cypher 输入框
-- 结果集展示区域  
-##### 3.3.2 结果集展示区域功能详情  
-- 结果集标签展示及功能
-![alt 结果集标签](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/tugraph-browser-result.png)
-- 这里展示了结果集的所有类型统计
-- 点击不同的“label（标签）”，可以进行以下修改操作
-- 修改展示颜色
-- 修改节点大小或边的粗细
-- 修改默认展示属性或系统属性
-- 布局修改
-- 力导布局
-- 网格布局
-- 树形布局
-- 环境布局
-- 边聚合
-- 相同类型，方向的边可以进行合并
-- 创建节点
-- 点击创建节点按钮
-- 选择节点类型
-- 添写节点内容
-- 创建关系
-- 在画布中选择起点和终点
-- 选择可以匹配的类型
-- 填写节点信息
-- 停止布局
-- 当数据量过大，导致浏览器页面卡顿时候，可以点击这个停止布局的按钮，能够提高体验的流畅度
-- 鼠标悬停
-- 开启此功能，可以高亮显示鼠标悬停节点的一度邻居节点
-- 结果集导出
-- 可以将结果集导出为 png，json，csv 三种不同的文件形式
-- 刷新
-- 点击刷新按钮，会重新执行当前页面的初始 cypher 语句，并刷新结果集
-- 最大化
-- 点击最大化，结果集展示区域将全屏展示
-- 结果集展示形式切换
-- 支持图谱、表格、文本三种形式  
-##### 3.3.3 建模  
-- 点边模型
-![alt 建模](https://tugraph-w' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '3.工作台'}","page_content='RESTful API
+INSERT INTO tbl_result
+SELECT
+a.id,
+b.id,
+c.id,
+c.kind,
+d.id,
+d.type
+FROM (
+MATCH (a) -> (b) where b.id > 0 and a.lang is null
+MATCH (a) <- (c) where label(c) = 'person'
+Let c.kind = 'k' || cast(c.age / 10 as varchar)
+MATCH (c) -> (d) where d != b
+Let d.type = if (label(d) = 'person', 1, 0)
+RETURN a, b, c, d
+)
+;
+```' metadata={'Header 1': 'Use Graph', 'Header 2': 'Example'}","page_content='Bolt客户端
 
-2.请求与响应格式
+使用示例
 
-2.2请求类型
-
-#### 2.2.1. 用户登陆
-用户在登陆请求中携带用户名和密码发送到服务端。登录成功会收到带有签名的令牌(Json Web Token)和判断是否为默认密码的布尔型变量，客户端储存该令牌，在后续的请求中将令牌加入请求头的Authorization域中。如果登录失败会收到“Authentication failed”错误。  
-- **URI**:     /login
-- **METHOD**:  POST
-- **REQUEST**:  
-| body参数  | 参数说明 | 参数类型  | 是否必填       |
-| ------- |------|-------|------------|
-| userName   | 用户名  | 字符串类型   | 是          |
-| password   | 用户密码 | 字符串类型 | 是          |  
-- **RESPONSE**:
-如果成功，返回的响应信息中success为00，data中包含令牌  
-| body参数  | 参数说明 | 参数类型  | 是否必填       |
-| ------- |------|-------|------------|
-| authorization   | 令牌  | 字符串类型   | 是          |
-| default_password  | 默认密码 | 布尔类型 | 是          |  
-**Example request.**  
+添加Maven依赖  
+```xml
+<dependency>
+<groupId>org.neo4j.driver</groupId>
+<artifactId>neo4j-java-driver</artifactId>
+<version>4.4.2</version>
+</dependency>
 ```
-{""userName"" : ""test"", ""password"" : ""123456""}
+Client按照如下格式进行实例化:  
+```java
+Driver driver = GraphDatabase.driver(""bolt://ip:port"", AuthTokens.basic(""admin"", ""73@TuGraph""));
 ```  
-#### 2.2.2. 用户登出
-用户登出，同时删除已经认证的token，用户后续发送请求时，需要重新登陆，并获取新的token。  
-- **URI**:     /logout
-- **METHOD**:  POST
-- **REQUEST**:
-http request header中携带调用login接口时返回的token，body中没有参数  
-- **RESPONSE**:
-如果成功，返回的响应信息中success为00，data为空  
-#### 2.2.3. 身份刷新
-已下发的token失效后，需要调用本接口重新认证。后端验证token合法性。token在初次登录后，1小时内有效，过期需要刷新  
-- **URI**:     /refresh
-- **METHOD**:  POST
-- **REQUEST**:
-http request header中携带调用login接口时返回的token，body中没有参数  
-- **RESPONSE**:
-如果成功，返回的响应信息中success为00，data中包含令牌  
-| body参数  | 参数说明 | 参数类型  | 是否必填       |
-| ------- |------|-------|------------|
-| authorization   | 令牌  | 字符串类型   | 是          |  
-#### 2.2.4. 调用cypher
-用户对TuGraph的增删改查请求需要调用cypher接口，并通过标准的cypher查询语言发起  
-- **URI**:     /cypher
-- **METHOD**:  POST
-- **REQUEST**:  
-| body参数  | 参数说明     | 参数类型  | 是否必填       |
-| ------- |----------|-------|------------|
-| graph   | 查询的子图名称  | 字符串类型   | 是          |
-| script   | cypher语句 | 字符串类型 | 是          |  
-- **RESPONSE**:
-如果成功，返回的响应信息中success为00，data中包含查询结果  
-| body参数  | 参数说明 | 参数类型    | 是否必填       |
-| ------- |------|---------|------------|
-| result   | 查询结果 | json字符串 | 是          |  
-**Example request.**  
-```
-{""script"" : ""Match (n) return n"", ""graph"" : ""default""}
+常用语句  
+```java
+//通过 driver 对象创建一个 Session，设置会话连接到特定的数据库，用于执行Cypher语句
+Session session = driver.session(SessionConfig.forDatabase(""default""));
+//清空图项目，请不要轻易尝试，它会清空你选中的图项目的模型以及数据
+session.run(""CALL db.dropDB()"");
+//创建点模型
+session.run(""CALL db.createVertexLabel('person', 'id' , 'id' ,INT32, false, 'name' ,STRING, false)"");
+//创建边模型
+session.run(""CALL db.createEdgeLabel('is_friend','[[\""person\"",\""person\""]]')"");
+//创建索引
+session.run(""CALL db.addIndex(\""person\"", \""name\"", false)"");
+//插入点数据
+session.run(""create (n1:person {name:'jack',id:1}), (n2:person {name:'lucy',id:2})"");
+//插入边数据
+session.run(""match (n1:person {id:1}), (n2:person {id:2}) create (n1)-[r:is_friend]->(n2)"");
+//查询点和边
+Result res = session.run(""match (n)-[r]->(m) return n,r,m"");
+//Parameterized Query
+String cypherQuery = ""MATCH (n1:person {id:$id})-[r]-(n2:person {name:$name}) RETURN n1, r, n2"";
+Result result1 = session.run(cypherQuery, parameters(""id"", 1, ""name"", ""lucy""));
+while (result1.hasNext()) {
+Record record = result1.next();
+System.out.println(""n1: "" + record.get(""n1"").asMap());
+System.out.println(""r: "" + record.get(""r"").asMap());
+System.out.println(""n2: "" + record.get(""n2"").asMap());
+}
+//删除点数据
+session.run(""match (n1:person {id:1}) delete n1"");
+//删除边数据
+session.run(""match (n1:person {id:1})-[r]-(n2:person{id:2}) delete r"");
+//删除边模型
+session.run(""CALL db.deleteLabel('edge', 'is_friend')"");
+//删除点模型
+session.run(""CALL db.deleteLabel('vertex', 'person')"");
 ```  
-#### 2.2.5. 上传文件
-接口用于将本地文件上传至TuGraph所在机器。可以上传文本文件，二进制文件，可以上传大文件，也可以上传小文件，对于大文件，客户端在上传时应该对文件做切分，每个文件分片不大于1MB，参数Begin-Pos和' metadata={'Header 1': 'RESTful API', 'Header 2': '2.请求与响应格式', 'Header 3': '2.2请求类型'}"
+详细Cypher和存储过程的使用可见[Cypher](../../8.query/1.cypher.md)' metadata={'Header 1': 'Bolt客户端', 'Header 2': '使用示例'}"
 蚂蚁集团的个人贡献者许可协议主要目的是什么？,"page_content='如何贡献
 
 3. 准备工作
@@ -13808,12 +14010,13 @@ TuGraph Mini Runtime Image 不包含哪些功能？,"page_content='Docker部署
 `tugraph/tugraph-mini-runtime-[os name & version]:[tugraph-runtime version]`  
 例如： `tugraph/tugraph-mini-runtime-centos7:3.4.0`' metadata={'Header 1': 'Docker部署', 'Header 2': '2.现有Docker Image', 'Header 3': '2.2.命名规范'}","page_content='环境分类
 
-2.依赖系统库
+1.分类
 
-针对三种环境，除去TuGraph的运行包，所需要的系统库如下：
-* 编译环境，包括gcc、python、java等编译器，也包含antlr4、pybind11等，具体参见tugraph-db源码目录 ci/images/tugraph-compile-*-Dockerfile。
-* 运行环境，主要由存储过程引入，包括gcc、boost、cmake等，具体参见tugraph-db源码目录 ci/images/tugraph-runtime-*-Dockerfile。
-* 精简运行环境，无，可以参见tugraph-db源码目录 ci/images/ tugraph-mini-runtime-*-Dockerfile。' metadata={'Header 1': '环境分类', 'Header 2': '2.依赖系统库'}"
+根据环境所承载功能的不同，区分为编译环境，运行环境，以及精简运行环境。
+* 编译环境，具备TuGraph编译的所有依赖库，包含运行环境的所有依赖，并且能够编译TuGraph源码，但不包含预编译好的TuGraph可执行文件和库文件，供开发者编译源码使用。
+* 运行环境，具备GCC/Java/Python环境，能够运行TuGraph的所有功能，并且能承载全文索引，java client，c++源码上传为plugin，以及python plugin的完整功能，内置TuGraph预编译好的可执行文件和库文件，供客户直接安装使用，无需编译源码。
+* 精简运行环境，约等于裸系统加预编译TuGraph，仅能运行TuGraph的基本功能，无C++ plugin编译运行，仅so上传，无全文索引，无python plugin，供快速搭建试用。  
+TuGraph编译后，会把所有的依赖库以.a的形式打包在一起，因此原则上运行不需要的其他的依赖库。但TuGraph支持存储过程，即在服务端编译C++代码，因此在环境中依然需要涉及的编译器。' metadata={'Header 1': '环境分类', 'Header 2': '1.分类'}"
 OlapOnDB API文档中介绍的Procedure及Embed主要使用了哪些辅助函数？,"page_content='OlapOnDB API
 
 2. 模型
@@ -14079,21 +14282,28 @@ CALL db.deleteLabel('vertex', 'Person')
 如下例子，对于边类型`edge1`，删除字段`field1`上的索引。
 ```
 CALL db.deleteEdgeIndex('edge1', 'field1')
-```' metadata={'Header 1': '业务开发指南', 'Header 2': '边类型操作', 'Header 3': '边类型删除索引'}","page_content='Python Olap API
+```' metadata={'Header 1': '业务开发指南', 'Header 2': '边类型操作', 'Header 3': '边类型删除索引'}","page_content='Heterogeneous Graph
 
-5. lgraph_db API
+4. 异质图输出格式
 
-Transaction：
-
+和同质图相同的是，异质图的采样数据结果也存储在NodeInfo和EdgeInfo中。
+可通过如下方式获取输出数据。
+```python
+NodeInfo = []
+EdgeInfo = []
+getdb.Process(db, olapondb, feature_len, NodeInfo, EdgeInfo)
 ```
-GetVertexIndexIterator(
-label: std::string,
-field: std::string,
-key_start: std::string,
-key_end: std::string)-> VertexIndexIterator
-```
-获取索引迭代器。迭代器的field值为 [key_start, key_end]。所以在key_start=key_end=v时，返回指向field值为v的点的迭代器  
-lgraph_db_python.py是lgraph_db.pxd中C++类 Galaxy与GraphDB的包装，将C++类包装为Python类，将lgraph_db_python.py编译为Python拓展后，可以直接在Python文件或Python命令行中`import lgraph_db_python`访问lgraph_db_python.PyGraphDB与PyGraphDB.PyGalaxy。' metadata={'Header 1': 'Python Olap API', 'Header 2': '5. lgraph_db API', 'Header 3': 'Transaction：'}"
+其中getdb为获取全图数据的函数，db为图数据库实例，olapondb为图分析类。feature_len为节点特征长度，NodeInfo和EdgeInfo为输出的节点和边信息。  
+其存储信息结果如下：
+| 图数据 | 存储信息位置 |
+| --- | --- |
+| 边起点 | EdgeInfo[0] |
+| 边终点 | EdgeInfo[1] |
+| 边类型 | EdgeInfo[2] |
+| 顶点ID | NodeInfo[0] |
+| 顶点特征 | NodeInfo[1] |
+| 顶点标签 | NodeInfo[2] |
+| 顶点类型 | NodeInfo[3] |' metadata={'Header 1': 'Heterogeneous Graph', 'Header 2': '4. 异质图输出格式'}"
 角色被禁用后，用户将从该角色中获得什么权限？,"page_content='RESTful API Legacy
 
 6.Deprecated
@@ -14240,78 +14450,78 @@ TuGraph 运行需要保证库文件 liblgraph.so 的文件位置在环境变量 
 1.Server架构设计—启动集群
 
 上面是我们选择的一个基础算法，下面介绍 TuGraph-DB 具体的高可用架构是怎样设计的。通过一个 CASE 来进行讲解。  
-首先建立一个集群，启动集群的方式跟单机版几乎是一致的，只不过要加上 enable\_ha 参数和 ha\_conf 参数去指定集群里面所有节点的 URL，并且要保证三个或者五个节点是可以进行通信的。在三个节点同时启动后，最先启动的节点的计时器会超时，把自己选成一个候选者，之后向其它节点发送一个投票请求，其它节点接收到请求之后，会返回给候选者一个 success 的 response，当超过半数之后，这个 leader 就当选了。一般来说，在同城的情况下，延迟不会超过 2 毫秒，在两地的情况下，比如上海到深圳，最高延迟不会超过 30 毫秒，所以集群建立的时间和选举的时间是非常快的。' metadata={'Header 1': '蚂蚁关于 TuGraph-DB 图数据库高可用架构介绍', 'Header 2': '二、TuGraph-DB高可用架构与规划', 'Header 3': '1.Server架构设计—启动集群'}","page_content='数据导入
+首先建立一个集群，启动集群的方式跟单机版几乎是一致的，只不过要加上 enable\_ha 参数和 ha\_conf 参数去指定集群里面所有节点的 URL，并且要保证三个或者五个节点是可以进行通信的。在三个节点同时启动后，最先启动的节点的计时器会超时，把自己选成一个候选者，之后向其它节点发送一个投票请求，其它节点接收到请求之后，会返回给候选者一个 success 的 response，当超过半数之后，这个 leader 就当选了。一般来说，在同城的情况下，延迟不会超过 2 毫秒，在两地的情况下，比如上海到深圳，最高延迟不会超过 30 毫秒，所以集群建立的时间和选举的时间是非常快的。' metadata={'Header 1': '蚂蚁关于 TuGraph-DB 图数据库高可用架构介绍', 'Header 2': '二、TuGraph-DB高可用架构与规划', 'Header 3': '1.Server架构设计—启动集群'}","page_content='RESTful API Legacy
 
-3.配置文件
+5.存储过程
 
-3.1.配置文件格式
+5.4.调用存储过程
 
-配置文件包含两部分：schema 和 files。`schema`部分定义 label，`files`部分描述要导入的数据文件。  
-#### 3.1.1.关键字  
-- schema (数组形式）
-- label（必选，字符串形式）
-- type（必选，值只能是 VERTEX 或者 EDGE）
-- properties（数组形式，对于点必选，对于边如果没有属性可以不配置）
-- name（必选，字符串形式）
-- type （必选，BOOL，INT8，INT16，INT32，INT64，DATE，DATETIME，FLOAT，DOUBLE，STRING，BLOB）
-- optional（可选，代表该字段可以配置，也可以不配置）
-- index（可选，该字段是否需要建索引）
-- unique（可选，该字段是否建索引，并且是 unique 类型的，即全局唯一）
-- pair_unique（可选，该字段是否建索引，并且是 pari_unique 类型的，即两点间唯一，仅用于边索引）unique与pair_unique只能设置一个，同时设置并运行将会因为输入异常而终止
-- primary (仅点配置，必选，主键字段，需指定一个 property，用来唯一确定一个点)
-- temproal (仅边配置，可选，指定时间戳属性用于存储层排序)
-- temporal_field_order (仅边配置，可选，默认为""ASC""，表示升序，也可配置为""DESC""，表示降序)
-- constraints (仅边配置，可选，数组形式，起点和终点的 label，不配置或者为空代表不限制)
-- detach_property (点边都可配置，可选，默认是`false`。`true` 代表属性数据单独存放，在内存不够，属性数据比较多的场景下可以减少io读放大)
-- files （数组形式）
-- path（必选，字符串，可以是文件路径或者目录的路径，如果是目录会导入此目录下的所有文件，需要保证有相同的 schema）
-- header（可选，数字，头信息占文件起始的几行，没有就是 0）
-- format（必须选，只能是 JSON 或者 CSV）
-- label（必选，字符串）
-- columns（数组形式）
-- SRC_ID (特殊字符串，仅边有，代表这列是起始点数据)
-- DST_ID (特殊字符串，仅边有，代表这列是目的点数据)
-- SKIP  (特殊字符串，代表跳过这列数据)
-- [property]
-- SRC_ID (仅边配置，值是起始点标签)
-- DST_ID (仅边配置，值是目的点标签)  
-#### 3.1.2.索引长度
-因为TuGraph对key的长度有限制，唯一索引不允许建立超过限制长度的索引，而非唯一索引会对超过长度限制的属性进行截断处理，并且在通过迭代器遍历非唯一索引时，拿到的key也是经过截断的，可能和预期不一致。针对不同类型的非唯一索引，截断长度是不同的。
-##### 3.1.2.1.unique索引
-unique索引是全局唯一的，该索引key的最大长度是480bytes。primary作为特殊的unique索引，因此最大key的长度也是480bytes，超过无法建立索引。
-##### 3.1.2.2.pair_unique索引
-pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
-##### 3.1.2.3.非唯一索引
-非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='静态图
-
-接口
-
-| API | 接口说明 | 入参说明 |
+- **URI**: `/db/{graph_name}/cpp_plugin|python_plugin/{plugin_name}`
+- **METHOD**: POST
+- **REQUEST**: 字符串输入
+| 域名 | 说明 | 类型 |
 | --- | --- | --- |
-| void init(VertexCentricComputeFuncContext<K, VV, EV, M> vertexCentricFuncContext) | 迭代计算初始化接口 | vertexCentricFuncContext：静态图计算的上下文，K表示vertex id的类型，VV表示vertex value类型，EV表示edge value类型，M表示发送消息的类型。 |
-| void compute(K vertexId, Iterator messageIterator) | 迭代计算接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>messageIterator：迭代过程中所有发送给当前vertex的消息，其中M表示迭代计算过程中定义的发送消息类型。 |
-| void finish() | 迭代计算完成接口 | 无 |  
-- 详细接口  
-```java
-public interface VertexCentricComputeFunction<K, VV, EV, M> extends VertexCentricFunction<K, VV,
-EV, M> {
-
-void init(VertexCentricComputeFuncContext<K, VV, EV, M> vertexCentricFuncContext);
-
-void compute(K vertex, Iterator<M> messageIterator);
-
-void finish();
-
-interface VertexCentricComputeFuncContext<K, VV, EV, M> extends VertexCentricFuncContext<K, VV,
-EV, M> {
-/** 设置vertex value */
-void setNewVertexValue(VV value);
-
+| data | 输入数据 | 字符串 |
+| timeout | 超时长度（秒，可选，缺省值为 0） | 浮点 |
+| in_process | 是否在本进程调用（可选，缺省值为 false） | 布尔值 |  
+- **RESPONSE**:
+| 域名 | 说明 | 类型 |
+| --- | --- | --- |
+| result | 运行结果 | 字符串 |  
+**Example request.**  
+```
+• POST http://localhost:7070/db/graph1/python_plugin/echo
+• Accept: application/json; charset=UTF-8
+• Content-Type: application/json; charset=UTF-8
+Input:
+{
+data : ""Hello!\n你好！\nKonichiwa!"",
+timeout : 0,
+in_process : true
 }
-
+```  
+**Example response.**  
+```
+• 200: OK
+Output:
+{
+""result"": ""Hello!\n你好！\nKonichiwa!""
 }
-```' metadata={'Header 1': '静态图', 'Header 2': '接口'}"
+```' metadata={'Header 1': 'RESTful API Legacy', 'Header 2': '5.存储过程', 'Header 3': '5.4.调用存储过程'}","page_content='Procedure API
+
+4.1.编写存储过程
+
+4.1.1.编写C++存储过程
+
+用户可以通过使用 Procedure API 或者 Traversal API 来编写 C 存储过程。一个简单的 C 存储过程举例如下：  
+```
+#include <iostream>
+#include ""lgraph.h""
+using namespace lgraph_api;
+
+extern ""C"" LGAPI bool Process(GraphDB& db, const std::string& request, std::string& response) {
+auto txn = db.CreateReadTxn();
+size_t n = 0;
+for (auto vit = txn.GetVertexIterator(); vit.IsValid(); vit.Next()) {
+if (vit.GetLabel() == ""student"") {
+auto age = vit.GetField(""age"");
+if (!age.is_null() && age.integer() == 10) n++; ## 统计所有年龄为10的学生数量
+}
+}
+output = std::to_string(n);
+return true;
+}
+```  
+从代码中我们可以看到，存储过程的入口函数是`Process`函数，它的参数有三个，分别为：  
+- `db`: 数据库实例
+- `request`: 输入请求数据，可以是二进制字节数组，或者 JSON 串等其它任意格式。
+- `response`: 输出数据，可以是字符串，也可以直接返回二进制数据。  
+`Process`函数的返回值是一个布尔值。当它返回`true`的时候，表示该请求顺利完成，反之表示这个存储过程在执行过程中发现了错误，此时用户可以通过`response`来返回错误信息以方便调试。  
+C++存储过程编写完毕后需要编译成动态链接库。TuGraph 提供了`compile.sh`脚本来帮助用户自动编译存储过程。`compile.sh`脚本只有一个参数，是该存储过程的名称，在上面的例子中就是`age_10`。编译调用命令行如下：  
+```bash
+g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/local/include/lgraph -rdynamic -O3 -fopenmp -o age_10.so age_10.cpp /usr/local/lib64/liblgraph.so -shared
+```  
+如果编译顺利，会生成 age_10.so，然后用户就可以将它加载到服务器中了。' metadata={'Header 1': 'Procedure API', 'Header 2': '4.1.编写存储过程', 'Header 3': '4.1.1.编写C++存储过程'}"
 PathTraversal 类中展开当前前沿的操作可以使用哪些类型的过滤函数？,"page_content='Traversal API
 
 2. 接口说明
@@ -14385,53 +14595,60 @@ std::function<bool(OutEdgeIterator &, EdgeData &)> out_edge_filter = nullptr
 vertex_filter 是面向点的用户自定义过滤函数，返回值为 true 表示该点需要被包含到待抽取的子图中，反之则表示需要被排除。
 out_edge_filter 是面向边的用户自定义过滤函数，返回值为 true 表示该边需要被包含到待抽取的子图中，反之则表示需要被排除。
 当过滤函数为缺省值时，则表示需要将所有点/边都包含进来。  
-Snapshot 类提供的其它方法请参考详细的 C++ API 文档（olap_on_db.h）。' metadata={'Header 1': 'Traversal API', 'Header 2': '2. 接口说明', 'Header 3': '2.1. Snapshot'}","page_content='动态图
+Snapshot 类提供的其它方法请参考详细的 C++ API 文档（olap_on_db.h）。' metadata={'Header 1': 'Traversal API', 'Header 2': '2. 接口说明', 'Header 3': '2.1. Snapshot'}","page_content='静态图
 
-接口
+示例
 
-| API | 接口说明 | 入参说明 |
-| --- | --- | --- |
-| void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext) | vertexCentricFunction进行open操作 | vertexCentricFuncContext：K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型，M表示图遍历中定义的消息类型，R表示遍历结果类型。 |
-| void init(ITraversalRequest traversalRequest) | 图遍历初始化接口 | traversalRequest：图遍历触发点，其中K表示vertex id的类型。 |
-| void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph) | 首轮计算对增量图实现处理逻辑 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>temporaryGraph：临时增量图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |
-| void compute(K vertexId, Iterator messageIterator) | 图遍历接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>messageIterator：图遍历过程中所有发送给当前vertex的消息，其中M表示遍历迭代过程中定义的发送消息类型。 |
-| void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph) | 图遍历完成接口 | vertexId：当前计算点的id，其中K表示vertex id的类型。<br>mutableGraph：可变图，其中K表示vertexId的类型，VV表示vertex value类型，EV表示edge value类型。 |  
-- 详细接口  
 ```java
-public interface IncVertexCentricTraversalFunction<K, VV, EV, M, R> extends IncVertexCentricFunction<K, VV
-, EV, M> {
+public class StaticGraphTraversalAllExample {
+private static final Logger LOGGER =
+LoggerFactory.getLogger(StaticGraphTraversalAllExample.class);
 
-void open(IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> vertexCentricFuncContext);
+public static void main(String[] args) {
+Environment environment = EnvironmentFactory.onLocalEnvironment();
+Pipeline pipeline = PipelineFactory.buildPipeline(environment);
+pipeline.submit(new PipelineTask() {
+@Override
+public void execute(IPipelineTaskContext pipelineTaskCxt) {
+PWindowSource<IVertex<Integer, Integer>> prVertices =
+pipelineTaskCxt.buildSource(new FileSource<>(""data/input/email_vertex"",
+line -> {
+String[] fields = line.split("","");
+IVertex<Integer, Integer> vertex = new ValueVertex<>(Integer.valueOf(fields[0]),
+Integer.valueOf(fields[1]));
+return Collections.singletonList(vertex);
+}), AllWindow.getInstance()).withParallelism(1);
 
-void init(ITraversalRequest<K> traversalRequest);
+PWindowSource<IEdge<Integer, Integer>> prEdges =
+pipelineTaskCxt.buildSource(new FileSource<>(""data/input/email_edge"",
+line -> {
+String[] fields = line.split("","");
+IEdge<Integer, Integer> edge = new ValueEdge<>(Integer.valueOf(fields[0]),
+Integer.valueOf(fields[1]), 1);
+return Collections.singletonList(edge);
+}), AllWindow.getInstance()).withParallelism(1);
 
-void evolve(K vertexId, TemporaryGraph<K, VV, EV> temporaryGraph);
+GraphViewDesc graphViewDesc = GraphViewBuilder
+.createGraphView(GraphViewBuilder.DEFAULT_GRAPH)
+.withShardNum(1)
+.withBackend(BackendType.Memory)
+.build();
 
-void compute(K vertexId, Iterator<M> messageIterator);
+PGraphWindow<Integer, Integer, Integer> graphWindow =
+pipelineTaskCxt.buildWindowStreamGraph(prVertices, prEdges, graphViewDesc);
 
-void finish(K vertexId, MutableGraph<K, VV, EV> mutableGraph);
+graphWindow.traversal(new VertexCentricTraversal<Integer, Integer, Integer, Integer, Integer>(3) {
+@Override
+public VertexCentricTraversalFunction<Integer, Integer, Integer, Integer,
+Integer> getTraversalFunction() {
+return new VertexCentricTraversalFunction<Integer, Integer, Integer, Integer, Integer>() {
 
-interface IncVertexCentricTraversalFuncContext<K, VV, EV, M, R> extends IncGraphContext<K, VV, EV,
-M> {
-/** 激活遍历起点用以下一轮迭代使用 */
-void activeRequest(ITraversalRequest<K> request);
-/** 收集遍历结果 */
-void takeResponse(ITraversalResponse<R> response);
+private VertexCentricTraversalFuncContext<Integer, Integer, Integer, Integer, Integer> vertexCentricFuncContext;
 
-void broadcast(IGraphMessage<K, M> message);
-/** 获取历史图数据 */
-TraversalHistoricalGraph<K, VV, EV> getHistoricalGraph();
-}
-
-
-interface TraversalHistoricalGraph<K, VV, EV>  extends HistoricalGraph<K, VV, EV> {
-/** 获取指定版本快照 */
-TraversalGraphSnapShot<K, VV, EV> getSnapShot(long version);
-}
-
-interface TraversalGraphSnapShot<K, VV, EV> extends GraphSnapShot<K, VV, EV> {
-/** 获取开始图遍历的点 */
-Travers' metadata={'Header 1': '动态图', 'Header 2': '接口'}"
+@Override
+public void open(
+VertexCentricTraversalFuncContext<Integer, Integer, Integer, Integer, Integer> vertexCentricFuncContext) {
+this.vertexCentricFuncCon' metadata={'Header 1': '静态图', 'Header 2': '示例'}"
 当在只读交易中调用函数时，会抛出哪种异常？,"page_content='Procedure API
 
 5.Procedure v2接口
@@ -14608,100 +14825,50 @@ UDF的支持中，如果开发的函数的语言是Python，模块通常放在�
 | SWIG | 开发工具，封装native程序接口 |
 | Pybind11/Boost.python/Nanobind | 轻量级头文件库 |
 | Cython | Python的超集，使用C语言特性，静态编译 |  
-如图所示，我们对比了多种Python调用C链接库的方案，性能是第一要素，因此选择Cython作为推理进程和底层内存交互的工具。Cython是一个编程语言，是Python语言的一个超集，它将/C++的静态类型系统融合在了Python中，允许开发者可以在Python代码中直接使用C语言的特性，从而提高程序的执行效率。Cython将Python源代码翻译为C或C++代码，然后将其编译为二进制代码，能够显著提高数值计算和循环场景的代码执行性能' metadata={'Header 1': '图算法介绍', 'Header 2': '4.2 跨进程数据交换'}","page_content='使用 TuGraph 图学习模块进行点分类
+如图所示，我们对比了多种Python调用C链接库的方案，性能是第一要素，因此选择Cython作为推理进程和底层内存交互的工具。Cython是一个编程语言，是Python语言的一个超集，它将/C++的静态类型系统融合在了Python中，允许开发者可以在Python代码中直接使用C语言的特性，从而提高程序的执行效率。Cython将Python源代码翻译为C或C++代码，然后将其编译为二进制代码，能够显著提高数值计算和循环场景的代码执行性能' metadata={'Header 1': '图算法介绍', 'Header 2': '4.2 跨进程数据交换'}","page_content='开始上手(Geaflow Kubernetes Operator运行)
 
-6. 模型训练及保存
+通过Geaflow Kubernetes Operator提交作业
 
-6.2.构建采样器
+提交DSL作业
 
-训练过程中，首先使用GetDB算子从数据库中获取图数据并转换成所需数据结构，具体代码如下：
-```python
-GetDB.Process(db_: lgraph_db_python.PyGraphDB, olapondb: lgraph_db_python.PyOlapOnDB, feature_num: size_t, NodeInfo: list, EdgeInfo: list)
+对于提交DSL作业的情况，需要额外注意以下几个参数：
+* entryClass不填，留空。
+* gqlFile必填，请填写自己文件的名称和url地址。
+* udfJars选填，如有的话请填写自己文件的url地址。  
+```yaml
+spec:
+# 不填
+# entryClass: com.example.MyEntryClass
+# 必填
+gqlFile:
+# name必须填写正确，否则无法找到对应文件
+name: myGql.gql
+url: http://localhost:8888/download/myGql.gql
+# 可选
+udfJars:
+- name: myUdf.jar
+url: http://localhost:8888/download/myUdf.jar
 ```
-如代码所示，结果存储在NodeInfo和EdgeInfo中。NodeInfo和EdgeInfo是python list结果，其存储的信息结果如下：  
-| 图数据 | 存储信息位置 |
-| --- | --- |
-| 边起点 | EdgeInfo[0] |
-| 边终点 | EdgeInfo[1] |
-| 顶点ID | NodeInfo[0] |
-| 顶点特征 | NodeInfo[1] |
-| 顶点标签 | NodeInfo[2] |  
-然后构建采样器
-```python
-batch_size = 5
-count = 2708
-sampler = TugraphSample(args)
-dataloader = dgl.dataloading.DataLoader(fake_g,
-torch.arange(count),
-sampler,
-batch_size=batch_size,
-num_workers=0,
-)
-```' metadata={'Header 1': '使用 TuGraph 图学习模块进行点分类', 'Header 2': '6. 模型训练及保存', 'Header 3': '6.2.构建采样器'}","page_content='集成测试
+关于DSL作业和HLA作业的更多参数，我们在项目目录geaflow-kubernetes-operator/example目录中准备了两个demo作业供大家参考，请分别参考项目中的示例文件：
+* example/example-dsl.yml
+* example/example-hla.yml。' metadata={'Header 1': '开始上手(Geaflow Kubernetes Operator运行)', 'Header 2': '通过Geaflow Kubernetes Operator提交作业', 'Header 3': '提交DSL作业'}","page_content='开始上手(Geaflow Kubernetes Operator运行)
 
-2.TuGraph集成测试框架
+通过Geaflow Kubernetes Operator提交作业
 
-2.2.组件用法
+提交HLA作业
 
-#### 2.2.1.server  
-##### 2.2.1.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-SERVEROPT = {""cmd"":""./lgraph_server -c lgraph_standalone.json --directory ./testdb --license _FMA_IGNORE_LICENSE_CHECK_SALTED_ --port 7072 --rpc_port 9092"",
-""cleanup_dir"":[""./testdb""]}
-```  
-##### 2.2.1.2.启动命令
-通过fixtures组件引入工具，并通过启动参数来控制不同的处理逻辑，函数开始执行前会启动server，函数执行完成后会停止server，并清理cleanup_dir指定的目录  
-```python
-@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
-def test_server(self, server):
-pass
-```  
-#### 2.2.2.client  
-##### 2.2.2.1.启动参数
-采用python字典传入
-+ host是TuGraph Server的ip和端口
-+ user是TuGraph Server的用户名
-+ password是TuGraph Server 中user对应的密码  
-```python
-CLIENTOPT = {""host"":""127.0.0.1:9092"", ""user"":""admin"", ""password"":""73@TuGraph""}
-```  
-##### 2.2.2.2.启动命令
-通过fixtures组件引入工具，并通过启动参数来控制不同的处理逻辑，函数开始执行前会启动客户端，函数执行结束后会结束客户端  
-```python
-@pytest.mark.parametrize(""server"", [SERVEROPT], indirect=True)
-@pytest.mark.parametrize(""client"", [CLIENTOPT], indirect=True)
-def test_client(self, server, client):
-ret = client.callCypher(""CALL db.createEdgeLabel('followed', '[]', 'address', string, false, 'date', int32, false)"", ""default"")
-assert ret[0]
-ret = client.callCypher(""CALL db.createEdgeLabel('followed', '[]', 'address', string, false, 'date', int32, false)"", ""default"")
-assert ret[0] == False
-```  
-#### 2.2.3.importor  
-##### 2.2.3.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-IMPORTOPT = {""cmd"":""./lgraph_import --config_file ./data/yago/yago.conf --dir ./testdb --user admin --password 73@TuGraph --graph default --overwrite 1"",
-""cleanup_dir"":[""./testdb"", ""./.import_tmp""]}
-```  
-##### 2.2.3.2.启动命令  
-通过fixtures组件引入工具，并通过启动参数来控制导入不同的数据，函数开始执行前会导入数据到指定的目录，函数执行完成后会清理cleanup_dir指定的目录  
-```python
-@pytest.mark.parametrize(""importor"", [IMPORTOPT], indirect=True)
-def test_importor(self, importor):
-pass
-```  
-#### 2.2.4.exportor  
-##### 2.2.4.1.启动参数
-采用python字典传入
-+ cmd是启动命令
-+ cleanup_dir是执行完成后需要清理的目录，可以是多个，通过python列表传入  
-```python
-EXPO' metadata={'Header 1': '集成测试', 'Header 2': '2.TuGraph集成测试框架', 'Header 3': '2.2.组件用法'}"
+对于提交HLA作业的情况，需要额外注意以下几个参数：
+* entryClass必填。
+* udfJars选填，如有的话请填写自己文件的url地址。  
+```yaml
+spec:
+# 必填
+entryClass: com.example.MyEntryClass
+# 可选
+udfJars:
+- name: myUdf.jar
+url: http://localhost:8888/download/myUdf.jar
+```' metadata={'Header 1': '开始上手(Geaflow Kubernetes Operator运行)', 'Header 2': '通过Geaflow Kubernetes Operator提交作业', 'Header 3': '提交HLA作业'}"
 在文本中，哪种资源名称对应的颜色设置为固定的“light-orange”？,"page_content='数据导入
 
 3.配置文件
@@ -14745,7 +14912,63 @@ unique索引是全局唯一的，该索引key的最大长度是480bytes。primar
 pair_unique索引是指两点间唯一的索引，这种类型的索引只能创建于边的schema中，这种索引在用户指定的key后面加上了源点和目标点的vid，每个vid是5bytes长度。因此最大key的长度是470bytes，超过无法建立索引。
 ##### 3.1.2.3.非唯一索引
 非唯一索引是指既没有设置unique为1，也没有设置pair_unique为1的索引，在TuGraph的实现中，此类索引一个key可能映射到多个值，为了加速查找和写入，在用户指定的key后面加上了一组vid或euid中的最大值。其中对于创建于点中的非唯一索引，key后面跟着vid，每个vid是5bytes长度，因此最大长度是475bytes。
-对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='运维监控
+对于创建于边中的非唯一索引，key后面跟着euid，每个euid是24bytes长度，因此最大长度是456bytes。索引key超过对应长度则会自动截断。' metadata={'Header 1': '数据导入', 'Header 2': '3.配置文件', 'Header 3': '3.1.配置文件格式'}","page_content='可视化操作手册
+
+2.操作指南
+
+2.5.控制台
+
+`控制台`提供可视化的的账户管理和数据库信息查看功能，它为用户提供了全面的账户和角色管理功能，包括账户的增删改查以及禁用，角色的增删改查以及禁用。此外，它也为用户提供了便捷的数据库信息查看功能，让用户可以轻松地查看图数据库的基础信息和配置信息。其中，基础信息主要包括版本号、运行时间、CPP编译版本号等，而数据库配置信息则包括端口号、系统功能参数配置等。  
+#### 2.5.1.账户管理  
+##### 2.5.1.1.账户管理  
+###### a.添加账户  
+在`账户管理`界面点击`添加`按钮创建新的账户，用户需要输入账户名称、账户描述、账户密码以及相关角色。  
+![账户管理-添加账户按钮](../../../images/browser/account-add-button.png)  
+- 账户名称：支持中文、字母、数字以及下划线，不支持空格以及其他特殊符号。
+- 相关角色：新建账户时必须要选择一个角色，在账户添加成功后，系统会自动生成一个与账户名称一样的角色。  
+![账户管理-添加账户](../../../images/browser/account-add.png)  
+###### b.编辑账户  
+在`账户管理`界面点击`添加`按钮创建新的账户，用户可以编辑账户描述、账户密码以及相关角色。  
+![账户管理-编辑账户](../../../images/browser/account-edit.png)  
+###### c.禁用账户  
+在`账户管理`界面点击`禁用`按钮禁止对应的账户登录和访问，点击`启用`按钮开启对应的账户登录和访问权限。  
+![账户管理-禁用](../../../images/browser/account-disable.png)
+![账户管理-启用](../../../images/browser/account-enable.png)  
+###### d.删除账户  
+在`账户管理`界面点击`删除`按钮删除对应的账户。  
+![账户管理-删除](../../../images/browser/account-delete.png)  
+##### 2.5.1.2.角色管理  
+###### a.添加角色  
+在`角色管理`界面点击`添加`按钮创建新的角色，用户需要输入角色名称、角色描述以及图权限。  
+![角色管理-添加角色按钮](../../../images/browser/role-add-button.png)  
+- 角色名称：支持中文、字母、数字以及下划线，不支持空格以及其他特殊符号。
+- 图权限：browser支持全部、读、写和无共四类图权限配置。
+- 全部：对应图的读和写权限，包含编辑图模型权限（schema）。
+- 读写：对应图的写权限，不包含编辑图模型权限（schema）。
+- 只读：对应图的读权限。
+- 无：无法访问和操作对应图。
+- 角色冲突：当两个角色对同一个图有不同图权限，同时对一个账户授权了这两个角色，该账户对该图的图权限为两个角色的并集。  
+![角色管理-添加角色](../../../images/browser/role-add.png)  
+###### b.编辑角色  
+在`角色管理`界面点击`编辑`按钮编辑已有角色，用户可以编辑角色描述以及图权限。  
+![角色管理-编辑角色](../../../images/browser/role-edit.png)  
+###### c.禁用角色  
+在`角色管理`界面点击`禁用`按钮禁止对应的角色，点击`启用`按钮开启对应的角色。禁用角色后，对应角色图访问权限失效。  
+- 禁用角色：禁用之后，对应角色图访问权限失效。
+- 当一个用户拥有两个角色对同一个图有操作权限时，当禁用其中一个角色时，另一个角色权限同样有效。  
+![角色管理-禁用](../../../images/browser/role-disable.png)
+![角色管理-启用](../../../images/browser/role-enable.png)  
+###### d.删除角色  
+在`角色管理`界面点击`删除`按钮删除对应的角色。  
+![角色管理-删除](../../../images/browser/role-delete.png)  
+#### 2.5.2.数据库信息  
+##### 2.5.2.1.基础信息  
+`基础信息`获取当前系统运行的状态，并展示关键信息。  
+![数据库信息-基础信息](../../../images/browser/db_basic.png)  
+|参数    |含义    |
+|-------|--------|
+|TuGraph版本号|当前TuGraph的版本号，x.x.x|
+|运行时间|TuGraph服务启动到现' metadata={'Header 1': '可视化操作手册', 'Header 2': '2.操作指南', 'Header 3': '2.5.控制台'}","page_content='运维监控
 
 2.部署方案
 
@@ -14871,51 +15094,7 @@ pair_unique索引是指两点间唯一的索引，这种类型的索引只能创
 ""gridPos"": {
 ""h"": 16,
 ""w"": 6,
-""x"": ' metadata={'Header 1': '运维监控', 'Header 2': '2.部署方案', 'Header 3': '2.4.第四步'}","page_content='可视化操作手册
-
-2.操作指南
-
-2.4.图项目
-
-`图项目`提供可视化的图项目管理和图数据研发功能，它为用户提供了一系列便捷的图数据可视化操作，包括图项目的创建、修改、删除等管理操作，以及图数据的查询、点边统计等操作。此外，它也支持图模型的管理，使用户可以更加方便地进行图数据的管理和维护。  
-#### 2.4.1.图项目管理  
-在`图项目`界面，可以看到当前图数据库中的图项目。  
-![图项目-首页](../../../images/browser/graphmanagement-homepage.png)  
-##### 2.4.1.1.新建图项目  
-在`图项目`界面，点击`新建图项目`按钮创建一个新的图项目。  
-![图项目-新建图项目按钮](../../../images/browser/graphmanagement-creategraph.png)  
-新建图项目需要通过`选择模板`和`填写配置`两个页面完成图项目的创建。  
-- __选择模板__：产品提供空模板和demo模板两类模板。
-- 空模板：全新的图项目，用户需要自己创建图模型和导入图数据，一般用于正式项目开发。
-- demo模板：产品内置的demo数据，图项目创建成功后，系统会自动创建demo图模型并导入demo图数据，一般用于试用和学习。  
-![图项目-选择模板](../../../images/browser/graphmanagement-selecttemplate.png)  
-- __填写配置__：用户需要填写图项目基本信息，并点击`创建`按钮创建图项目。
-- 图名称：新建图项目的名称，同时作为该图项目的唯一主键。支持中文、字母、数字以及下划线，不支持空格以及其他特殊符号。
-- 图描述：新建图项目的描述，可用于详细说明该项目的背景和目标。
-- 高级配置-最大存储空间：设置图项目最大可占用的存储空间，实际并不会提前占用物理存储空间，实际数据量达到最大存储空间阈值后不可再写入数据。  
-![图项目-填写配置](../../../images/browser/graphmanagement-configure.png)  
-创建成功后，可在`图项目`页面的图项目选项卡中查看。  
-##### 2.4.1.2.编辑图项目  
-在`图项目`界面，点击图项目选项卡中的`编辑`按钮（笔形图标），编辑对应图项目的基础信息。  
-![图项目-编辑图项目按钮](../../../images/browser/graphmanagement-editgraph-button.png)  
-编辑图项目功能可以修改`图描述`和`最大存储空间`。  
-![图项目-编辑图项目](../../../images/browser/graphmanagement-editgraph.png)  
-##### 2.4.1.3.删除图项目  
-在`图项目`界面，点击图项目选项卡中的`删除`按钮（垃圾桶图标），删除对应的图项目。  
-![图项目-删除图项目按钮](../../../images/browser/graphmanagement-deletegraph-button.png)  
-_需要注意：图项目删除后无法恢复_。  
-##### 2.4.1.4.点边统计  
-在`图项目`界面，点击图项目选项卡中的`点边统计`按钮（刷新图标），统计对应图项目当前时间节点的点边数量。  
-![图项目-点边统计按钮](../../../images/browser/graphmanagement-statistics-button.png)  
-统计结果将展示在图项目选项卡上，已经统计过点边数据的图项目再次统计需要点击`刷新`按钮。  
-![图项目-点边统计](../../../images/browser/graphmanagement-statistics.png)  
-![图项目-刷新点边统计按钮](../../../images/browser/graphmanagement-statistics-refresh-button.png)  
-##### 2.4.1.5.存储过程  
-在`图项目`界面，点击图项目选项卡中的`存储过程`按钮（卡片最右侧图标），跳转到操作存储过程的图页面。  
-![图项目-存储过程按钮](../../../images/browser/graphmanagement-procedure-button.png)  
-在`存储过程`页面，可以新建存储过程，新建时需要填写""存储过程名称""、""存储过程类型""、""存储过程描述""，然后选择""版本""和""执行时是否修改数据库""  
-![图项目-存储过程](../../../images/browser/graphmanagement-procedure.png)  
-更多存储过程的相关操作可见 [存储过程]' metadata={'Header 1': '可视化操作手册', 'Header 2': '2.操作指南', 'Header 3': '2.4.图项目'}"
+""x"": ' metadata={'Header 1': '运维监控', 'Header 2': '2.部署方案', 'Header 3': '2.4.第四步'}"
 导入图库的数据如何删除,"page_content='TuGraph-Restful-Server
 
 7.接口
@@ -15221,7 +15400,76 @@ RETURN nodeIds,relationshipIds,cost
 ![insert_throuput](../../static/img/insert_throuput_cn.jpg)
 <center>图2</center>  
 在图一的实验中也可以发现，实质上我们用少量的插入图(青色的insert to graph部分开销)耗时，换取了图建模方式对之后关联查询的加速效果。' metadata={'Header 1': '为什么使用图进行关联运算比表Join更具吸引力？', 'Header 2': '关系模型并不适合处理关系', 'Header 3': '痛点二：数据冗余，时效性低'}"
-FieldData 类中的 integer() 方法在什么情况下会抛出 std::bad_cast 异常？,"page_content='QA汇总
+FieldData 类中的 integer() 方法在什么情况下会抛出 std::bad_cast 异常？,"page_content='Procedure API
+
+5.Procedure v2接口
+
+5.1.编写存储过程
+
+用户可以通过使用 lgraph API 来编写 C++ 存储过程。一个简单的 C++ 存储过程举例如下：  
+```c++
+// peek_some_node_salt.cpp
+#include <cstdlib>
+#include ""lgraph/lgraph.h""
+#include ""lgraph/lgraph_types.h""
+#include ""lgraph/lgraph_result.h""
+
+#include ""tools/json.hpp""
+
+using json = nlohmann::json;
+using namespace lgraph_api;
+
+extern ""C"" LGAPI bool GetSignature(SigSpec &sig_spec) {
+sig_spec.input_list = {
+{.name = ""limit"", .index = 0, .type = LGraphType::INTEGER},
+};
+sig_spec.result_list = {
+{.name = ""node"", .index = 0, .type = LGraphType::NODE},
+{.name = ""salt"", .index = 1, .type = LGraphType::FLOAT}
+};
+return true;
+}
+
+extern ""C"" LGAPI bool ProcessInTxn(Transaction &txn,
+const std::string &request,
+Result &response) {
+int64_t limit;
+try {
+json input = json::parse(request);
+limit = input[""limit""].get<int64_t>();
+} catch (std::exception &e) {
+response.ResetHeader({
+{""errMsg"", LGraphType::STRING}
+});
+response.MutableRecord()->Insert(
+""errMsg"",
+FieldData::String(std::string(""error parsing json: "") + e.what()));
+return false;
+}
+
+response.ResetHeader({
+{""node"", LGraphType::NODE},
+{""salt"", LGraphType::FLOAT}
+});
+for (size_t i = 0; i < limit; i++) {
+auto r = response.MutableRecord();
+auto vit = txn.GetVertexIterator(i);
+r->Insert(""node"", vit);
+r->Insert(""salt"", FieldData::Float(20.23*float(i)));
+}
+return true;
+}
+```  
+从代码中我们可以看到：
+- 存储过程定义了一个获取签名的方法`GetSignature`。该方法返回了存储过程的签名，其中包含输入参数名称及其类型，返回参数及其类型。这使得Cypher查询语句在调用存储过程能够利用签名信息校验输入数据以及返回数据是否合理。
+- 入口函数是`ProcessInTxn`函数，它的参数有三个，分别为：  
+- `txn`: 存储过程所处的事务，通常来说即调用该存储过程的Cypher语句所处事务。
+- `request`: 输入数据，其内容为`GetSignature`中定义的输入参数类型及其Cypher查询语句中传入的值经过json序列化后的字符串。e.g. `{num_iteration: 10}`
+- `response`: 输出数据，为保证在Cypher语言中能够兼容，用户可以通过往`lgraph_api::Result` 写入存储过程处理后的数据，最后用`lgraph_api::Result::Dump`来序列化成json格式的数据。  
+`ProcessInTxn`函数的返回值是一个布尔值。当它返回`true`的时候，表示该请求顺利完成，反之表示这个存储过程在执行过程中发现了错误。  
+C++存储过程编写完毕后需要编译成动态链接库。TuGraph 提供了`compile.sh`脚本来帮助用户自动编译存储过程。`compile.sh`脚本只有一个参数，是该存储过程的名称，在上面的例子中就是`custom_pagerank`。编译调用命令行如下：  
+```bash
+g++ -fno-gnu-unique -fPIC -g --std=c++14 -I/usr/lo' metadata={'Header 1': 'Procedure API', 'Header 2': '5.Procedure v2接口', 'Header 3': '5.1.编写存储过程'}","page_content='QA汇总
 
 数据导入QA
 
@@ -15258,57 +15506,7 @@ if (cntl->Failed()) throw RpcConnectionException(cntl->ErrorText());
 server_version = std::max(server_version, res.server_version());
 if (res.error_code() != LGraphResponse::SUCCESS) throw RpcStatusException(res.error());
 ```
-删除存储过程的响应不包含参数，如果删除失败则抛出BadInput异常' metadata={'Header 1': 'RPC API', 'Header 2': '5.存储过程', 'Header 3': '5.3.删除存储过程'}","page_content='RPC API
-
-5.存储过程
-
-5.1.加载存储过程
-
-加载存储过程的请求包含以下参数：
-- name: 必要参数，存储过程名称
-- read_only: 必要参数，是否只读
-- code: 必要参数，存储过程文件读入生成的ByteString
-- desc: 可选参数，存储过程描述
-- code_type: 可选参数，存储过程代码类型，PY、SO、CPP、ZIP四者之一  
-以C++为例，用户加载存储过程的方式如下所示：
-```C++
-std::string content;
-if (!FieldSpecSerializer::FileReader(source_file, content)) {
-std::swap(content, result);
-return false;
-}
-LGraphRequest req;
-req.set_is_write_op(true);
-lgraph::PluginRequest* pluginRequest = req.mutable_plugin_request();
-pluginRequest->set_graph(graph);
-pluginRequest->set_type(procedure_type == ""CPP"" ? lgraph::PluginRequest::CPP
-: lgraph::PluginRequest::PYTHON);
-pluginRequest->set_version(version);
-lgraph::LoadPluginRequest* loadPluginRequest = pluginRequest->mutable_load_plugin_request();
-loadPluginRequest->set_code_type([](const std::string& type) {
-std::unordered_map<std::string, lgraph::LoadPluginRequest_CodeType> um{
-{""SO"", lgraph::LoadPluginRequest::SO},
-{""PY"", lgraph::LoadPluginRequest::PY},
-{""ZIP"", lgraph::LoadPluginRequest::ZIP},
-{""CPP"", lgraph::LoadPluginRequest::CPP}};
-return um[type];
-}(code_type));
-loadPluginRequest->set_name(procedure_name);
-loadPluginRequest->set_desc(procedure_description);
-loadPluginRequest->set_read_only(read_only);
-loadPluginRequest->set_code(content);
-cntl->Reset();
-cntl->request_attachment().append(FLAGS_attachment);
-req.set_client_version(server_version);
-req.set_token(token);
-LGraphRPCService_Stub stub(channel.get());
-LGraphResponse res;
-stub.HandleRequest(cntl.get(), &req, &res, nullptr);
-if (cntl->Failed()) throw RpcConnectionException(cntl->ErrorText());
-server_version = std::max(server_version, res.server_version());
-if (res.error_code() != LGraphResponse::SUCCESS) throw RpcStatusException(res.error());
-```
-加载存储过程的响应不包含参数，如果加载失败则抛出BadInput异常' metadata={'Header 1': 'RPC API', 'Header 2': '5.存储过程', 'Header 3': '5.1.加载存储过程'}"
+删除存储过程的响应不包含参数，如果删除失败则抛出BadInput异常' metadata={'Header 1': 'RPC API', 'Header 2': '5.存储过程', 'Header 3': '5.3.删除存储过程'}"
 TuGraph-DB的存储引擎用了kv数据库么？如果是，基于什么kv数据库构建的？,"page_content='TuGraph产品架构
 
 1.简介
@@ -15344,28 +15542,77 @@ TuGraph测试过基于X86和ARM的CPU，包括Intel、AMD、Kunpeng、Hygon、�
 
 2.2.新旧前端说明
 
-进入容器，可以通过修改配置文件""/usr/local/etc/lgraph.json""中的""web""参数来选择使用老版本或新版本的前端。对于老版本，可以将""web""的值设为""/usr/local/share/lgraph/resource""；对于新版本，可以将""web""的值设为""/usr/local/share/lgraph/browser-resource""。完成配置文件的修改后，请执行命令 `docker restart tugraph` 以使更改生效。需要注意的是，新版本是默认选项。' metadata={'Header 1': '快速上手', 'Header 2': '2.安装', 'Header 3': '2.2.新旧前端说明'}","page_content='Docker部署
+进入容器，可以通过修改配置文件""/usr/local/etc/lgraph.json""中的""web""参数来选择使用老版本或新版本的前端。对于老版本，可以将""web""的值设为""/usr/local/share/lgraph/resource""；对于新版本，可以将""web""的值设为""/usr/local/share/lgraph/browser-resource""。完成配置文件的修改后，请执行命令 `docker restart tugraph` 以使更改生效。需要注意的是，新版本是默认选项。' metadata={'Header 1': '快速上手', 'Header 2': '2.安装', 'Header 3': '2.2.新旧前端说明'}","page_content='可视化操作手册（旧版）
 
-2.现有Docker Image
+操作详情
 
-2.5. 运行服务
+3.工作台
 
-1. 拉取镜像
-```shell
-docker pull tugraph/tugraph-runtime-centos7:${VERSION}
-```  
-2. 启动docker  
-```shell
-docker run -d -p 7070:7070  -p 7687:7687 -p 9090:9090 -v /root/tugraph/data:/var/lib/lgraph/data  -v /root/tugraph/log:/var/log/lgraph_log \
---name tugraph_demo ${REPOSITORY}:${VERSION}
-
-# ${REPOSITORY}是镜像地址，${VERSION}是版本号。
-# 7070是默认的http端口，访问tugraph-db-browser使用。
-# 7687是bolt端口，bolt client访问使用。
-# 9090是默认的rpc端口，rpc client访问使用。
-# /var/lib/lgraph/data是容器内的默认数据目录，/var/log/lgraph_log是容器内的默认日志目录
-# 命令将数据目录和日志目录挂载到了宿主机的/root/tugraph/上进行持久化，您可以根据实际情况修改。
-```' metadata={'Header 1': 'Docker部署', 'Header 2': '2.现有Docker Image', 'Header 3': '2.5. 运行服务'}"
+#### 3.1 快速上手  
+- 首次登录，系统会默认创建 default 空图  
+![alt 快速上手](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/2.tugraph-browser-quickstart-01.png)  
+- 用户点击帮助选项，并选择快速上手  
+![alt 帮助](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/3.tugraph-browser-quickstart-02.png)  
+- 然后点击“一键创建模型”——>""一键创建数据""，就可以完成内置的 Movie 数据图谱的构建  
+#### 3.2 创建子图和示例  
+##### 3.2.1 创建子图  
+- 点击新建子图
+![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/4.tugraph-browser-create-subgraph-01.png)
+- 填写表单信息
+![alt 填写表单](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/5.tugraph-browser-create-subgraph-02.png)
+- 子图名称
+- 子图描述
+- 配置信息
+- 点击确认，提示创建成功
+- 切换子图
+![alt 切换子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/6.tugraph-browser-use-graph-01.png)  
+- 点击新建示例
+![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/create-scene-01.png)
+- 选择示例并点击创建
+![alt 创建子图](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/select-scene.png)  
+#### 3.3 查询  
+![alt 查询](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/2.Operating/7.tugraph-browser-query-01.png)  
+##### 3.3.1 页面组成  
+- cypher 输入框
+- 结果集展示区域  
+##### 3.3.2 结果集展示区域功能详情  
+- 结果集标签展示及功能
+![alt 结果集标签](https://tugraph-web-static.oss-cn-beijing.aliyuncs.com/%E6%96%87%E6%A1%A3/3.3.0-image/tugraph-browser-result.png)
+- 这里展示了结果集的所有类型统计
+- 点击不同的“label（标签）”，可以进行以下修改操作
+- 修改展示颜色
+- 修改节点大小或边的粗细
+- 修改默认展示属性或系统属性
+- 布局修改
+- 力导布局
+- 网格布局
+- 树形布局
+- 环境布局
+- 边聚合
+- 相同类型，方向的边可以进行合并
+- 创建节点
+- 点击创建节点按钮
+- 选择节点类型
+- 添写节点内容
+- 创建关系
+- 在画布中选择起点和终点
+- 选择可以匹配的类型
+- 填写节点信息
+- 停止布局
+- 当数据量过大，导致浏览器页面卡顿时候，可以点击这个停止布局的按钮，能够提高体验的流畅度
+- 鼠标悬停
+- 开启此功能，可以高亮显示鼠标悬停节点的一度邻居节点
+- 结果集导出
+- 可以将结果集导出为 png，json，csv 三种不同的文件形式
+- 刷新
+- 点击刷新按钮，会重新执行当前页面的初始 cypher 语句，并刷新结果集
+- 最大化
+- 点击最大化，结果集展示区域将全屏展示
+- 结果集展示形式切换
+- 支持图谱、表格、文本三种形式  
+##### 3.3.3 建模  
+- 点边模型
+![alt 建模](https://tugraph-w' metadata={'Header 1': '可视化操作手册（旧版）', 'Header 2': '操作详情', 'Header 3': '3.工作台'}"
 tugraph进行大规模数据查询时是否对图数据进行了压缩？,"page_content='TuGraph与ARM架构
 
 内容：
@@ -15373,22 +15620,21 @@ tugraph进行大规模数据查询时是否对图数据进行了压缩？,"page_
 **测试介绍：**
 
 TuGraph在测试中使用Client/Server分离的模式，来模拟真实的用户使用场景。在结果中，TuGraph在不同规模的数据集下均表现优异，在大规模100GB的数据集（2.8亿个点，18亿条边）上，TuGraph的吞吐率较上一次官方纪录提升了31%。在300GB数据集上，TuGraph测试了超过内存容量的数据吞吐量，虽然较100GB的性能有所下降，但考虑内存和硬盘的读写性能鸿沟，该结果也在预期之内。**除了性能测试，TuGraph在****系统事务性、可恢复性、正确性、稳定性等方面均达到官方标准，体现了TuGraph高并发低延迟的强大性能优势。**  
-在性能测试中，我们发现并解决了一些值得注意的问题。其一是有的系统页大小默认为64KB，这个对图系统随机数据读写并不友好，调整为X86更普遍的4KB有助于提升性能。其二是在云上使用云盘，会比本地硬盘的读写带宽和稳定性差很多，如果能够在测试前进行数据预热和及时的硬盘性能监控，更有助于获得理想的结果。' metadata={'Header 1': 'TuGraph与ARM架构', 'Header 2': '内容：', 'Header 3': '**测试介绍：**'}","page_content='图数据库智能化建设与探索
+在性能测试中，我们发现并解决了一些值得注意的问题。其一是有的系统页大小默认为64KB，这个对图系统随机数据读写并不友好，调整为X86更普遍的4KB有助于提升性能。其二是在云上使用云盘，会比本地硬盘的读写带宽和稳定性差很多，如果能够在测试前进行数据预热和及时的硬盘性能监控，更有助于获得理想的结果。' metadata={'Header 1': 'TuGraph与ARM架构', 'Header 2': '内容：', 'Header 3': '**测试介绍：**'}","page_content='TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态
 
-**04\. 技术分享｜CStore Compaction模块的设计与优化**
+0 映射原理
 
-“TuGraph Analytics本质上是一款图分析OLAP数据库。CStore作为一个单机版存储引擎，提供了坚实的存储基础。同时，RocksDB也可以作为TuGraph Analytics的存储基础。我们采用LDBC提供的通用社交网络图数据集进行了基准测试，测试涉及让TuGraph Analytics分别连结RocksDB以及我们自有版本的CStore进行分析。在同步与异步compaction（数据压缩整理）两种方式下进行了读写性能测试：同步方式意味着数据写入完成后进行compaction，完成之后再进行读性能测试；异步方式则是写入和compaction同时进行，写入完成后立即测试读性能。在这两种情境下，使用CStore的TuGraph Analytics的读性能超过了使用RocksDB的三倍以上。”' metadata={'Header 1': '图数据库智能化建设与探索', 'Header 2': '**04\\. 技术分享｜CStore Compaction模块的设计与优化**'}","page_content='TuGraph在图计算系统建设中的作用
+TuGraph-OGM 将 JAVA 对象映射为图的对象，类映射为点，类的属性映射为图中的属性，类中的方法映射为操作 TuGraph 的查询语句。  
+以电影场景为例，对演员、电影、导演之间的关系进行数据化，就形成了非常典型的图数据。举一个简单的示例，演员Alice在1990年和2019年分别出演了两部电影《Jokes》和《Speed》，其中《Jokes》的导演是Frank Darabont。  
+以图的思维来看，演员、导演、电影可以被映射为三种不同的节点，而出演、执导可以被映射为两种边，映射结果如上图所示，将数据存入图数据库后，相关的开发人员就可以使用各类图查询语言对数据进行查询。  
+但对非图数据库相关的开发人员来说，这个例子中的演员、导演、电影作为实体，同样可以映射为类中的对象，而与实体相关联的对象可以通过集合存储，这是大多数开发人员熟悉的领域。' metadata={'Header 1': 'TuGraph开源JAVA客户端工具TuGraph-OGM，无缝对接JAVA开发生态', 'Header 2': '0 映射原理'}","page_content='TuGraph与ARM架构
 
-TuGraph 技术优势
+摘要：
 
-蚂蚁自己开发了一套图计算系统 TuGraph，既能解决图数据的存储问题，也能解决流式计算、离线计算和图学习的问题。目前，超过 100 个业务线和 300 多个场景都在使用这套系统。这套系统在 2021 年获得了世界互联网大会领先科技成果奖。  
-在 TuGraph 中，性能是一个重要的因素，因为图数据集的体积很大，如果性能不佳就会浪费机器资源，导致许多情况下无法完成任务。比如，希望业务的查询能在几十毫秒内返回结果，但是如果做的性能不好，几秒钟才能返回结果，就无法作为在线查询使用。因此，我们是非常对性能是很重视的，其中在 LDBC-SNB 标准测试中（类似于数据库领域性能标准测试 TPC-C），TuGraph 仍然是世界纪录的保持者。  
-TuGraph 的整个图存储是建立在完美哈希的基础上的，这是我们与其他图系统的一个重要区别。目前，大多数图系统使用的是基于数的存储，但数的问题在于永远存在一个 LogN 的查找操作。然而，在图中可以看到，不同的顶点之间实际上是无序的，不需要有顺序，所以顶点这个级别实际上是基于哈希的，理论上，顶点的读取是最优的。  
-此外，TuGraph 还参与了许多标准的定制，整个系统在尽量往标准化的方向去做。  
-除了为内部提供服务，我们还向外提供服务，主要是因为，作为一个系统，如果只为有限的客户提供服务，就很容易构建成一个专有系统。我们希望这是一个标准化、开放的系统，所以我们也在对外提供图计算系统的产品和服务。目前，我们也有很多外部客户，包括金融、工业、互联网以及政企领域。  
-开源开放，共建发展  
-整个图计算系统目前仍处于较早期的阶段，我们认为还有很多工作要做，包括提升应用性、性能和降低成本。所有的系统都会有这些问题。但是，如果希望普及，我们认为最重要的是有健康的生态，来推动图计算系统的发展，需要有更多的用户和更多的场景使用这个系统。  
-所有的计算机系统都需要去有一个更开放、更大的生态才能促进发展。蚂蚁有一句话叫做“成熟一个、开放一个”，一个系统成熟以后，我们就会试着开放出去，让更多的人去用。今年 9 月，我们已经在 GitHub 上开源了 TuGraph 中的单机版图数据库，以及一个离线图分析引擎 TuGraph Compute。分布式图数据库和流式图计算现在已经包含在我们的商业化版本中，包括一站式图研发平台。我们计划在未来迭代更多更丰富的系统功能，希望能做得更好。' metadata={'Header 1': 'TuGraph在图计算系统建设中的作用', 'Header 2': 'TuGraph 技术优势'}"
+- TuGraph适配国产ARM架构处理器，又双叒叕打破了LDBC SNB世界纪录，较之前纪录提升31%，云端机器开销降低了40%，大大提升了资源能效。  
+- 验证了TuGraph对于ARM架构的兼容性，成为对X86和ARM架构均完整适配的图数据库，也使得TuGraph继麒麟、鲲鹏、海光等国产操作系统和处理器之后，**实现了对国产软硬件的全面支持，为用户的机器选型提供更多选择**。  
+- 我们还测试了数据量大于内存的情况，结果显示，性能只下降了20%左右，显示了TuGraph在大规模数据下的适用性。  
+TuGraph图数据库GitHub仓库：https://github.com/tugraph-family/tugraph-db' metadata={'Header 1': 'TuGraph与ARM架构', 'Header 2': '摘要：'}"
 TuGraph选择使用哪一种树结构作为其存储数据结构，并简述选择这种结构的主要原因是什么？,"page_content='性能优先
 
 3.存储数据结构
@@ -15573,7 +15819,22 @@ TuGraph 开源版特色
 首先，我们希望提供一个免费的图数据库产品，能够让更多的人使用图数据库，尝试用它来解决问题。  
 其次，我们希望促进图数据库标准的成形。目前图数据库的差异太大，每个数据库都有所不同，我们希望通过提供一个参考答案来帮助大家达成趋同。这样大家就可以根据我们提供的设计来判断哪些特征合理，如果觉得合理就可以遵循这个设计，慢慢地大家就会逐渐靠近。假如所有产品在主要特征上保持一致，这样所有人的学习成本就会降低。  
 最后，基础研究性问题可以不断优化发展，包括存储方面的问题，例如哈希可能是理论上最优的，但是是否还有其他需要调整的东西？目前没有一个很好的研究性平台让大家去进行这些尝试和研究，我们希望提供的开源 TuGraph-DB 能成为这些研究人员的对比基线，促进研究的发展。' metadata={'Header 1': 'TuGraph在图计算系统建设中的作用', 'Header 2': 'TuGraph 技术优势', 'Header 3': 'TuGraph 开源版特色'}"
-在创建一个TuGraph数据库时，如果指定的目录不存在，构造函数会如何处理？,"page_content='集成测试
+在创建一个TuGraph数据库时，如果指定的目录不存在，构造函数会如何处理？,"page_content='数据库运行
+
+4.服务配置
+
+4.1.配置参数
+
+具体参数及其类型描述如下：  
+| **参数名**                      | **<nobr>参数类型</nobr>** | **参数说明**                                                                                                                                                                          |
+|------------------------------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| directory                    | 字符串                   | 数据文件所在目录。如果目录不存在 ，则自动创建。默认目录为 /var/lib/lgraph/data。                                                                                                                               |
+| durable                      | 布尔值                   | 是否开启实时持久化。关闭持久化可以减少写入时的磁盘 IO 开销，但是在机器断电等极端情况下可能丢失数据。默认值为 `true`。                                                                                                                  |
+| host                         | 字符串                   | REST 服务器监听时使用的地址，一般为服务器的 IP 地址。默认地址为 0.0.0.0。注：在HA模式下，host需要设置为对应服务器的IP地址，不能设置为0.0.0.0。                                                                                           |
+| port                         | 整型                    | REST 服务器监听时使用的端口。默认端口为 7070。                                                                                                                                                      |
+| enable_rpc                   | 布尔值                   | 是否使用 RPC 服务。默认值为 false。                                                                                                                                                           |
+| rpc_port                     | 整型                    | RPC 及 HA 服务所用端口。默认端口为 9090。                                                                                                                                                       |
+| bolt_port                    | 整型                    | Bolt 客户端端口。默认端口为 7687。                                ' metadata={'Header 1': '数据库运行', 'Header 2': '4.服务配置', 'Header 3': '4.1.配置参数'}","page_content='集成测试
 
 2.TuGraph集成测试框架
 
@@ -15656,26 +15917,7 @@ TuGraph是一个具备多图能力的强类型、有向属性图数据库。
 - 属性图：点和边可以具有与其关联的属性，每个属性可以有不同的类型。
 - 强类型：每个点和边有且仅有一个标签，创建标签后，修改属性数量及类型有代价。
 - 指定边的起/终点类型：可限制边的起点和终点点类型，支持同类型边的起点和终点的点类型不同，如个人转账给公司、公司转账给公司；当指定边的起/终点类型后，可增加多组起/终点类型，不可删除已限制的起/终点类型。
-- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}","page_content='TuGraph-db
-
-3. 从源代码编译
-
-建议在Linux系统中构建TuGraph，Docker环境是个不错的选择。如果您想设置一个新的环境，请参考[Dockerfile]  
-以下是编译TuGraph的步骤：  
-1. 如果需要web接口运行`deps/build_deps.sh`，不需要web接口则跳过此步骤
-2. 根据容器系统信息执行`cmake .. -DOURSYSTEM=centos`或者`cmake .. -DOURSYSTEM=ubuntu`
-3. `make`
-4. `make package` 或者 `cpack --config CPackConfig.cmake`  
-示例：`tugraph/tugraph-compile-centos7`Docker环境  
-```bash
-$ git clone --recursive https://github.com/TuGraph-family/tugraph-db.git
-$ cd tugraph-db
-$ deps/build_deps.sh
-$ mkdir build && cd build
-$ cmake .. -DOURSYSTEM=centos7
-$ make
-$ make package
-```' metadata={'Header 1': 'TuGraph-db', 'Header 2': '3. 从源代码编译'}"
+- 无限制模式：支持不指定边的起点和终点的点类型，任意两个点类型间均可创建该类型的边数据。注：当指定边的起/终点类型后无法再采用无限制模式。' metadata={'Header 1': 'TuGraph图模型说明', 'Header 2': '1. 数据模型', 'Header 3': '1.1. 图模型'}"
 VertexIterator 的 GetNumOutEdges 方法默认的 n_limit 参数值是多少？,"page_content='Traversal API
 
 2. 接口说明
@@ -16161,16 +16403,27 @@ TuGraph的图分析引擎，面向的场景主要是全图/全量数据分析类
 TuGraph图计算系统社区版内置6个算法，商业版内置了25种算法，用户几乎不需要自己实现具体的图计算过程。其详细介绍可参考algorithms.md。  
 根据数据来源及实现不同，可分为Procedure、Embed和Standalone三种运行方式，均继承于OlapBase API，OlapBase API接口文档可参考olapbase-api.md。  
 其中Procedure和Embed的数据来源是图数据库中预加载的db数据，可以分别编译生成tugraph-web加载使用的.so文件和后台终端使用的embed文件，输入的图数据均通过db的加载形式，其接口文档可参考olapondb-api.md。
-Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}","page_content='Traversal API
+Standalone用于编译生成standalone文件，区别于前者，该文件的输入图数据通过txt、二进制、ODPS文件的形式加载，其接口文档可参考olapondisk-api.md。' metadata={'Header 1': 'OLAP API', 'Header 2': '1. TuGraph 图分析引擎介绍'}","page_content='HTAP
 
-1. 简介
+2.设计
 
-TuGraph 强大的在线分析处理（OLAP）能力是其区别于其它图数据库的一个重要特性。
-借助 C++ OLAP API（olap_on_db.h），用户可以快速地导出一个需要进行复杂分析的子图，然后在其上运行诸如 PageRank、连通分量、社区发现等迭代式图计算过程，最后根据结果做出相应决策。
-导出和计算的过程都可以通过并行处理的方式进行加速，从而实现几乎实时的分析处理，避免了传统解决方案需要将数据导出、转换、再导入（ETL）到专门的分析系统进行离线处理的冗长步骤。  
-TuGraph 内置了大量常用的图分析算法和丰富的辅助接口，因此用户几乎不需要自己来实现具体的图计算过程，只需在实现自己的存储过程时将相应算法库的头文件（.h 文件）包含到自己程序中，并在编译时链接相应的动态库文件（.so）即可。
-一般情况下，用户需要自己实现的只有将需要分析的子图抽取出来的过程。  
-目前 Traversal API 仅支持 C++。' metadata={'Header 1': 'Traversal API', 'Header 2': '1. 简介'}"
+在 TuGraph 中，OLTP 为图事务引擎，在图 4.4对应事务操作；OLAP 为图分析引擎，对应简单图分析操作（比如 SPSP）和复杂图分析操作（比如 PageRank），前者可以直接在图存储上执行，而后者需要额外导出快照执行。  
+- 事务操作，即图事务引擎测的操作，为局部图的增删查改操作，典型的应用为 K 跳访问 K-Hop。
+- 简单分析操作，是图分析引擎中较为简单的部分，通常也是局部的图分析操作，比如两点间最短路算法 SPSP、Jaccard 算法。
+- 复杂分析操作，是图分析引擎中较为复杂的部分，通常涉及全图的多轮数据迭代操作，比如网页排序算法 PageRank、社区发现算法 Louvain。  
+如架构图所示，我们在图中增加了外部存储，使得图分析的数据源不局限在图数据库中，可以直接从文本文件读取。  
+- 图存储，即图数据库中的存储，有精心设计的数据结构，能够完成实时增删查改。
+- 外部存储，可以是 RDBMS 或文本文件，以边表的简单方式存储，仅供一次性批量读取，和批量结果写入。在计算层，和整体架构图中的接口对应。
+- Cypher，描述式图查询语言，可以并发执行。
+- Procedure API，过程式图查询语言，其灵活性能够同时支持事务操作和图分析操作，但效率上不足以完成复杂图分析操作，可以并发执行。
+- OLAP API，针对多轮迭代的复杂图分析。应用需要先将存储中的图数据导出成内存中的一个快照，该快照仅用来快速访问，而不需要考虑 ACID 的写支持，因此可以排布地更加紧凑，CSR 排布的读效率要远高于图存储的数据排布。OLAP API 只能串行执行，每个操作都用满 CPU 资源。  
+OLAP API 的快照可以从外部存储创建，即将边表数据构成件 CSR 的格式；或者从图存储中创建。需要注意的是，OLAP API 要求点的 ID 是连续的自然数，可能需要额外的 ID 映射，该步骤在创建快照时可以在指定一个属性进行映射，或直接取属性值作为 ID。  
+与计算接口和存储相对应，有四种运行模式。  
+- 事务模式，每个操作对应一条 Cypher 语句，默认是一个事务。
+- Plugin 模式，通过插件的方式，在计算逻辑加载到服务端后调用，也叫存储过程。
+- Embed 模式，和 Plugin 模式的使用接口一致，区别是图数据库服务不需要起来，就可以直接用接口调用数据库中的数据，通常用于调试 Procedure API 和OLAP API 的代码，调试信息和操作步骤比 Plugin 模式更加友好。
+- Standalone 模式，最大程度剥离与图数据库的关系，仅想用图分析引擎做数据分析时，该模式会比较直接。Standalone 模式会直接使用外部存储的数据。  
+图神经网络引擎的使用方式和 ‘复杂图分析操作’ 类似，会同时调用部分 OLAP API 和 GNN API，不在这里展开。' metadata={'Header 1': 'HTAP', 'Header 2': '2.设计'}"
 HA集群的snapshot何时删除？,"page_content='集群管理
 
 4. 生成snapshot
@@ -16864,17 +17117,20 @@ callGql(self: liblgraph_client_python.client, gql: str, graph: str, json_format:
 | x.x.x | Bolt显式事务支持              | 2024.x |
 | x.x.x | List、Map和Decimal等数据类型扩展 | 2024.x |
 | x.x.x | 探索多存储引擎                 | 2024.x |  
-一些更加简单的功能，我们会在github的issue中打上 good first issue 的标签，欢迎对图数据库感兴趣的技术爱好者共同研讨。' metadata={'Header 1': '技术规划', 'Header 2': '4. 期望社区共创的功能'}","page_content='性能优先
+一些更加简单的功能，我们会在github的issue中打上 good first issue 的标签，欢迎对图数据库感兴趣的技术爱好者共同研讨。' metadata={'Header 1': '技术规划', 'Header 2': '4. 期望社区共创的功能'}","page_content='🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！
 
-4.数据编码
+仅需 5 步，即可呈现 🎊
 
-对于属性图模型而言，除了图拓扑编码外，属性数据也会很大程度影响功能和性能，我们先讨论属性数据如何与拓扑数据共存的编码格式。从目前的调研来看，属性编码有两种方式，我们称之为基于指针索引将属性数据单独存储的离散编码，和将属性数据和拓扑数据打包在一起的紧凑编码。离散编码根据程度的不同，可以每个属性都单独存储，或者每条边的属性打包后各自存储，下面的讨论对两种情况都适用。  
-点查询。属性编码主要针对边，不涉及点查询。  
-单边查询。离散编码通过指针定位边，紧凑编码则需要二分查找定位边的位置，离散编码有略微的优势。  
-边遍历。离散编码在边遍历过程需要不断地进行指针跳转进行随机数据访问，而紧凑编码提前把数据排列在一起，顺序访问的特性使得效率大大提升。 由规律三知对边的遍历操作很普遍，紧凑编码在边遍历的优势明显。  
-单边更新。离散编码对边的更新仅需找到对应的指针位置，插入数据后修改前后指针指向。紧凑编码则需要对紧凑排列的数据进行重编码，对整个边值进行重新写入，开销显著大于离散编码的情形。  
-批量边更新。批量更新可以在内存中预先构建点的所有边属性，一次性编码写入，离散编码和紧凑编码相当。但紧凑编码不需要存储指针变量，更少的存储空间效率也会更高。  
-以上离散编码和紧凑编码在某一类的查询的性能问题，可以通过优化的来缓解。整体上说，由于图负载读写 20:1 的特性，读性能在整体性能中占比更高。以及规律三所揭示的对属性访问的特征，TuGraph 更倾向于采用紧凑编码来保证读性能。其主要弱势为单边更新时重编码的开销，可以用自适应映射的技术来解决。' metadata={'Header 1': '性能优先', 'Header 2': '4.数据编码'}"
+1. 启动 GeaFlow 流图作业和 Socket 服务
+
+参考 [快速开始](https://github.com/TuGraph-family/tugraph-analytics/blob/master/docs/docs-cn/quick_start.md)  
+⚠️ 注意在 `启动SocketServer` 步骤使用下列命令代替  
+```bash
+bin/socket.sh 9003 GI
+```  
+输出下列内容时，即表示 Tugraph Analytics 准备好建立连接  
+<img width=""610"" alt=""image"" src=""https://github.com/TuGraph-family/tugraph-analytics/assets/25787943/a25ed6ba-4fb9-4db1-9325-ee2f26a4337f"">  
+> 如启动服务过程中遇到问题，可见 https://github.com/TuGraph-family/tugraph-analytics/issues/1' metadata={'Header 1': '🌈 [G6VP](https://github.com/antvis/g6vp) 现在支持与 Tugraph 协作实现流图作业可视化了！', 'Header 2': '仅需 5 步，即可呈现 🎊', 'Header 3': '1. 启动 GeaFlow 流图作业和 Socket 服务'}"
 tugraph-db如何与neo4j驱动连接？,"page_content='业务开发指南
 
 连接tugraph-db
