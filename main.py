@@ -12,6 +12,7 @@ options = dict()
 options['k'] = 50 # 使用向量相似度检索得到的知识个数
 options['k_rerank'] = 3 # 对向量检测后的结果，再次rerank选出最前k_rerank
 options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
+options['temperature'] = 0
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
                             擅长使用与TuGraph数据库相关的知识来回答用户的问题，\
                             针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
@@ -39,8 +40,8 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 0
-options['use_val_score'] = 0
+options['use_val'] = 1
+options['use_val_score'] = 1
 options['use_test'] = 1
 options['save_knowledge'] = 0
 

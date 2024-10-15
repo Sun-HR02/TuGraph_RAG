@@ -13,13 +13,14 @@ def get_gpt_response_w_system(prompt, options):
     base_url = options['gpt-baseurl']
     api_key = options['gpt-apikey']
     model = options['chat-model']
+    temperature = options['temperature']
     try:
         client = OpenAI(
         base_url=base_url,
         api_key=api_key
         )
         completion = client.chat.completions.create(
-        temperature= 0,
+        temperature= temperature,
         model=model,
         messages=[
         {"role": "system", "content": s_prompt},
