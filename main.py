@@ -17,10 +17,12 @@ options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，
                             针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
                             结合有用的部分以及你的知识，回答用户的提问。如果可以直接给出答案,则只回答最关键的具体信息部分,做到尽可能简洁。\
                             注意：问题中的数据库一律指代TuGraph,\
+                            问题可能是简略的、口语化的、不完整的，需要进行主动的补全，\
+                            比如：“想将关系型数据库数据导入图库”里面缺少了“TuGraph-DB”，完整的问题应该为“如何将关系型数据库数据导入TuGraph-DB中？”。\
                             请仿照下面的样例答案格式进行后续的回答,给出答案.\
                             样例问题1："RPC 及 HA 服务中，verbose 参数的设置有几个级别？", 样例答案: " 三个级别（0，1，2)。 "\
                             样例问题2:"如果成功修改一个用户的描述，应返回什么状态码？"样例答案：“答案：200” '
-options['chat-model'] = "gpt-4o-mini" # 用gptapi 可以用gpt-4o-mini, 本地大模型 Reflection-Llama-3.1-70B
+options['chat-model'] = "gpt-4o-mini" # 用gptapi 可以用gpt-4o-mini, 绝招是用chatgpt-4o-latest
 options['embedding-model'] = "../bge-m3"
 options['reranker_model'] = '../bge-reranker-v2-m3'
 # gpt调用
@@ -37,9 +39,9 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 1
-options['use_val_score'] = 1
-options['use_test'] = 0
+options['use_val'] = 0
+options['use_val_score'] = 0
+options['use_test'] = 1
 options['save_knowledge'] = 0
 
 
