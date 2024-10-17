@@ -62,3 +62,5 @@ def calculate_avg(socres):
     for score in socres:
         sum += score['score']
     return sum / len(socres)
+
+

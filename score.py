@@ -3,8 +3,8 @@ from augment_generate import generate_answer
 import json
 from tqdm import tqdm
 from openai import OpenAI
-from embed import embed
 from math import sqrt
+from FlagEmbedding import BGEM3FlagModel
 
 def read_jsonl(file_path):
     """
@@ -46,7 +46,10 @@ def count_lines_in_jsonl(file_path):
                 continue
     return line_count
 
-
+def embed(content, options): #using bge
+    model = BGEM3FlagModel('../bge-m3', use_fp16=True) # BAAI/bge-m3
+    response = model.encode(content, max_length = 8192)['dense_vecs']
+    return response
 
 def similarity_score(embedding1, embedding2):
     """

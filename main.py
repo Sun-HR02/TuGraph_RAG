@@ -11,7 +11,8 @@ from query_process import split_query, rewrite_query, combine_answers
 options = dict()
 # 可能影响性能
 options['k'] = 100 # 使用向量相似度检索得到的知识个数
-options['k_rerank'] = 5 # 对向量检测后的结果，再次rerank选出最前k_rerank
+options['k_rerank'] = 10 # 对向量检测后的结果，再次rerank选出最前k_rerank, 应在1-10以内
+options['cut_off'] = 0.5 # 最低允许的相似度， 0-1之间
 options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
 options['temperature'] = 0.1 # 模型温度，范围0-2
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
@@ -47,12 +48,12 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 0
+options['use_val'] = 1
 options['use_val_score'] = 0
-options['use_test'] = 1
+options['use_test'] = 0
 options['save_knowledge'] = 1
 options['use_split'] = 0 # 经过测试，效果很差，先不启用
-options['use_rewrite'] = 0
+options['use_rewrite'] = 1
 
 
 if options['use_val']:
@@ -77,7 +78,15 @@ if options['use_val']:
                 if options['save_knowledge']:
                     # 查答案并rerank
                     knowledges = rerank(query,read_from_db(query, options['k'], options),options) # a list of Documents
-                    knowledge_val.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
+                    knowledge_dict = dict(Q = query, K1 = '空', K2 = '空', K3 = '空',
+                                        K4 = '空', K5 = '空', K6 = '空',
+                                        K7 = '空', K8 = '空', K9 = '空', K10='空'
+                                          )
+                    for i in range(len(knowledges)):
+                        if(len(knowledges) == 0):
+                            break
+                        knowledge_dict['K'+str(i+1)] = knowledges[i]
+                    knowledge_val.append(knowledge_dict)
                     answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
                 else:
                     answers_val.append(dict(id=obj.get('id'), output_field = generate_answer(query, rerank(query,read_from_db(query, options['k'], options),options), options)))
@@ -118,7 +127,15 @@ if options['use_test']:
             else:
                 if options['save_knowledge']:
                     knowledges = rerank(query,read_from_db(query, options['k'], options),options) # a list of Documents
-                    knowledge_test.append(dict(Q = query, K1 = knowledges[0], K2 = knowledges[1], K3 = knowledges[2]))
+                    knowledge_dict = dict(Q = query, K1 = '空', K2 = '空', K3 = '空',
+                                        K4 = '空', K5 = '空', K6 = '空',
+                                        K7 = '空', K8 = '空', K9 = '空', K10='空'
+                                          )
+                    for i in range(len(knowledges)):
+                        if(len(knowledges) == 0):
+                            break
+                        knowledge_dict['K'+str(i+1)] = knowledges[i]
+                    knowledge_test.append(knowledge_dict)
                     answers_test.append(dict(id=obj.get('id'), output_field = generate_answer(query,knowledges, options)))
                 else:
                 # 生成问题答案
