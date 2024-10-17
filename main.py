@@ -29,7 +29,7 @@ options['chat-model'] = "gpt-4o-mini"
 options['embedding-model'] = "text-embedding-3-large"
 options['tokens_per_knowledge'] = 2000 # 为防止单个知识过长，进行截断
 # gpt调用
-options['gpt-baseurl'] = 'https://api.gptapi.us/v1'
+options['gpt-baseurl'] = 'https://api.gptapi.us/v'
 options['gpt-apikey'] = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
 # 文件路径
 options['persist_directory'] = './db/xldatabase/rag'
