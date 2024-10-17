@@ -1,27 +1,34 @@
 from chromadb.api.types import Documents, EmbeddingFunction, Embeddings
 from langchain_chroma import Chroma
 from langchain_text_splitters import MarkdownHeaderTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 # from transformers import BertTokenizer, BertModel
 import torch
 from openai import OpenAI
 import tqdm
 from FlagEmbedding import BGEM3FlagModel
+from sentence_transformers import SentenceTransformer
+from langchain_core.documents import Document
 
+import pickle
 import os
 from pathlib import Path
 
 # tokenizer = BertTokenizer.from_pretrained('../bert-base-chinese')
 # model = BertModel.from_pretrained('../bert-base-chinese',ignore_mismatched_sizes=True)
 
-model=BGEM3FlagModel('../bge-m3',use_fp16=True)
+model=SentenceTransformer('../Conan-embedding-v1')
 
 markdown_files_path = './data/markdowns/zh-CN/source'
 # base_url = "https://api.gptapi.us/v1"
 # api_key = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
 # embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
-
+repo_path = '../repo.pickle'
+# 构造数据库的超参
 concat_header_with_content = 1 #是否要把header拼接到content中
+chunk_size = 480
+overlap = 250
 
 counter = 0
 
@@ -33,27 +40,10 @@ counter = 0
 
 
 def embed(content): #using bge
-    response = model.encode(content, max_length = 8192)['dense_vecs']
+    # response = model.encode(content, max_length = 8192)['dense_vecs']
+    response = model.encode(content)
     return response
     
-
-#  def embed(content): #using BERT
-    # inputs = tokenizer(content, return_tensors="pt", padding=True, truncation=True)
-    # # 通过模型前向传递来获取编码
-    # with torch.no_grad():
-    #     outputs = model(**inputs)
-    
-    # # 获取最后隐藏状态（用于文本编码）
-    # last_hidden_states = outputs.last_hidden_state
-    
-    # # 拼接[CLS]标记和最后一个标记的向量
-    # cls_embedding = last_hidden_states[:, 0, :]  # 第一个token的输出
-    # last_token_embedding = last_hidden_states[:, -1, :]  # 最后一个token的输出
-    # combined_embedding = torch.cat((cls_embedding, last_token_embedding), dim=1)
-    
-    # # 打印和返回新的维度
-
-    # return combined_embedding[0].tolist()
 
 class ErnieEmbeddingFunction(EmbeddingFunction): 
     def embed_documents(self, input: Documents) -> Embeddings:
@@ -108,7 +98,12 @@ def read_markdown_files(markdown_files_path):
                     '''
                     markdown_header_splits = markdown_splitter.split_text(content)
                     # markdown_knowledge += markdown_header_splits
-
+                    # Char-level splits
+                    text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=chunk_size, chunk_overlap=overlap
+                    )
+                    # Split
+                    markdown_header_splits = text_splitter.split_documents(markdown_header_splits)
                     # 一点改进思路
                     for document in markdown_header_splits:
                         meta = document.metadata
@@ -127,9 +122,25 @@ def read_markdown_files(markdown_files_path):
     print('Reading markdown files done!')
     return markdown_knowledge
 
+def read_src_code(repo_path):
+    print('Reading src code...')
+    with open(repo_path,'rb') as f:
+        repo_documents = pickle.load(f)
+    # repo[i].text取出代码片段, repo[i].metadata['file_path']得到文件路径,repo[i].metadata['file_name]得到文件名
+    repo_knowledges = []
+    for i in range(len(repo_documents)):
+        document = Document(
+                page_content=repo_documents[i].metadata['file_path']+'/ '+repo_documents[i].text,
+                metadata=repo_documents[i].metadata
+            )
+        repo_knowledges.append(document)
+    print('Reading src code done!')
+    return repo_knowledges
+
 markdown_knowledge = read_markdown_files(markdown_files_path)
+repo_knowledges = read_src_code(repo_path)
 
-
+knowledges = markdown_knowledge + repo_knowledges
 # markdown_knowledge = []
 # # 读取Markdown文件的内容, 先用一个文档作为例子
 # with open('./data/markdowns/zh-CN/source/2.introduction/4.schema.md', 'r', encoding='utf-8') as f:
@@ -139,10 +150,10 @@ markdown_knowledge = read_markdown_files(markdown_files_path)
 # markdown_knowledge += md_header_splits
 
 
-knowledge_len = len(markdown_knowledge)
+knowledge_len = len(knowledges)
 # 存入向量数据库
 vectordb_chinese = Chroma.from_documents(
-    documents = markdown_knowledge,
+    documents = knowledges,
     embedding=ErnieEmbeddingFunction(),
     persist_directory=persist_directory_chinese  # 允许我们将persist_directory目录保存到磁盘上
 )

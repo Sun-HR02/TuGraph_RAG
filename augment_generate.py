@@ -2,6 +2,7 @@ import json
 from openai import OpenAI
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from query_process import split_query
 
 
 

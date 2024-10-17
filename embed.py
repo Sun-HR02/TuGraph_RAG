@@ -1,5 +1,6 @@
 from openai import OpenAI
 from FlagEmbedding import BGEM3FlagModel
+from sentence_transformers import SentenceTransformer
 
 
 # def embed(content, options):
@@ -12,8 +13,9 @@ from FlagEmbedding import BGEM3FlagModel
 #     return response
 
 def embed(content, options): #using bge
-    model = BGEM3FlagModel(options['embedding-model'], use_fp16=True) # BAAI/bge-m3
-
-    response = model.encode(content, max_length = 8192)['dense_vecs']
+    # model = BGEM3FlagModel(options['embedding-model'], use_fp16=True) # BAAI/bge-m3
+    model = SentenceTransformer(options['embedding-model'])
+    response = model.encode(content)
+    # response = model.encode(content, max_length = 8192)['dense_vecs']
 
     return response
