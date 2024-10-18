@@ -25,6 +25,7 @@ markdown_files_path = './data/markdowns/zh-CN/source'
 # embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
 repo_path = '../repo.pickle'
+
 # 构造数据库的超参
 concat_header_with_content = 1 #是否要把header拼接到content中
 chunk_size = 480
@@ -127,28 +128,21 @@ def read_src_code(repo_path):
     with open(repo_path,'rb') as f:
         repo_documents = pickle.load(f)
     # repo[i].text取出代码片段, repo[i].metadata['file_path']得到文件路径,repo[i].metadata['file_name]得到文件名
-    repo_knowledges = []
-    for i in range(len(repo_documents)):
-        document = Document(
-                page_content=repo_documents[i].metadata['file_path']+'/ '+repo_documents[i].text,
-                metadata=repo_documents[i].metadata
-            )
-        repo_knowledges.append(document)
+    # repo_knowledges = []
+    # for i in range(len(repo_documents)):
+    #     document = Document(
+    #             page_content=repo_documents[i].metadata['file_path']+'/ '+repo_documents[i].text,
+    #             metadata=repo_documents[i].metadata
+    #         )
+    #    repo_knowledges.append(document)
     print('Reading src code done!')
-    return repo_knowledges
+    return repo_documents
 
 markdown_knowledge = read_markdown_files(markdown_files_path)
 repo_knowledges = read_src_code(repo_path)
 
-knowledges = markdown_knowledge + repo_knowledges
-# markdown_knowledge = []
-# # 读取Markdown文件的内容, 先用一个文档作为例子
-# with open('./data/markdowns/zh-CN/source/2.introduction/4.schema.md', 'r', encoding='utf-8') as f:
-#     content = f.read()
-# md_header_splits = markdown_splitter.split_text(
-# content)
-# markdown_knowledge += md_header_splits
 
+knowledges = markdown_knowledge + repo_knowledges
 
 knowledge_len = len(knowledges)
 # 存入向量数据库

@@ -11,8 +11,8 @@ from query_process import split_query, rewrite_query, combine_answers
 options = dict()
 # 可能影响性能
 options['k'] = 100 # 使用向量相似度检索得到的知识个数
-options['k_rerank'] = 10 # 对向量检测后的结果，再次rerank选出最前k_rerank, 应在1-10以内
-options['cut_off'] = 0.5 # 最低允许的相似度， 0-1之间
+options['k_rerank'] = 5 # 对向量检测后的结果，再次rerank选出最前k_rerank, 应在1-10以内
+options['cut_off'] = 0.4 # 最低允许的相似度， 0-1之间
 options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
 options['temperature'] = 0.1 # 模型温度，范围0-2
 options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
@@ -49,8 +49,8 @@ options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
 options['use_val'] = 1
-options['use_val_score'] = 0
-options['use_test'] = 0
+options['use_val_score'] = 1
+options['use_test'] = 1
 options['save_knowledge'] = 1
 options['use_split'] = 0 # 经过测试，效果很差，先不启用
 options['use_rewrite'] = 1
