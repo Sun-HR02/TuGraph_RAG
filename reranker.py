@@ -39,5 +39,3 @@ def rerank(query, knowledges, options): # 用CrossEncoder做rerank
 #     # 只返回前K个结果
 #     return knowledges[:t]
 
-
-

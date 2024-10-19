@@ -24,7 +24,7 @@ markdown_files_path = './data/markdowns/zh-CN/source'
 # api_key = "sk-xfovpV3O7IwdmDDJBb05Ff03E5014c14Ab5e935715Fe90D3"
 # embedding_model = 'text-embedding-3-large'
 persist_directory_chinese = "./db/xldatabase/rag"
-repo_path = '../repo.pickle'
+repo_path = './data/repo/repo.pickle'
 
 # 构造数据库的超参
 concat_header_with_content = 1 #是否要把header拼接到content中

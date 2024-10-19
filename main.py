@@ -15,21 +15,30 @@ options['k_rerank'] = 5 # 对向量检测后的结果，再次rerank选出最前
 options['cut_off'] = 0.4 # 最低允许的相似度， 0-1之间
 options['tokens_per_knowledge'] = 2048 # 为防止单个知识过长，进行截断
 options['temperature'] = 0.1 # 模型温度，范围0-2
-options['system_prompt'] = '你是一个蚂蚁集团的TuGraph数据库专家，\
-                            擅长使用与TuGraph数据库相关的知识来回答用户的问题，\
-                            针对用户的提问，你会得到一些文本材料辅助回答，如果某些辅助文本与提问关联性不强，则可以忽略，\
+options['system_prompt'] = ' # CONTEXT #  \
+                            你是一个蚂蚁集团的TuGraph数据库专家，擅长使用与TuGraph数据库相关的知识来回答用户的问题，现在需要回答用户与TuGraph数据库相关的问题。\
+                            注意：问题中的数据库、DB、GeaBase、GeaGraph一律指代TuGraph-DB图数据库，问题中提到的交易理解为TuGraph-DB中的事务(Transaction),\
+                            你会得到一些文本材料或源代码材料辅助回答，如果某些辅助文本或代码与提问关联性不强，则可以忽略。\
+                             # OBJECTIVE # \
                             结合有用的部分以及你的知识，回答用户的提问。如果可以直接给出答案,则只回答最关键的部分,做到尽可能简洁。\
-                            注意：问题中的数据库一律指代TuGraph,\
-                            请仿照下面的样例答案格式进行后续的回答,给出答案.\
-                            样例问题1：RPC 及 HA 服务中，verbose 参数的设置有几个级别？, 样例答案:  三个级别（0，1，2)。 \
-                            样例问题2: 如果成功修改一个用户的描述，应返回什么状态码？样例答案：200 '
+                             # STYLE # \
+                            采用简洁的语句风格，直接简单的回答问题的关键部分，比如：如果成功修改一个用户的描述，应返回什么状态码？ 200。 \
+                             # TONE # \
+                            采用冷静、客观的预期，像是技术专家回答问题。\
+                             # AUDIENCE #\
+                            目标群体为对TuGraph数据库感兴趣的技术人员或者数据库专家。\
+                             # RESPONSE # \
+                            回答应该为简洁的陈述句, 比如：\
+                            问题：RPC 及 HA 服务中，verbose 参数的设置有几个级别？, 答案:  三个级别（0，1，2)。'
 options['query_process_prompt'] = '请根据输入的问题， 将问题转化为三个子问题，这些子问题分别为解决原问题的一个步骤 .\
                                     比如： \
                                     样例问题："哈莉·奎因和灭霸在《复仇者联盟》中是正义的角色吗？" \
                                     样例答案：“1.哈莉·奎茵在《复仇者联盟》电影中扮演什么角色? \n2.灭霸在《复仇者联盟》电影中扮演什么角色？ ”\
                                     每个问题，都应该能独立查询和回答，不应该有模糊的代词，错误案例："这种情况","这时候”，正确案例：“当指定值缺失时”,"当添加边时"。\
                                 '
-options['query_write_prompt'] = '请将查询重写为一个完整的问题，以确保其结构清晰，并能够直接被理解为提问。 示例：查询：将关系型数据库数据导入图库重写为：如何将关系型数据库中的数据导入到TuGraph-DB中？ 注意：问题中的数据库一律指代TuGraph'
+options['query_write_prompt'] = '请将查询重写为一个完整的问题，以确保其结构清晰，并能够直接被理解为提问。\
+                        示例：查询：将关系型数据库数据导入图库重写为,如何将关系型数据库中的数据导入到TuGraph-DB中？ \
+                        注意：问题中的数据库一律指代TuGraph'
 options['chat-model'] = "gpt-4o-mini" # 用gptapi 可以用gpt-4o-mini, 绝招是用chatgpt-4o-latest
 # options['embedding-model'] = "../bge-m3"
 options['embedding-model'] = "../Conan-embedding-v1"
@@ -48,12 +57,12 @@ options['val_out_path'] = './result/answer_val.jsonl'
 options['score_path'] = './result/score.csv' # 得分输出
 options['retrieval_path'] = './result/retrevial/' # 对检索得到的知识输出
 # 功能开启，1表示开启
-options['use_val'] = 1
-options['use_val_score'] = 1
+options['use_val'] = 0
+options['use_val_score'] = 0
 options['use_test'] = 1
 options['save_knowledge'] = 1
 options['use_split'] = 0 # 经过测试，效果很差，先不启用
-options['use_rewrite'] = 1
+options['use_rewrite'] = 0 # 重写之前设置好正确的prompt，避免重写变成回答
 
 
 if options['use_val']:
